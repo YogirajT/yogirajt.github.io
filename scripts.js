@@ -11,9 +11,19 @@ let slideDurationSetting = 600; //Amount of time for which slide is "locked"
 let currentSlideNumber = 0;
 let totalSlideNumber = $(".background").length;
 
+let lastY;
 // ------------- DETERMINE DELTA/SCROLL DIRECTION ------------- //
 function parallaxScroll(evt) {
-  if (isFirefox) {
+  console.log(evt)
+  if (evt.type === "touchmove"){
+    let currentY = evt.touches[0].clientY;
+    if(currentY > lastY){
+        delta = -120
+    } else {
+        delta = 120
+    }
+    lastY = currentY;
+  } else if (isFirefox) {
     //Set delta for Firefox
     delta = evt.detail * -120;
   } else if (isIe) {
@@ -70,6 +80,8 @@ function previousItem() {
   let $currentSlide = $(".background").eq(currentSlideNumber);
   $currentSlide.removeClass("down-scroll").addClass("up-scroll");
 }
+
+$(".content-subtitle-2").on(touchEvent, (e) => { e.stopPropagation() })
 
 const animatedClassSelectors = [
   ...Array(3)
