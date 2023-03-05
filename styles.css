@@ -99,6 +99,9 @@ body {
   align-items: center;
   transition: all 1.7s cubic-bezier(0.22, 0.44, 0, 1);
 }
+.content-wrapper article {
+  text-align: left;
+}
 .content-title-1, .content-title-2, .content-title-3 {
   font-size: 12vh;
   line-height: 1.4;
@@ -130,7 +133,8 @@ body {
   background-size: cover;
 }
 .content-subtitle-1, .content-subtitle-2, .content-subtitle-3 {
-  max-width: min(95vw, 40rem);
+  max-width: min(90vw, 40rem);
+  font-weight: 900;
 }
 .content-subtitle-1:not(.animation), .content-subtitle-2:not(.animation), .content-subtitle-3:not(.animation) {
   opacity: 0;
@@ -139,7 +143,19 @@ body {
 .content-subtitle-1.animation, .content-subtitle-2.animation, .content-subtitle-3.animation {
   animation: 1.2s ease-in 0s 1 BottomFadeIn;
 }
-.content-subtitle-1-2, .content-subtitle-1-3, .content-subtitle-2-2, .content-subtitle-2-3, .content-subtitle-3-2, .content-subtitle-3-3 {
+.content-subtitle-2 {
+  text-align: left;
+  max-height: max(80vh, 16rem);
+  overflow-y: auto;
+  max-width: min(90vw, 40rem);
+}
+.content-subtitle-2 h2 {
+  font-size: 2rem;
+  text-decoration: underline;
+  line-height: 2.8rem;
+}
+.content-subtitle-2 p {
+  line-height: 1.4rem;
   font-size: 1rem;
 }
 .content-link {
@@ -281,4 +297,17 @@ body {
 }
 .background.down-scroll + .background:not(.down-scroll) .content-wrapper {
   transform: translateY(15vh);
+}
+
+*::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+*::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 0.25rem black;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 0.125rem solid slategrey;
 }/*# sourceMappingURL=styles.css.map */
