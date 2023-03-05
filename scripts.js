@@ -57,6 +57,9 @@ function slideDurationTimeout(slideDuration) {
 let mousewheelEvent = isFirefox ? "DOMMouseScroll" : "wheel";
 window.addEventListener(mousewheelEvent, _.throttle(parallaxScroll, 60), false);
 
+let touchEvent = "touchmove"
+window.addEventListener(touchEvent, _.throttle(parallaxScroll, 60), false);
+
 // ------------- SLIDE MOTION ------------- //
 function nextItem() {
   let $previousSlide = $(".background").eq(currentSlideNumber - 1);
