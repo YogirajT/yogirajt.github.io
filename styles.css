@@ -148,12 +148,17 @@ body {
   overflow-y: auto;
   max-width: min(90vw, 40rem);
 }
+@media (max-width: 768px) {
+  .content-subtitle-2 {
+    max-height: 34rem;
+  }
+}
 @media (max-width: 414px) {
   .content-subtitle-2 {
     max-height: 16rem;
   }
 }
-@media (min-width: 415px) {
+@media (min-width: 769px) {
   .content-subtitle-2 {
     max-height: 80vh;
   }
