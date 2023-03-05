@@ -1,8 +1,10 @@
 // ------------- letIABLES ------------- //
 let ticking = false;
-let isFirefox = (/Firefox/i.test(navigator.userAgent));
-let isIe = (/MSIE/i.test(navigator.userAgent)) || (/Trident.*rv\:11\./i.test(navigator.userAgent));
-let scrollSensitivitySetting = 30; //Increase/decrease this number to change sensitivity to trackpad gestures (up = less sensitive; down = more sensitive) 
+let isFirefox = /Firefox/i.test(navigator.userAgent);
+let isIe =
+  /MSIE/i.test(navigator.userAgent) ||
+  /Trident.*rv\:11\./i.test(navigator.userAgent);
+let scrollSensitivitySetting = 30; //Increase/decrease this number to change sensitivity to trackpad gestures (up = less sensitive; down = more sensitive)
 let slideDurationSetting = 600; //Amount of time for which slide is "locked"
 let currentSlideNumber = 0;
 let totalSlideNumber = $(".background").length;
@@ -11,7 +13,7 @@ let totalSlideNumber = $(".background").length;
 function parallaxScroll(evt) {
   if (isFirefox) {
     //Set delta for Firefox
-    delta = evt.detail * (-120);
+    delta = evt.detail * -120;
   } else if (isIe) {
     //Set delta for IE
     delta = -evt.deltaY;
@@ -44,7 +46,7 @@ function parallaxScroll(evt) {
 
 // ------------- SET TIMEOUT TO TEMPORARILY "LOCK" SLIDES ------------- //
 function slideDurationTimeout(slideDuration) {
-  setTimeout(function() {
+  setTimeout(function () {
     ticking = false;
   }, slideDuration);
 }
@@ -62,4 +64,23 @@ function nextItem() {
 function previousItem() {
   let $currentSlide = $(".background").eq(currentSlideNumber);
   $currentSlide.removeClass("down-scroll").addClass("up-scroll");
+}
+
+const animatedClassSelectors = [
+  ...Array(3)
+    .fill(".content-title")
+    .map((className, i) => `${className}-${i + 1}`),
+  ...Array(3)
+    .fill(".content-subtitle")
+    .map((className, i) => `${className}-${i + 1}`),
+];
+
+const animationSubclass = "animation";
+
+for (const className of animatedClassSelectors) {
+  const element = document.querySelector(className);
+  const observer = new IntersectionObserver((entries) => {
+    element.classList.toggle(animationSubclass, entries[0].isIntersecting);
+  });
+  observer.observe(element);
 }
