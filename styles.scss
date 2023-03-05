@@ -276,6 +276,18 @@ $slide-number: 3;
   }
 }
 
+@keyframes down-enter {
+  0% { clip-path: inset(0 0 100% 0); }
+  100% { clip-path: inset(0); }
+}
+
+@keyframes down-leave {
+  0% { clip-path: inset(0 100% 0 0);; }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+// ---------------- MAIN ---------------- //
+
 html,
 body {
   overflow: hidden;
@@ -357,27 +369,26 @@ body {
 
   &-title {
     &-1,
-    &-2,
     &-3 {
       font-size: 12vh;
       line-height: 1.4;
 
-      &:not(.animation) {
+      .background:not(.animation) & {
         opacity: 0;
         transform: translateY(-20px);
       }
 
-      &.animation {
+      .background.animation &  {
         animation: $transition-speed ease-in 0s 1 TopFadeIn;
       }
+    }
 
-      &:not(.animation) {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      &.animation {
-        animation: $transition-speed ease-in 0s 1 TopFadeIn;
+    &-2 {
+      clip-path: inset(0 100% 0 0);
+      @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
+      transition-delay: 0.5s;
+      .background.animation & {
+        clip-path: inset(0 0 0 0);
       }
     }
 
@@ -398,16 +409,25 @@ body {
   }
 
   &-subtitle-1,
-  &-subtitle-2,
   &-subtitle-3 {
     max-width: min(90vw, 40rem);
     font-weight: 900;
-    &:not(.animation) {
+    .background:not(.animation) & {
       opacity: 0;
       transform: translateY(20px);
     }
-    &.animation {
+    .background.animation & {
       animation: $transition-speed ease-in 0s 1 BottomFadeIn;
+    }
+  }
+
+  &-subtitle-2 {
+    max-width: min(90vw, 40rem);
+    clip-path: inset(0 100% 0 0);
+    @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
+    transition-delay: 0.5s;
+    .background.animation & {
+      clip-path: inset(0 0 0 0);
     }
   }
 

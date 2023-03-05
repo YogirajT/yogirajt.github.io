@@ -38,6 +38,26 @@ body.js-enabled #noscript {
     transform: translateY(0);
   }
 }
+@keyframes down-enter {
+  0% {
+    -webkit-clip-path: inset(0 0 100% 0);
+            clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    -webkit-clip-path: inset(0);
+            clip-path: inset(0);
+  }
+}
+@keyframes down-leave {
+  0% {
+    -webkit-clip-path: inset(0 100% 0 0);
+            clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    -webkit-clip-path: inset(0 0 0 0);
+            clip-path: inset(0 0 0 0);
+  }
+}
 html,
 body {
   overflow: hidden;
@@ -113,23 +133,26 @@ body {
 .content-wrapper article {
   text-align: left;
 }
-.content-title-1, .content-title-2, .content-title-3 {
+.content-title-1, .content-title-3 {
   font-size: 12vh;
   line-height: 1.4;
 }
-.content-title-1:not(.animation), .content-title-2:not(.animation), .content-title-3:not(.animation) {
+.background:not(.animation) .content-title-1, .background:not(.animation) .content-title-3 {
   opacity: 0;
   transform: translateY(-20px);
 }
-.content-title-1.animation, .content-title-2.animation, .content-title-3.animation {
+.background.animation .content-title-1, .background.animation .content-title-3 {
   animation: 1.2s ease-in 0s 1 TopFadeIn;
 }
-.content-title-1:not(.animation), .content-title-2:not(.animation), .content-title-3:not(.animation) {
-  opacity: 0;
-  transform: translateY(-20px);
+.content-title-2 {
+  -webkit-clip-path: inset(0 100% 0 0);
+          clip-path: inset(0 100% 0 0);
+  transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
+  transition-delay: 0.5s;
 }
-.content-title-1.animation, .content-title-2.animation, .content-title-3.animation {
-  animation: 1.2s ease-in 0s 1 TopFadeIn;
+.background.animation .content-title-2 {
+  -webkit-clip-path: inset(0 0 0 0);
+          clip-path: inset(0 0 0 0);
 }
 .content-title-2, .content-title-3 {
   font-size: 8vh;
@@ -143,16 +166,27 @@ body {
   animation: 1.2s ease-in 0s 1 FadeIn;
   background-size: cover;
 }
-.content-subtitle-1, .content-subtitle-2, .content-subtitle-3 {
+.content-subtitle-1, .content-subtitle-3 {
   max-width: min(90vw, 40rem);
   font-weight: 900;
 }
-.content-subtitle-1:not(.animation), .content-subtitle-2:not(.animation), .content-subtitle-3:not(.animation) {
+.background:not(.animation) .content-subtitle-1, .background:not(.animation) .content-subtitle-3 {
   opacity: 0;
   transform: translateY(20px);
 }
-.content-subtitle-1.animation, .content-subtitle-2.animation, .content-subtitle-3.animation {
+.background.animation .content-subtitle-1, .background.animation .content-subtitle-3 {
   animation: 1.2s ease-in 0s 1 BottomFadeIn;
+}
+.content-subtitle-2 {
+  max-width: min(90vw, 40rem);
+  -webkit-clip-path: inset(0 100% 0 0);
+          clip-path: inset(0 100% 0 0);
+  transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
+  transition-delay: 0.5s;
+}
+.background.animation .content-subtitle-2 {
+  -webkit-clip-path: inset(0 0 0 0);
+          clip-path: inset(0 0 0 0);
 }
 .content-subtitle-2 {
   text-align: left;

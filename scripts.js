@@ -1,20 +1,20 @@
 document.body.className += ' js-enabled';
 
-// ------------- letIABLES ------------- //
+// ------- VARS ------- //
 let ticking = false;
 let isFirefox = /Firefox/i.test(navigator.userAgent);
 let isIe =
   /MSIE/i.test(navigator.userAgent) ||
   /Trident.*rv\:11\./i.test(navigator.userAgent);
-let scrollSensitivitySetting = 30; //Increase/decrease this number to change sensitivity to trackpad gestures (up = less sensitive; down = more sensitive)
+let scrollSensitivitySetting = 30; //Increase/decrease  to change sensitivity
 let slideDurationSetting = 600; //Amount of time for which slide is "locked"
 let currentSlideNumber = 0;
 let totalSlideNumber = $(".background").length;
+const animationSubclass = "animation";
+let lastY // Used to determine touch direction;
 
-let lastY;
-// ------------- DETERMINE DELTA/SCROLL DIRECTION ------------- //
+// ------- PARALLAX SCROLL FUNCTION ------- //
 function parallaxScroll(evt) {
-  console.log(evt)
   if (evt.type === "touchmove"){
     let currentY = evt.touches[0].clientY;
     if(currentY > lastY){
@@ -53,24 +53,32 @@ function parallaxScroll(evt) {
       previousItem();
       slideDurationTimeout(slideDurationSetting);
     }
+
+    // Set animation class for current slide and remove others to trigger animation
+    $(".background").eq(currentSlideNumber).addClass(animationSubclass);
+    $(".background").each(function (idx) {
+      if (idx !== currentSlideNumber) {
+        $( this ).removeClass(animationSubclass);
+      }
+    });
   }
 }
 
-// ------------- SET TIMEOUT TO TEMPORARILY "LOCK" SLIDES ------------- //
+// ------- SET TIMEOUT TO TEMPORARILY "LOCK" SLIDES ------- //
 function slideDurationTimeout(slideDuration) {
   setTimeout(function () {
     ticking = false;
   }, slideDuration);
 }
 
-// ------------- ADD EVENT LISTENER ------------- //
+// ------- ADD EVENT LISTENER ------- //
 let mousewheelEvent = isFirefox ? "DOMMouseScroll" : "wheel";
 window.addEventListener(mousewheelEvent, _.throttle(parallaxScroll, 60), false);
 
 let touchEvent = "touchmove"
 window.addEventListener(touchEvent, _.throttle(parallaxScroll, 60), false);
 
-// ------------- SLIDE MOTION ------------- //
+// ------- SLIDE MOTION ------- //
 function nextItem() {
   let $previousSlide = $(".background").eq(currentSlideNumber - 1);
   $previousSlide.removeClass("up-scroll").addClass("down-scroll");
@@ -81,23 +89,9 @@ function previousItem() {
   $currentSlide.removeClass("down-scroll").addClass("up-scroll");
 }
 
-$(".content-subtitle-2").on(touchEvent, (e) => { e.stopPropagation() })
 
-const animatedClassSelectors = [
-  ...Array(3)
-    .fill(".content-title")
-    .map((className, i) => `${className}-${i + 1}`),
-  ...Array(3)
-    .fill(".content-subtitle")
-    .map((className, i) => `${className}-${i + 1}`),
-];
+// ------- INITIALIZE ------- //
 
-const animationSubclass = "animation";
+$(".background").eq(currentSlideNumber).toggleClass(animationSubclass); // Set animation class for first slide
 
-for (const className of animatedClassSelectors) {
-  const element = document.querySelector(className);
-  const observer = new IntersectionObserver((entries) => {
-    element.classList.toggle(animationSubclass, entries[0].isIntersecting);
-  });
-  observer.observe(element);
-}
+$(".content-subtitle-2").on(touchEvent, (e) => { e.stopPropagation() }); // Stop the propagation for skills list as it may have an internal scroll.
