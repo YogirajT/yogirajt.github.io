@@ -145,9 +145,18 @@ body {
 }
 .content-subtitle-2 {
   text-align: left;
-  max-height: max(80vh, 16rem);
   overflow-y: auto;
   max-width: min(90vw, 40rem);
+}
+@media (max-width: 414px) {
+  .content-subtitle-2 {
+    max-height: 16rem;
+  }
+}
+@media (min-width: 415px) {
+  .content-subtitle-2 {
+    max-height: 80vh;
+  }
 }
 .content-subtitle-2 h2 {
   font-size: 2rem;
