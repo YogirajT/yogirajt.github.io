@@ -1,8 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat);
-body.js-enabled #noscript {
-  display: none;
-}
-
 #noscript {
   height: 120vh;
   width: 120vw;
@@ -330,6 +326,21 @@ body {
 }
 .content-social ul .cv:hover span {
   background: #d1097e;
+}
+
+.content-contact {
+  position: absolute;
+  bottom: 2rem;
+  right: 1rem;
+  z-index: 100;
+  font-family: Montserrat;
+  color: #fff;
+  font-weight: 900;
+}
+.content-contact a {
+  font-family: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 .background.up-scroll {

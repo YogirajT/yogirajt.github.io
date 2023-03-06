@@ -1,5 +1,3 @@
-document.body.className += ' js-enabled';
-
 // ------- VARS ------- //
 let ticking = false;
 let isFirefox = /Firefox/i.test(navigator.userAgent);
