@@ -488,7 +488,7 @@ body {
     color: #fff;
 
     &:hover {
-      color: lime;
+      color: deepskyblue;
     }
 
     display: block;
@@ -635,6 +635,10 @@ body {
     font-family: inherit;
     text-decoration: none;
     color: inherit;
+  }
+  @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
+  &:hover {
+    color: deepskyblue;
   }
 }
 

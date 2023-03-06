@@ -246,7 +246,7 @@ body {
   transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
 }
 .content-link:hover {
-  color: lime;
+  color: deepskyblue;
 }
 
 .content-social {
@@ -360,11 +360,15 @@ body {
   font-family: Montserrat;
   color: #fff;
   font-weight: 900;
+  transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
 }
 .content-contact a {
   font-family: inherit;
   text-decoration: none;
   color: inherit;
+}
+.content-contact:hover {
+  color: deepskyblue;
 }
 
 .content-nav {
