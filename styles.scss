@@ -237,6 +237,8 @@ $parallax-offset: 30vh;
 $content-offset: 40vh;
 $transition-speed: 1.2s;
 $slide-number: 3;
+$background-social: #404040;
+$background-social-light: #cecece;
 
 // -------------- FRAMES ------------ //
 
@@ -339,10 +341,21 @@ body {
 
   &:nth-child(2) {
     background-image: url(assets/img-2.jpg);
+
+    @include media("<=phone") {
+      background-position-x: 70%;
+      .content-wrapper {
+        margin-top: 5vh;
+      }
+    }
   }
 
   &:nth-child(3) {
     background-image: url(assets/img-3.jpg);
+
+    @include media("<=phone") {
+      background-position-x: 76%;
+    }
   }
 }
 
@@ -509,7 +522,7 @@ body {
         font-size: 2rem;
         text-align: center;
         text-decoration: none;
-        color: #404040;
+        color: $background-social-light;
         margin: 0 1rem;
         transition: 0.5s;
 
@@ -521,7 +534,7 @@ body {
           &:nth-child(3) {
             height: 100%;
             width: 3px;
-            background: #404040;
+            background: $background-social-light;
           }
 
           &:nth-child(1) {
@@ -540,7 +553,7 @@ body {
           &:nth-child(4) {
             width: 100%;
             height: 3px;
-            background: #404040;
+            background: $background-social-light;
           }
 
           &:nth-child(2) {

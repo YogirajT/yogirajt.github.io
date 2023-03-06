@@ -105,8 +105,21 @@ body {
 .background:nth-child(2) {
   background-image: url(assets/img-2.jpg);
 }
+@media (max-width: 414px) {
+  .background:nth-child(2) {
+    background-position-x: 70%;
+  }
+  .background:nth-child(2) .content-wrapper {
+    margin-top: 5vh;
+  }
+}
 .background:nth-child(3) {
   background-image: url(assets/img-3.jpg);
+}
+@media (max-width: 414px) {
+  .background:nth-child(3) {
+    background-position-x: 76%;
+  }
 }
 
 /* Set stacking context of slides */
@@ -207,7 +220,7 @@ body {
 }
 @media (max-width: 414px) {
   .content-subtitle-2 {
-    max-height: 22rem;
+    max-height: 20rem;
   }
 }
 @media (min-width: 769px) {
@@ -260,7 +273,7 @@ body {
   font-size: 2rem;
   text-align: center;
   text-decoration: none;
-  color: #404040;
+  color: #cecece;
   margin: 0 1rem;
   transition: 0.5s;
 }
@@ -271,7 +284,7 @@ body {
 .content-social ul li a span:nth-child(1), .content-social ul li a span:nth-child(3) {
   height: 100%;
   width: 3px;
-  background: #404040;
+  background: #cecece;
 }
 .content-social ul li a span:nth-child(1) {
   top: 0;
@@ -286,7 +299,7 @@ body {
 .content-social ul li a span:nth-child(2), .content-social ul li a span:nth-child(4) {
   width: 100%;
   height: 3px;
-  background: #404040;
+  background: #cecece;
 }
 .content-social ul li a span:nth-child(2) {
   left: 0;
@@ -398,7 +411,7 @@ body {
   transform: translate3d(0, -15vh, 0);
 }
 .background.down-scroll + .background:not(.down-scroll) .content-wrapper {
-  transform: translateY(20vh);
+  transform: translateY(15vh);
 }
 
 *::-webkit-scrollbar {
