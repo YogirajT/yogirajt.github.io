@@ -11,6 +11,8 @@ let totalSlideNumber = $(".background").length;
 const animationSubclass = "animation";
 let lastY // Used to determine touch direction;
 
+let direction = true;
+
 // ------- PARALLAX SCROLL FUNCTION ------- //
 function parallaxScroll(evt) {
   if (evt.type === "touchmove"){
@@ -32,34 +34,60 @@ function parallaxScroll(evt) {
     delta = evt.wheelDelta;
   }
 
+  let scrollup = delta <= -scrollSensitivitySetting;
+  let scrollDown = delta >= scrollSensitivitySetting;
+
+  handleScroll(scrollup, scrollDown);
+}
+
+function handleScroll(scrollUp, scrollDown) {
   if (ticking != true) {
-    if (delta <= -scrollSensitivitySetting) {
+    if (scrollUp) {
       //Down scroll
       ticking = true;
-      if (currentSlideNumber !== totalSlideNumber - 1) {
-        currentSlideNumber++;
-        nextItem();
-      }
-      slideDurationTimeout(slideDurationSetting);
+      loadNext();
     }
-    if (delta >= scrollSensitivitySetting) {
+    if (scrollDown) {
       //Up scroll
       ticking = true;
-      if (currentSlideNumber !== 0) {
-        currentSlideNumber--;
-      }
-      previousItem();
-      slideDurationTimeout(slideDurationSetting);
+      loadPrevious();
     }
 
     // Set animation class for current slide and remove others to trigger animation
-    $(".background").eq(currentSlideNumber).addClass(animationSubclass);
-    $(".background").each(function (idx) {
-      if (idx !== currentSlideNumber) {
-        $( this ).removeClass(animationSubclass);
-      }
-    });
+    rearmAnimation();
   }
+}
+
+function rearmAnimation() {
+  $(".background").eq(currentSlideNumber).addClass(animationSubclass);
+  $(".background").each(function (idx) {
+    if (idx !== currentSlideNumber) {
+      $(this).removeClass(animationSubclass);
+    }
+  });
+  if (currentSlideNumber === totalSlideNumber - 1) {
+    $(".nav-arrow").removeClass("fa-arrow-down").addClass("fa-arrow-up");
+    direction = false;
+  } else if (currentSlideNumber === 0) {
+    $(".nav-arrow").removeClass("fa-arrow-up").addClass("fa-arrow-down");
+    direction = true;
+  }
+}
+
+function loadPrevious() {
+  if (currentSlideNumber !== 0) {
+    currentSlideNumber--;
+  }
+  previousItem();
+  slideDurationTimeout(slideDurationSetting);
+}
+
+function loadNext() {
+  if (currentSlideNumber !== totalSlideNumber - 1) {
+    currentSlideNumber++;
+    nextItem();
+  }
+  slideDurationTimeout(slideDurationSetting);
 }
 
 // ------- SET TIMEOUT TO TEMPORARILY "LOCK" SLIDES ------- //
@@ -93,3 +121,12 @@ function previousItem() {
 $(".background").eq(currentSlideNumber).toggleClass(animationSubclass); // Set animation class for first slide
 
 $(".content-subtitle-2").on(touchEvent, (e) => { e.stopPropagation() }); // Stop the propagation for skills list as it may have an internal scroll.
+
+
+$(".content-nav").click(function () {
+  if (direction) {
+    handleScroll(true)
+  } else {
+    handleScroll(null, true)
+  }
+})

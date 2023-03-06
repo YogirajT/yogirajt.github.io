@@ -284,6 +284,18 @@ $slide-number: 3;
   100% { clip-path: inset(0 0 0 0); }
 }
 
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
 // ---------------- MAIN ---------------- //
 
 html,
@@ -439,11 +451,11 @@ body {
     }
 
     @include media("<=phone") {
-      max-height: 16rem;
+      max-height: 20rem;
     }
 
     @include media(">tablet") {
-      max-height: 80vh;
+      max-height: 70vh;
     }
 
     & h2 {
@@ -601,7 +613,7 @@ body {
 .content-contact {
   position: absolute;
   bottom: 2rem;
-  right: 1rem;
+  left: 1rem;
   z-index: 100;
   font-family: Montserrat;
   color: #fff;
@@ -610,6 +622,23 @@ body {
     font-family: inherit;
     text-decoration: none;
     color: inherit;
+  }
+}
+
+.content-nav {
+  position: absolute;
+  bottom: 1rem;
+  z-index: 100;
+  color: #fff;
+  font-size: 32px;
+  animation: bounce 2s infinite;
+  cursor: pointer;
+  @include media("<=phone") {
+    right: 1rem;
+  }
+  @include media(">phone") {
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 // ------------- SET TRANSFORM VALUES ------------- //

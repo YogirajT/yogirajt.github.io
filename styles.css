@@ -54,6 +54,17 @@
             clip-path: inset(0 0 0 0);
   }
 }
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
 html,
 body {
   overflow: hidden;
@@ -196,12 +207,12 @@ body {
 }
 @media (max-width: 414px) {
   .content-subtitle-2 {
-    max-height: 16rem;
+    max-height: 22rem;
   }
 }
 @media (min-width: 769px) {
   .content-subtitle-2 {
-    max-height: 80vh;
+    max-height: 70vh;
   }
 }
 .content-subtitle-2 h2 {
@@ -331,7 +342,7 @@ body {
 .content-contact {
   position: absolute;
   bottom: 2rem;
-  right: 1rem;
+  left: 1rem;
   z-index: 100;
   font-family: Montserrat;
   color: #fff;
@@ -341,6 +352,27 @@ body {
   font-family: inherit;
   text-decoration: none;
   color: inherit;
+}
+
+.content-nav {
+  position: absolute;
+  bottom: 1rem;
+  z-index: 100;
+  color: #fff;
+  font-size: 32px;
+  animation: bounce 2s infinite;
+  cursor: pointer;
+}
+@media (max-width: 414px) {
+  .content-nav {
+    right: 1rem;
+  }
+}
+@media (min-width: 415px) {
+  .content-nav {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 .background.up-scroll {
@@ -366,7 +398,7 @@ body {
   transform: translate3d(0, -15vh, 0);
 }
 .background.down-scroll + .background:not(.down-scroll) .content-wrapper {
-  transform: translateY(15vh);
+  transform: translateY(20vh);
 }
 
 *::-webkit-scrollbar {
