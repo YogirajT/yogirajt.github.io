@@ -37,13 +37,13 @@ jobs:
         with:
           # Upload entire repository
           path: |
-            index.html
-            styles.css
-            reset.css
-            styles.css.map
-            sitemap.xml
-            scripts.js
-            assets/*
+            ./index.html
+            ./styles.css
+            ./reset.css
+            ./styles.css.map
+            ./sitemap.xml
+            ./scripts.js
+            ./assets/*
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
