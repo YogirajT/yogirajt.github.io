@@ -4,6 +4,9 @@
   width: 120vw;
   z-index: 999;
   padding: 2rem;
+  position: absolute;
+  color: #fff;
+  background-color: #404040;
 }
 
 @keyframes TopFadeIn {
@@ -65,8 +68,8 @@
     transform: translateY(-10px);
   }
 }
-html,
-body {
+body:not(.no-js) html,
+body:not(.no-js) {
   overflow: hidden;
 }
 
@@ -79,10 +82,11 @@ body {
   -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
   height: 130vh;
-  position: fixed;
   width: 100%;
-  transform: translateY(30vh);
   transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
+}
+body:not(.no-js) .background {
+  position: fixed;
 }
 .background:before {
   content: "";
@@ -99,8 +103,14 @@ body {
   background-image: url(assets/img-1.jpg);
   transform: translateY(-15vh);
 }
+.no-js .background:first-child {
+  transform: translateY(0);
+}
 .background:first-child .content-wrapper {
   transform: translateY(15vh);
+}
+.no-js .background:first-child .content-wrapper {
+  transform: translateY(0);
 }
 .background:nth-child(2) {
   background-image: url(assets/img-2.jpg);
@@ -150,6 +160,9 @@ body {
   align-items: center;
   transition: all 1.7s cubic-bezier(0.22, 0.44, 0, 1);
 }
+.no-js .content-wrapper {
+  transform: translateY(0);
+}
 .content-wrapper article {
   text-align: left;
 }
@@ -157,7 +170,7 @@ body {
   font-size: 12vh;
   line-height: 1.4;
 }
-.background:not(.animation) .content-title-1, .background:not(.animation) .content-title-3 {
+body:not(.no-js) .background:not(.animation) .content-title-1, body:not(.no-js) .background:not(.animation) .content-title-3 {
   opacity: 0;
   transform: translateY(-20px);
 }
@@ -165,10 +178,12 @@ body {
   animation: 1.2s ease-in 0s 1 TopFadeIn;
 }
 .content-title-2 {
-  -webkit-clip-path: inset(0 100% 0 0);
-          clip-path: inset(0 100% 0 0);
   transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
   transition-delay: 0.5s;
+}
+body:not(.no-js) .content-title-2 {
+  -webkit-clip-path: inset(0 100% 0 0);
+          clip-path: inset(0 100% 0 0);
 }
 .background.animation .content-title-2 {
   -webkit-clip-path: inset(0 0 0 0);
@@ -190,7 +205,7 @@ body {
   max-width: min(90vw, 40rem);
   font-weight: 900;
 }
-.background:not(.animation) .content-subtitle-1, .background:not(.animation) .content-subtitle-3 {
+body:not(.no-js) .background:not(.animation) .content-subtitle-1, body:not(.no-js) .background:not(.animation) .content-subtitle-3 {
   opacity: 0;
   transform: translateY(20px);
 }
@@ -203,6 +218,10 @@ body {
           clip-path: inset(0 100% 0 0);
   transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
   transition-delay: 0.5s;
+}
+.no-js .content-subtitle-2 {
+  -webkit-clip-path: inset(0 0 0 0);
+          clip-path: inset(0 0 0 0);
 }
 .background.animation .content-subtitle-2 {
   -webkit-clip-path: inset(0 0 0 0);
@@ -254,6 +273,9 @@ body {
   top: 2rem;
   right: 1rem;
   z-index: 100;
+}
+.no-js .content-social {
+  position: fixed;
 }
 .content-social ul {
   margin: 0;
@@ -361,6 +383,9 @@ body {
   color: #fff;
   font-weight: 900;
   transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
+}
+.no-js .content-contact {
+  position: fixed;
 }
 .content-contact a {
   font-family: inherit;

@@ -118,10 +118,13 @@ function previousItem() {
 
 // ------- INITIALIZE ------- //
 
+$("body").removeClass("no-js");
+
 $(".background").eq(currentSlideNumber).toggleClass(animationSubclass); // Set animation class for first slide
 
 $(".content-subtitle-2").on(touchEvent, (e) => { e.stopPropagation() }); // Stop the propagation for skills list as it may have an internal scroll.
 
+$(".content-subtitle-2").on(mousewheelEvent, (e) => { e.stopPropagation() }); // Stop the propagation for skills list as it may have an internal scroll.
 
 $(".content-nav").click(function () {
   if (direction) {

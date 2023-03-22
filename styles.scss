@@ -3,6 +3,9 @@
   width: 120vw;
   z-index: 999;
   padding: 2rem;
+  position: absolute;
+  color: #fff;
+  background-color: #404040;
 }
 
 @import url(https://fonts.googleapis.com/css?family=Montserrat);
@@ -277,17 +280,29 @@ $background-social-light: #cecece;
 }
 
 @keyframes down-enter {
-  0% { clip-path: inset(0 0 100% 0); }
-  100% { clip-path: inset(0); }
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    clip-path: inset(0);
+  }
 }
 
 @keyframes down-leave {
-  0% { clip-path: inset(0 100% 0 0);; }
-  100% { clip-path: inset(0 0 0 0); }
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -300,8 +315,8 @@ $background-social-light: #cecece;
 
 // ---------------- MAIN ---------------- //
 
-html,
-body {
+body:not(.no-js) html,
+body:not(.no-js) {
   overflow: hidden;
 }
 
@@ -313,9 +328,10 @@ body {
   will-change: transform;
   backface-visibility: hidden;
   height: 100vh + $parallax-offset;
-  position: fixed;
+  body:not(.no-js) & {
+    position: fixed;
+  }
   width: 100%;
-  transform: translateY($parallax-offset);
   @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
 
   &:before {
@@ -334,8 +350,15 @@ body {
     background-image: url(assets/img-1.jpg);
     transform: translateY(-$parallax-offset / 2);
 
+    .no-js & {
+      transform: translateY(0);
+    }
+
     .content-wrapper {
       transform: translateY($parallax-offset / 2);
+      .no-js & {
+        transform: translateY(0);
+      }
     }
   }
 
@@ -376,6 +399,9 @@ body {
     color: #fff;
     font-family: Montserrat;
     transform: translateY($content-offset);
+    .no-js & {
+      transform: translateY(0);
+    }
     will-change: transform;
     backface-visibility: hidden;
     align-items: center;
@@ -396,19 +422,26 @@ body {
       font-size: 12vh;
       line-height: 1.4;
 
-      .background:not(.animation) & {
+      body:not(.no-js) .background:not(.animation) & {
         opacity: 0;
         transform: translateY(-20px);
       }
 
-      .background.animation &  {
+      .background.animation & {
         animation: $transition-speed ease-in 0s 1 TopFadeIn;
       }
     }
 
     &-2 {
-      clip-path: inset(0 100% 0 0);
-      @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
+      body:not(.no-js) & {
+        clip-path: inset(0 100% 0 0);
+      }
+
+      @include transition(
+        $transition-speed,
+        all,
+        cubic-bezier(0.22, 0.44, 0, 1)
+      );
       transition-delay: 0.5s;
       .background.animation & {
         clip-path: inset(0 0 0 0);
@@ -435,7 +468,7 @@ body {
   &-subtitle-3 {
     max-width: min(90vw, 40rem);
     font-weight: 900;
-    .background:not(.animation) & {
+    body:not(.no-js) .background:not(.animation) & {
       opacity: 0;
       transform: translateY(20px);
     }
@@ -447,6 +480,9 @@ body {
   &-subtitle-2 {
     max-width: min(90vw, 40rem);
     clip-path: inset(0 100% 0 0);
+    .no-js & {
+      clip-path: inset(0 0 0 0);
+    }
     @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
     transition-delay: 0.5s;
     .background.animation & {
@@ -501,6 +537,9 @@ body {
 
 .content-social {
   position: absolute;
+  .no-js & {
+    position: fixed;
+  }
   top: 2rem;
   right: 1rem;
   z-index: 100;
@@ -625,6 +664,9 @@ body {
 
 .content-contact {
   position: absolute;
+  .no-js & {
+    position: fixed;
+  }
   bottom: 2rem;
   left: 1rem;
   z-index: 100;
