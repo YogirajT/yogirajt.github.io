@@ -1,3 +1,5 @@
 # me
 
-This is my profile page!
+
+This is the repo for my [profile page](https://yogirajt.github.io/me/)!
+
