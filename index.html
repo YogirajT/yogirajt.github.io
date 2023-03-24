@@ -57,7 +57,11 @@
       dataLayer.push(arguments);
     }
     gtag("js", new Date());
-    gtag("set", { cookie_flags: "SameSite=None;Secure" });
+    gtag("set", {
+      cookie_flags: "SameSite=None;Secure",
+      cookie_domain: "yogirajt.github.io",
+      anonymize_ip: true,
+    });
     gtag("config", "G-48BYR598ZB");
   </script>
   <body class="no-js">
