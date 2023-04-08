@@ -271,17 +271,29 @@ body:not(.no-js) .background:not(.animation) .content-subtitle-1, body:not(.no-j
 .content-social {
   position: absolute;
   top: 2rem;
-  right: 1rem;
+  right: 0rem;
   z-index: 100;
 }
 .no-js .content-social {
   position: fixed;
+}
+@media (max-width: 768px) {
+  .content-social {
+    width: 100%;
+  }
 }
 .content-social ul {
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  margin: 0 2rem;
+}
+@media (max-width: 768px) {
+  .content-social ul {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 .content-social ul li {
   list-style: none;
@@ -296,7 +308,6 @@ body:not(.no-js) .background:not(.animation) .content-subtitle-1, body:not(.no-j
   text-align: center;
   text-decoration: none;
   color: #cecece;
-  margin: 0 1rem;
   transition: 0.5s;
 }
 .content-social ul li a span {
@@ -355,23 +366,65 @@ body:not(.no-js) .background:not(.animation) .content-subtitle-1, body:not(.no-j
   transform-origin: right;
   transition: transform 0.5s;
 }
-.content-social ul .github:hover {
-  color: #fff;
+@media (min-width: 769px) {
+  .content-social ul .github:hover {
+    color: #fff;
+  }
 }
-.content-social ul .github:hover span {
-  background: #fff;
+@media (max-width: 768px) {
+  .content-social ul .github {
+    color: #fff;
+  }
 }
-.content-social ul .linkedin:hover {
-  color: #0072b1;
+@media (min-width: 769px) {
+  .content-social ul .github:hover span {
+    background: #fff;
+  }
 }
-.content-social ul .linkedin:hover span {
-  background: #0072b1;
+@media (max-width: 768px) {
+  .content-social ul .github span {
+    background: #fff !important;
+  }
 }
-.content-social ul .cv:hover {
-  color: #d1097e;
+@media (min-width: 769px) {
+  .content-social ul .linkedin:hover {
+    color: #0072b1;
+  }
 }
-.content-social ul .cv:hover span {
-  background: #d1097e;
+@media (max-width: 768px) {
+  .content-social ul .linkedin {
+    color: #0072b1;
+  }
+}
+@media (min-width: 769px) {
+  .content-social ul .linkedin:hover span {
+    background: #0072b1;
+  }
+}
+@media (max-width: 768px) {
+  .content-social ul .linkedin span {
+    background: #0072b1 !important;
+  }
+}
+@media (min-width: 769px) {
+  .content-social ul .cv:hover {
+    color: #d1097e;
+  }
+}
+@media (max-width: 768px) {
+  .content-social ul .cv {
+    color: #d1097e;
+  }
+}
+@media (min-width: 769px) {
+  .content-social ul .cv:hover span {
+    background: #d1097e;
+  }
+}
+@media (max-width: 768px) {
+  .content-social ul .cv span {
+    background: #d1097e !important;
+  }
 }
 
 .content-contact {

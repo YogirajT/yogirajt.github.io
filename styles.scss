@@ -243,6 +243,10 @@ $slide-number: 3;
 $background-social: #404040;
 $background-social-light: #cecece;
 
+$linkedin-color: #0072b1;
+$github-color: #fff;
+$cv-color: #d1097e;
+
 // -------------- FRAMES ------------ //
 
 @keyframes TopFadeIn {
@@ -541,14 +545,24 @@ body:not(.no-js) {
     position: fixed;
   }
   top: 2rem;
-  right: 1rem;
+  right: 0rem;
   z-index: 100;
+
+  @include media("<=tablet") {
+    width: 100%;
+  }
 
   & ul {
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
+    margin: 0 2rem;
+
+    @include media("<=tablet") {
+      flex-direction: row;
+      justify-content: space-between;
+    }
 
     & li {
       list-style: none;
@@ -562,7 +576,6 @@ body:not(.no-js) {
         text-align: center;
         text-decoration: none;
         color: $background-social-light;
-        margin: 0 1rem;
         transition: 0.5s;
 
         & span {
@@ -636,28 +649,76 @@ body:not(.no-js) {
       }
     }
 
-    .github:hover {
-      color: #fff;
+    .github {
+      @include media(">tablet") {
+        &:hover {
+          color: $github-color;
+        }
+      }
+      @include media("<=tablet") {
+        color: $github-color;
+      }
     }
 
-    .github:hover span {
-      background: #fff;
+    .github {
+      @include media(">tablet") {
+        &:hover span {
+          background: $github-color;
+        }
+      }
+      @include media("<=tablet") {
+        & span {
+          background: $github-color !important;
+        }
+      }
     }
 
-    .linkedin:hover {
-      color: #0072b1;
+    .linkedin {
+      @include media(">tablet") {
+        &:hover {
+          color: $linkedin-color;
+        }
+      }
+      @include media("<=tablet") {
+        color: $linkedin-color;
+      }
     }
 
-    .linkedin:hover span {
-      background: #0072b1;
+    .linkedin {
+      @include media(">tablet") {
+        &:hover span {
+          background: $linkedin-color;
+        }
+      }
+      @include media("<=tablet") {
+        & span {
+          background: $linkedin-color !important;
+        }
+      }
     }
 
-    .cv:hover {
-      color: #d1097e;
+    .cv {
+      @include media(">tablet") {
+        &:hover {
+          color: $cv-color;
+        }
+      }
+      @include media("<=tablet") {
+        color: $cv-color;
+      }
     }
 
-    .cv:hover span {
-      background: #d1097e;
+    .cv {
+      @include media(">tablet") {
+        &:hover span {
+          background: $cv-color;
+        }
+      }
+      @include media("<=tablet") {
+        & span {
+          background: $cv-color !important;
+        }
+      }
     }
   }
 }
