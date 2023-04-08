@@ -366,62 +366,62 @@ body:not(.no-js) .background:not(.animation) .content-subtitle-1, body:not(.no-j
   transform-origin: right;
   transition: transform 0.5s;
 }
-@media (min-width: 769px) {
+@media (hover: hover) {
   .content-social ul .github:hover {
     color: #fff;
   }
 }
-@media (max-width: 768px) {
+@media (hover: none) {
   .content-social ul .github {
     color: #fff;
   }
 }
-@media (min-width: 769px) {
+@media (hover: hover) {
   .content-social ul .github:hover span {
     background: #fff;
   }
 }
-@media (max-width: 768px) {
+@media (hover: none) {
   .content-social ul .github span {
     background: #fff !important;
   }
 }
-@media (min-width: 769px) {
+@media (hover: hover) {
   .content-social ul .linkedin:hover {
     color: #0072b1;
   }
 }
-@media (max-width: 768px) {
+@media (hover: none) {
   .content-social ul .linkedin {
     color: #0072b1;
   }
 }
-@media (min-width: 769px) {
+@media (hover: hover) {
   .content-social ul .linkedin:hover span {
     background: #0072b1;
   }
 }
-@media (max-width: 768px) {
+@media (hover: none) {
   .content-social ul .linkedin span {
     background: #0072b1 !important;
   }
 }
-@media (min-width: 769px) {
+@media (hover: hover) {
   .content-social ul .cv:hover {
     color: #d1097e;
   }
 }
-@media (max-width: 768px) {
+@media (hover: none) {
   .content-social ul .cv {
     color: #d1097e;
   }
 }
-@media (min-width: 769px) {
+@media (hover: hover) {
   .content-social ul .cv:hover span {
     background: #d1097e;
   }
 }
-@media (max-width: 768px) {
+@media (hover: none) {
   .content-social ul .cv span {
     background: #d1097e !important;
   }

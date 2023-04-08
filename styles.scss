@@ -650,23 +650,23 @@ body:not(.no-js) {
     }
 
     .github {
-      @include media(">tablet") {
+      @media (hover: hover) {
         &:hover {
           color: $github-color;
         }
       }
-      @include media("<=tablet") {
+      @media (hover: none) {
         color: $github-color;
       }
     }
 
     .github {
-      @include media(">tablet") {
+      @media (hover: hover) {
         &:hover span {
           background: $github-color;
         }
       }
-      @include media("<=tablet") {
+      @media (hover: none) {
         & span {
           background: $github-color !important;
         }
@@ -674,23 +674,23 @@ body:not(.no-js) {
     }
 
     .linkedin {
-      @include media(">tablet") {
+      @media (hover: hover) {
         &:hover {
           color: $linkedin-color;
         }
       }
-      @include media("<=tablet") {
+      @media (hover: none) {
         color: $linkedin-color;
       }
     }
 
     .linkedin {
-      @include media(">tablet") {
+      @media (hover: hover) {
         &:hover span {
           background: $linkedin-color;
         }
       }
-      @include media("<=tablet") {
+      @media (hover: none) {
         & span {
           background: $linkedin-color !important;
         }
@@ -698,23 +698,23 @@ body:not(.no-js) {
     }
 
     .cv {
-      @include media(">tablet") {
+      @media (hover: hover) {
         &:hover {
           color: $cv-color;
         }
       }
-      @include media("<=tablet") {
+      @media (hover: none) {
         color: $cv-color;
       }
     }
 
     .cv {
-      @include media(">tablet") {
+      @media (hover: hover) {
         &:hover span {
           background: $cv-color;
         }
       }
-      @include media("<=tablet") {
+      @media (hover: none) {
         & span {
           background: $cv-color !important;
         }
