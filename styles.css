@@ -79,8 +79,7 @@ body:not(.no-js) {
   background-position: center center;
   overflow: hidden;
   will-change: transform;
-  -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
+  backface-visibility: hidden;
   height: 130vh;
   width: 100%;
   transition: all 1.2s cubic-bezier(0.22, 0.44, 0, 1);
@@ -155,8 +154,7 @@ body:not(.no-js) .background {
   font-family: Montserrat;
   transform: translateY(40vh);
   will-change: transform;
-  -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
+  backface-visibility: hidden;
   align-items: center;
   transition: all 1.7s cubic-bezier(0.22, 0.44, 0, 1);
 }
