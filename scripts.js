@@ -16,6 +16,7 @@
 
   // ------- PARALLAX SCROLL FUNCTION ------- //
   function parallaxScroll(evt) {
+    console.log(evt)
     if (evt.type === "touchmove") {
       let currentY = evt.touches[0].clientY;
       if (currentY > lastY) {
@@ -24,6 +25,13 @@
         delta = 120;
       }
       lastY = currentY;
+    } else if (evt.type === "keydown") {
+      if (evt.key == 'ArrowUp') {
+        delta = 120;
+      }
+      else if (evt.key == 'ArrowDown') {
+        delta = -120;
+      }
     } else if (isFirefox) {
       //Set delta for Firefox
       delta = evt.detail * -120;
@@ -121,6 +129,9 @@
 
   let touchEvent = "touchmove";
   window.addEventListener(touchEvent, _.throttle(parallaxScroll, 60), false);
+
+  let keyEvent = "keydown";
+  window.addEventListener(keyEvent, _.throttle(parallaxScroll, 60), false);
 
   // ------- SLIDE MOTION ------- //
   function nextItem() {
