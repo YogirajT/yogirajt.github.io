@@ -34,7 +34,7 @@
       }
     } else if (isFirefox) {
       //Set delta for Firefox
-      delta = evt.detail * -120;
+      delta = Math.sign(evt.detail) * -120;
     } else if (isIe) {
       //Set delta for IE
       delta = -evt.deltaY;
@@ -42,7 +42,6 @@
       //Set delta for all other browsers
       delta = evt.wheelDelta;
     }
-
     let scrollup = delta < -scrollSensitivitySetting;
     let scrollDown = delta >= scrollSensitivitySetting;
 
@@ -123,15 +122,15 @@
   let mousewheelEvent = isFirefox ? "DOMMouseScroll" : "wheel";
   window.addEventListener(
     mousewheelEvent,
-    _.throttle(parallaxScroll, 60),
+    _.throttle(parallaxScroll, 500),
     false
   );
 
   let touchEvent = "touchmove";
-  window.addEventListener(touchEvent, _.throttle(parallaxScroll, 60), false);
+  window.addEventListener(touchEvent, _.throttle(parallaxScroll, 100), false);
 
   let keyEvent = "keydown";
-  window.addEventListener(keyEvent, _.throttle(parallaxScroll, 60), false);
+  window.addEventListener(keyEvent, _.throttle(parallaxScroll, 100), false);
 
   // ------- SLIDE MOTION ------- //
   function nextItem() {
