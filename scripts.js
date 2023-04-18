@@ -16,7 +16,7 @@
 
   // ------- PARALLAX SCROLL FUNCTION ------- //
   function parallaxScroll(evt) {
-    console.log(evt)
+    let delta;
     if (evt.type === "touchmove") {
       let currentY = evt.touches[0].clientY;
       if (currentY > lastY) {
@@ -43,7 +43,7 @@
       delta = evt.wheelDelta;
     }
 
-    let scrollup = delta <= -scrollSensitivitySetting;
+    let scrollup = delta < -scrollSensitivitySetting;
     let scrollDown = delta >= scrollSensitivitySetting;
 
     handleScroll(scrollup, scrollDown);
