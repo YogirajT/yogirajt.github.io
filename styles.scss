@@ -20,7 +20,7 @@
 $breakpoints: (
   "phone": 414px,
   "tablet": 768px,
-  "desktop": 1024px,
+  "desktop": 1024px
 ) !default;
 
 $media-expressions: (
@@ -29,27 +29,23 @@ $media-expressions: (
   "handheld": "handheld",
   "retina2x": (
     "(-webkit-min-device-pixel-ratio: 2)",
-    "(min-resolution: 192dpi)",
+    "(min-resolution: 192dpi)"
   ),
   "retina3x": (
     "(-webkit-min-device-pixel-ratio: 3)",
-    "(min-resolution: 350dpi)",
-  ),
+    "(min-resolution: 350dpi)"
+  )
 ) !default;
 
 $unit-intervals: (
   "px": 1,
   "em": 0.01,
-  "rem": 0.1,
+  "rem": 0.1
 ) !default;
 
 @mixin media($conditions...) {
   @for $i from 1 through length($conditions) {
-    $conditions: set-nth(
-      $conditions,
-      $i,
-      parse-expression(nth($conditions, $i))
-    );
+    $conditions: set-nth($conditions, $i, parse-expression(nth($conditions, $i)));
   }
 
   $branches: get-query-branches($conditions);
@@ -95,10 +91,7 @@ $unit-intervals: (
         @each $member in $expression {
           @if ($member != $first) {
             @each $partial in $result {
-              $result: join(
-                $result,
-                str-replace-first($first, $member, $partial)
-              );
+              $result: join($result, str-replace-first($first, $member, $partial));
             }
           }
         }
@@ -222,8 +215,7 @@ $unit-intervals: (
 }
 
 @function _length($number, $unit) {
-  $strings: "px" "cm" "mm" "%" "ch" "pica" "in" "em" "rem" "pt" "pc" "ex" "vw"
-    "vh" "vmin" "vmax";
+  $strings: "px" "cm" "mm" "%" "ch" "pica" "in" "em" "rem" "pt" "pc" "ex" "vw" "vh" "vmin" "vmax";
   $units: 1px 1cm 1mm 1% 1ch 1pica 1in 1em 1rem 1pt 1pc 1ex 1vw 1vh 1vmin 1vmax;
   $index: index($strings, $unit);
 
@@ -409,11 +401,7 @@ body:not(.no-js) {
     will-change: transform;
     backface-visibility: hidden;
     align-items: center;
-    @include transition(
-      $transition-speed + 0.5,
-      all,
-      cubic-bezier(0.22, 0.44, 0, 1)
-    );
+    @include transition($transition-speed + 0.5, all, cubic-bezier(0.22, 0.44, 0, 1));
 
     & article {
       text-align: left;
@@ -423,8 +411,7 @@ body:not(.no-js) {
   &-title {
     &-1,
     &-3 {
-      font-size: 12vh;
-      line-height: 1.4;
+      font-size: 10vh;
 
       body:not(.no-js) .background:not(.animation) & {
         opacity: 0;
@@ -441,11 +428,7 @@ body:not(.no-js) {
         clip-path: inset(0 100% 0 0);
       }
 
-      @include transition(
-        $transition-speed,
-        all,
-        cubic-bezier(0.22, 0.44, 0, 1)
-      );
+      @include transition($transition-speed, all, cubic-bezier(0.22, 0.44, 0, 1));
       transition-delay: 0.5s;
       .background.animation & {
         clip-path: inset(0 0 0 0);
@@ -469,9 +452,17 @@ body:not(.no-js) {
   }
 
   &-subtitle-1,
+  &-subtitle-2,
   &-subtitle-3 {
-    max-width: min(90vw, 40rem);
+    border-left: 0.3rem solid white;
+    padding-left: 0.5rem;
+  }
+
+  &-subtitle-1,
+  &-subtitle-3 {
+    max-width: min(90vw, 35rem);
     font-weight: 900;
+    text-align: left;
     body:not(.no-js) .background:not(.animation) & {
       opacity: 0;
       transform: translateY(20px);
