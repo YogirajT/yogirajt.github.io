@@ -30,10 +30,10 @@ jobs:
       - name: Build website
         run: |
           echo "Building the static website..."
-          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude '.git/' --exclude 'README.md' --exclude 'LICENSE' . ./public
+          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude '.git/' --exclude 'README.md' --exclude 'LICENSE' . ./dist
+          ls
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          exclude_assets: '.github/,styles.scss,.gitignore,LICENSE,README.md'
+          publish_dir: ./dist
