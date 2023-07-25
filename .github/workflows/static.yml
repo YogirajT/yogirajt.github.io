@@ -32,16 +32,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Build website
+        run: |
+          echo "Building the static website..."
+          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude 'README.md' . ./public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: github-pages
-          path: |
-            ./
-            !./styles.scss
-            !./README.md
-            !./.gitignore
-            !./.github/
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
