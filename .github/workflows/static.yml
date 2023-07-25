@@ -30,7 +30,7 @@ jobs:
       - name: Build website
         run: |
           echo "Building the static website..."
-          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude '.git/' --exclude 'README.md' --exclude 'LICENSE' . ./dist
+          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude '.git/' --exclude 'README.md' --exclude 'LICENSE' . dist
           ls
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
