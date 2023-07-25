@@ -23,18 +23,14 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
-    environment:
-      name: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
       - name: Build website
         run: |
           echo "Building the static website..."
-          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude 'README.md' . ./public
+          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude '.git/' --exclude 'README.md' . ./public
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
