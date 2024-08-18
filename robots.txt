@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /assets/
+Disallow: /me$
 Allow: /
 
 Sitemap: https://yogirajt.github.io/sitemap.xml
