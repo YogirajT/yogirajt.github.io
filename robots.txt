@@ -2,5 +2,12 @@ User-agent: *
 Disallow: /assets/
 Disallow: /me$
 Allow: /
+Allow: /assets/android-chrome-192x192.png
+Allow: /assets/android-chrome-512x512.png
+Allow: /assets/apple-touch-icon.png	
+Allow: /assets/favicon-144x144.png
+Allow: /assets/favicon-16x16.png
+Allow: /assets/favicon-32x32.png
+Allow: /assets/favicon.ico
 
 Sitemap: https://yogirajt.github.io/sitemap.xml
