@@ -1,0 +1,7 @@
+Fonts used on this site (self-hosted, subset to Latin glyphs):
+
+- Tektur — SIL Open Font License 1.1
+- Outfit — SIL Open Font License 1.1
+- JetBrains Mono — SIL Open Font License 1.1
+
+Full license text: https://openfontlicense.org
