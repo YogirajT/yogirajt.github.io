@@ -1,7 +1,0 @@
-Fonts used on this site (self-hosted, subset to Latin glyphs):
-
-- Bricolage Grotesque — SIL Open Font License 1.1
-- Work Sans — SIL Open Font License 1.1
-- IBM Plex Mono — SIL Open Font License 1.1
-
-Full license text: https://openfontlicense.org
