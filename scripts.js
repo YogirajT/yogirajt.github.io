@@ -579,7 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
      APPLY ATMOSPHERE -- one function, one set of custom properties.
      ===================================================================== */
 
-  const MIDDLE_BASELINE = 0.32;
+  const MIDDLE_BASELINE = 0.16;
 
   function updateAtmosphere(heroProgress, contactProgress) {
     const heroFactor = 1 - heroProgress;
