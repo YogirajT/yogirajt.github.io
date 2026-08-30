@@ -859,37 +859,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
       console.warn("Google Analytics Measurement ID has not been configured.");
-
       return;
     }
 
     analyticsLoaded = true;
 
     /*
-     * Make sure GA is not globally disabled.
+     * Initialise Google's dataLayer and gtag BEFORE
+     * loading the Google Analytics script.
      */
-
-    window["ga-disable-" + GA_MEASUREMENT_ID] = false;
-
-    /*
-     * Create the Google Analytics script only now,
-     * after the visitor has given consent.
-     */
-
-    const script = document.createElement("script");
-
-    script.async = true;
-
-    script.src =
-      "https://www.googletagmanager.com/gtag/js?id=" +
-      encodeURIComponent(GA_MEASUREMENT_ID);
-
-    document.head.appendChild(script);
-
-    /*
-     * Initialise gtag.
-     */
-
     window.dataLayer = window.dataLayer || [];
 
     window.gtag =
@@ -898,27 +876,46 @@ document.addEventListener("DOMContentLoaded", () => {
         window.dataLayer.push(arguments);
       };
 
-    window.gtag("js", new Date());
-
     /*
-     * Explicitly grant analytics only.
-     *
-     * Advertising-related storage remains denied.
+     * Tell Google that analytics consent has been granted.
+     * Advertising storage remains denied.
      */
-
     window.gtag("consent", "default", {
       analytics_storage: "granted",
-
       ad_storage: "denied",
-
       ad_user_data: "denied",
-
       ad_personalization: "denied",
     });
 
+    window.gtag("js", new Date());
+
+    /*
+     * Configure GA4.
+     */
     window.gtag("config", GA_MEASUREMENT_ID, {
       anonymize_ip: true,
     });
+
+    /*
+     * Load Google's gtag library.
+     */
+    const script = document.createElement("script");
+
+    script.async = true;
+    script.src =
+      "https://www.googletagmanager.com/gtag/js?id=" +
+      encodeURIComponent(GA_MEASUREMENT_ID);
+
+    script.onload = function () {
+      console.log("Google Analytics loaded:", GA_MEASUREMENT_ID);
+    };
+
+    script.onerror = function () {
+      console.error("Google Analytics failed to load.");
+      analyticsLoaded = false;
+    };
+
+    document.head.appendChild(script);
   }
 
   /* ------------------------------------------------------------------------
