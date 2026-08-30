@@ -573,15 +573,14 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   position: absolute;
   left: var(--leaf-x, 50%);
   top: var(--leaf-y, 50%);
-  width: var(--leaf-size, 140px);
-  height: calc(var(--leaf-size, 140px) * 1.35);
+  width: var(--leaf-size, 200px);
+  height: var(--leaf-size, 200px);
   color: var(--leaf-tint, var(--green));
   opacity: calc(var(--leaf-opacity, 0.3) * var(--leaf-density));
   transform:
     translate3d(var(--leaf-shift-x, 0px), var(--leaf-shift-y, 0px), 0)
     rotate(var(--leaf-rotation, 0deg))
-    scale(var(--leaf-scale, 1))
-    scaleX(var(--leaf-flip, 1));
+    scale(var(--leaf-scale, 1));
   transform-origin: center;
   transition: opacity 0.6s ease;
   will-change: transform, opacity;
@@ -629,6 +628,25 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
     radial-gradient(1100px 750px at var(--lightning-x, 10%) var(--lightning-y, 0%),
       color-mix(in srgb, var(--ink) 25%, transparent), transparent 70%);
 }
+
+/* Actual jagged bolt, drawn fresh by scripts.js on every flash. */
+.ambient-bolt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: var(--lightning-opacity, 0);
+  mix-blend-mode: screen;
+  transition: opacity 90ms ease-out;
+}
+.ambient-bolt .bolt-glow { stroke: color-mix(in srgb, var(--cyan) 70%, white 30%); filter: blur(6px); }
+.ambient-bolt .bolt-core { stroke: white; }
+[data-theme="light"] .ambient-bolt {
+  mix-blend-mode: multiply;
+  opacity: calc(var(--lightning-opacity, 0) * 0.6);
+}
+[data-theme="light"] .ambient-bolt .bolt-glow { stroke: color-mix(in srgb, var(--ink) 55%, transparent); }
+[data-theme="light"] .ambient-bolt .bolt-core { stroke: var(--ink); }
 
 /* =========================================================================
    TOP / HERO CINEMATIC TRANSITION
@@ -712,7 +730,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 
 @media (prefers-reduced-motion: reduce) {
   .ambient-layer { filter: none !important; }
-  .ambient-rain, .ambient-lightning { display: none; }
+  .ambient-rain, .ambient-lightning, .ambient-bolt { display: none; }
   .ambient-leaf { transition: none; }
 
   #top { opacity: 1 !important; }

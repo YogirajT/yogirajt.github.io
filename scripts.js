@@ -249,6 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rainContainer = document.querySelector(".ambient-rain");
   const leavesContainer = document.querySelector(".ambient-leaves");
   const lightningEl = document.querySelector(".ambient-lightning");
+  const boltSvg = document.querySelector(".ambient-bolt");
 
   const topSection = document.querySelector("#top");
   const contactSection = document.querySelector("#contact");
@@ -269,54 +270,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const LEAF_COUNT = isMobile ? 7 : 13;
 
   /* =====================================================================
-     LEAF SILHOUETTES -- tasteful filled tropical foliage, not thin line
-     art. Monstera uses a real SVG mask to cut its signature leaf holes;
-     fern and palm are built from filled leaflet/blade shapes along a
-     stem. Each is drawn once per instance (monstera needs a unique mask
-     id since multiple copies share the DOM at once).
+     FOLIAGE SILHOUETTES -- dense canopy-mass clusters, not individual leaf
+     icons. Each cluster is a procedurally generated group of overlapping
+     circles (always renders as a clean organic blob -- circles can never
+     come out malformed the way a hand-plotted leaf outline can) plus a
+     few thin tapering frond sprigs poking out of the mass for texture.
+     Three presets bias the generator toward a rounder canopy look, a
+     wispy fern look, or a few long palm-blade sprigs; every instance is
+     still procedurally unique.
      ===================================================================== */
 
-  let leafUid = 0;
+  function buildCluster(preset, orientation) {
+    const c = 150; // local center, viewBox is 0 0 300 300
+    let circleCount, rMin, rMax, spreadMain, spreadCross, sprigCount, sprigLen;
 
-  const LEAF_SVGS = {
-    monstera: () => {
-      const id = `leaf-monstera-${leafUid++}`;
-      return `<svg viewBox="0 0 100 150" fill="currentColor">
-        <defs>
-          <mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="150">
-            <rect x="0" y="0" width="100" height="150" fill="#fff"/>
-            <ellipse cx="40" cy="55" rx="6" ry="10" fill="#000" transform="rotate(-20 40 55)"/>
-            <ellipse cx="63" cy="78" rx="7" ry="12" fill="#000" transform="rotate(15 63 78)"/>
-            <ellipse cx="38" cy="103" rx="5" ry="9" fill="#000" transform="rotate(-10 38 103)"/>
-          </mask>
-        </defs>
-        <path mask="url(#${id})" d="M50 4 C 84 14 100 55 92 96 C 86 132 66 154 50 158 C 34 154 14 132 8 96 C 0 55 16 14 50 4 Z"/>
-        <path d="M50 148 L50 20" stroke="currentColor" stroke-opacity="0.3" stroke-width="1.4" fill="none"/>
-      </svg>`;
-    },
-    fern: () => `<svg viewBox="0 0 100 200" fill="currentColor">
-      <path d="M50 197 C 49 150 49 80 50 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-opacity="0.9"/>
-      <ellipse cx="34" cy="26" rx="5" ry="13" transform="rotate(-35 34 26)"/><ellipse cx="66" cy="26" rx="5" ry="13" transform="rotate(35 66 26)"/>
-      <ellipse cx="30" cy="48" rx="6" ry="16" transform="rotate(-38 30 48)"/><ellipse cx="70" cy="48" rx="6" ry="16" transform="rotate(38 70 48)"/>
-      <ellipse cx="27" cy="72" rx="6.5" ry="18" transform="rotate(-40 27 72)"/><ellipse cx="73" cy="72" rx="6.5" ry="18" transform="rotate(40 73 72)"/>
-      <ellipse cx="27" cy="98" rx="6.5" ry="18" transform="rotate(-40 27 98)"/><ellipse cx="73" cy="98" rx="6.5" ry="18" transform="rotate(40 73 98)"/>
-      <ellipse cx="30" cy="124" rx="6" ry="16" transform="rotate(-38 30 124)"/><ellipse cx="70" cy="124" rx="6" ry="16" transform="rotate(38 70 124)"/>
-      <ellipse cx="34" cy="148" rx="5" ry="13" transform="rotate(-34 34 148)"/><ellipse cx="66" cy="148" rx="5" ry="13" transform="rotate(34 66 148)"/>
-      <ellipse cx="38" cy="168" rx="4" ry="10" transform="rotate(-30 38 168)"/><ellipse cx="62" cy="168" rx="4" ry="10" transform="rotate(30 62 168)"/>
-    </svg>`,
-    palm: () => `<svg viewBox="0 0 160 200" fill="currentColor">
-      <path d="M14 192 C 40 150 80 90 142 22" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-opacity="0.9"/>
-      <ellipse cx="26" cy="176" rx="3.2" ry="18" transform="rotate(-35 26 176)"/><ellipse cx="26" cy="176" rx="3.2" ry="16" transform="rotate(150 26 176)"/>
-      <ellipse cx="44" cy="152" rx="3.4" ry="21" transform="rotate(-40 44 152)"/><ellipse cx="44" cy="152" rx="3.4" ry="19" transform="rotate(145 44 152)"/>
-      <ellipse cx="62" cy="128" rx="3.6" ry="25" transform="rotate(-45 62 128)"/><ellipse cx="62" cy="128" rx="3.6" ry="22" transform="rotate(140 62 128)"/>
-      <ellipse cx="80" cy="104" rx="3.6" ry="25" transform="rotate(-50 80 104)"/><ellipse cx="80" cy="104" rx="3.6" ry="22" transform="rotate(135 80 104)"/>
-      <ellipse cx="98" cy="80" rx="3.4" ry="21" transform="rotate(-55 98 80)"/><ellipse cx="98" cy="80" rx="3.4" ry="19" transform="rotate(130 98 80)"/>
-      <ellipse cx="116" cy="56" rx="3" ry="17" transform="rotate(-60 116 56)"/><ellipse cx="116" cy="56" rx="3" ry="15" transform="rotate(125 116 56)"/>
-      <ellipse cx="132" cy="36" rx="2.6" ry="13" transform="rotate(-65 132 36)"/><ellipse cx="132" cy="36" rx="2.6" ry="11" transform="rotate(120 132 36)"/>
-    </svg>`
-  };
-  const LEAF_TYPES = Object.keys(LEAF_SVGS);
-  const LEAF_TINTS = ["var(--green)", "var(--green)", "var(--cyan)"]; // mostly green, occasional cyan rim-light
+    if (preset === "canopy") {
+      circleCount = 9; rMin = 26; rMax = 48; spreadMain = 108; spreadCross = 52; sprigCount = 2; sprigLen = 40;
+    } else if (preset === "fern") {
+      circleCount = 6; rMin = 14; rMax = 24; spreadMain = 92; spreadCross = 28; sprigCount = 7; sprigLen = 68;
+    } else { // palm
+      circleCount = 5; rMin = 20; rMax = 34; spreadMain = 98; spreadCross = 32; sprigCount = 4; sprigLen = 96;
+    }
+
+    let circles = "";
+    for (let i = 0; i < circleCount; i++) {
+      const along = (Math.random() - 0.5) * 2 * spreadMain;
+      const cross = (Math.random() - 0.5) * 2 * spreadCross;
+      const x = orientation === "h" ? c + along : c + cross;
+      const y = orientation === "h" ? c + cross : c + along;
+      const r = rMin + Math.random() * (rMax - rMin);
+      circles += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"/>`;
+    }
+
+    let sprigs = "";
+    for (let i = 0; i < sprigCount; i++) {
+      const along = (Math.random() - 0.5) * 2 * spreadMain * 0.9;
+      const crossJ = (Math.random() - 0.5) * spreadCross * 1.3;
+      const baseX = orientation === "h" ? c + along : c + crossJ;
+      const baseY = orientation === "h" ? c + crossJ : c + along;
+      const dirOut = Math.random() > 0.5 ? 1 : -1;
+      const reach = sprigLen * (0.7 + Math.random() * 0.5);
+      const tipX = orientation === "h" ? baseX + (Math.random() - 0.5) * 30 : baseX + dirOut * reach;
+      const tipY = orientation === "h" ? baseY + dirOut * reach : baseY + (Math.random() - 0.5) * 30;
+      const midX = (baseX + tipX) / 2 + (Math.random() - 0.5) * 20;
+      const midY = (baseY + tipY) / 2 + (Math.random() - 0.5) * 20;
+      sprigs += `<path d="M ${baseX.toFixed(1)} ${baseY.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${tipX.toFixed(1)} ${tipY.toFixed(1)}" stroke="currentColor" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.8"/>`;
+    }
+
+    return `<svg viewBox="0 0 300 300" fill="currentColor">${sprigs}${circles}</svg>`;
+  }
+
+  const LEAF_TYPES = ["canopy", "fern", "palm"];
+  const LEAF_TINTS = [
+    "color-mix(in srgb, var(--green) 42%, black 58%)",
+    "color-mix(in srgb, var(--green) 42%, black 58%)",
+    "color-mix(in srgb, var(--green) 60%, black 40%)",
+    "var(--green)",
+    "var(--cyan)"
+  ]; // mostly dark jungle-shadow green, occasional lit green or cyan rim-light
 
   /* =====================================================================
      CREATE RAIN
@@ -354,11 +365,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================================================================
-     CREATE LEAVES
-     Every leaf stems from an edge -- left, right, top or bottom -- never
-     floats near the center. Sides are the most common; a smaller share
-     hangs from the top or rises from the bottom, so the jungle frames the
-     viewport from all four sides rather than clustering in corners.
+     CREATE FOLIAGE CLUSTERS
+     Every cluster stems from an edge -- left, right, top or bottom --
+     never floats near the center. A cluster's own sprigs already reach
+     inward from that edge (outward-reaching sprigs stay cropped off
+     screen), so no artificial rotation-flip is needed to fake a "hanging"
+     or "growing" look -- it falls out of the geometry naturally.
      ===================================================================== */
 
   const leaves = [];
@@ -373,46 +385,31 @@ document.addEventListener("DOMContentLoaded", () => {
       const depthOptions = ["front", "front", "mid", "mid", "back"];
       const depth = depthOptions[Math.floor(Math.random() * depthOptions.length)];
       const edge = LEAF_EDGES[Math.floor(Math.random() * LEAF_EDGES.length)];
+      const orientation = (edge === "left" || edge === "right") ? "v" : "h";
 
       const leaf = document.createElement("div");
       leaf.className = "ambient-leaf";
       leaf.dataset.depth = depth;
       leaf.dataset.edge = edge;
-      leaf.innerHTML = LEAF_SVGS[type]();
+      leaf.innerHTML = buildCluster(type, orientation);
 
-      let x, y, rotation, flip;
+      let x, y;
+      if (edge === "left") { x = -14 + Math.random() * 16; y = Math.random() * 100; }
+      else if (edge === "right") { x = 98 + Math.random() * 16; y = Math.random() * 100; }
+      else if (edge === "top") { x = 6 + Math.random() * 88; y = -16 + Math.random() * 16; }
+      else { x = 6 + Math.random() * 88; y = 96 + Math.random() * 20; }
 
-      if (edge === "left") {
-        x = -10 + Math.random() * 14;
-        y = Math.random() * 100;
-        rotation = -25 + Math.random() * 50;
-        flip = 1;
-      } else if (edge === "right") {
-        x = 92 + Math.random() * 14;
-        y = Math.random() * 100;
-        rotation = -25 + Math.random() * 50;
-        flip = -1;
-      } else if (edge === "top") {
-        x = 8 + Math.random() * 84;
-        y = -12 + Math.random() * 14;
-        rotation = 160 + Math.random() * 40; // hangs downward, tip pointing into the scene
-        flip = Math.random() > 0.5 ? 1 : -1;
-      } else {
-        x = 8 + Math.random() * 84;
-        y = 90 + Math.random() * 16;
-        rotation = -20 + Math.random() * 40; // grows upward, like undergrowth
-        flip = Math.random() > 0.5 ? 1 : -1;
-      }
+      const rotation = -8 + Math.random() * 16; // subtle sway tilt only, mass shape does the rest
 
-      const size = depth === "front" ? 150 + Math.random() * 110
-                 : depth === "mid"   ? 100 + Math.random() * 70
-                 :                     70 + Math.random() * 45;
+      const size = depth === "front" ? 230 + Math.random() * 150
+                 : depth === "mid"   ? 160 + Math.random() * 100
+                 :                     110 + Math.random() * 70;
 
-      const baseOpacity = depth === "front" ? 0.36 + Math.random() * 0.18
-                         : depth === "mid"   ? 0.26 + Math.random() * 0.16
-                         :                     0.17 + Math.random() * 0.10;
+      const baseOpacity = depth === "front" ? 0.5 + Math.random() * 0.22
+                         : depth === "mid"   ? 0.34 + Math.random() * 0.18
+                         :                     0.22 + Math.random() * 0.12;
 
-      const swayRange = depth === "front" ? 18 : depth === "mid" ? 10 : 5;
+      const swayRange = depth === "front" ? 14 : depth === "mid" ? 8 : 4;
       const tint = LEAF_TINTS[Math.floor(Math.random() * LEAF_TINTS.length)];
 
       leaf.style.setProperty("--leaf-size", `${size}px`);
@@ -421,7 +418,6 @@ document.addEventListener("DOMContentLoaded", () => {
       leaf.style.setProperty("--leaf-rotation", `${rotation}deg`);
       leaf.style.setProperty("--leaf-opacity", baseOpacity);
       leaf.style.setProperty("--leaf-tint", tint);
-      leaf.style.setProperty("--leaf-flip", flip);
 
       leaves.push({
         element: leaf,
@@ -463,21 +459,64 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================================
      LIGHTNING -- occasional, randomly positioned, from the edges only.
      Scheduled independently of the scroll loop with its own timers.
+     Draws both a soft ambient glow wash and an actual jagged bolt path.
      ===================================================================== */
 
   let lightningTimer = null;
 
+  function jaggedPath(x1, y1, x2, y2, segments, jitter) {
+    let d = `M ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+    for (let i = 1; i <= segments; i++) {
+      const t = i / segments;
+      const x = x1 + (x2 - x1) * t + (Math.random() - 0.5) * jitter;
+      const y = y1 + (y2 - y1) * t;
+      d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }
+    return d;
+  }
+
+  function drawBolt(originXPct, originYPct) {
+    if (!boltSvg) return;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    boltSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+
+    const x1 = (originXPct / 100) * w;
+    const y1 = Math.max(0, (originYPct / 100) * h);
+    const x2 = x1 + (Math.random() - 0.5) * w * 0.22;
+    const y2 = h * (0.42 + Math.random() * 0.32);
+
+    const mainD = jaggedPath(x1, y1, x2, y2, 6, 34);
+
+    // A short secondary branch off a point partway down the main bolt.
+    const branchT = 0.35 + Math.random() * 0.3;
+    const bx = x1 + (x2 - x1) * branchT;
+    const by = y1 + (y2 - y1) * branchT;
+    const branchD = jaggedPath(bx, by, bx + (Math.random() - 0.5) * w * 0.12, by + (y2 - y1) * 0.3, 3, 22);
+    const showBranch = Math.random() > 0.45;
+
+    boltSvg.innerHTML =
+      `<path class="bolt-glow" d="${mainD}" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<path class="bolt-core" d="${mainD}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
+      (showBranch
+        ? `<path class="bolt-glow" d="${branchD}" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
+          `<path class="bolt-core" d="${branchD}" fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>`
+        : "");
+  }
+
   function flashOnce(peak) {
     if (!lightningEl) return;
     const edge = Math.floor(Math.random() * 3); // 0 left, 1 right, 2 top
-    const x = edge === 0 ? `${-5 + Math.random() * 10}%`
-            : edge === 1 ? `${95 + Math.random() * 10}%`
-            : `${Math.random() * 100}%`;
-    const y = edge === 2 ? `${-5 + Math.random() * 10}%` : `${Math.random() * 60}%`;
+    const xPct = edge === 0 ? -5 + Math.random() * 10
+               : edge === 1 ? 95 + Math.random() * 10
+               : Math.random() * 100;
+    const yPct = edge === 2 ? -5 + Math.random() * 10 : Math.random() * 60;
 
-    root.style.setProperty("--lightning-x", x);
-    root.style.setProperty("--lightning-y", y);
+    root.style.setProperty("--lightning-x", `${xPct}%`);
+    root.style.setProperty("--lightning-y", `${yPct}%`);
     root.style.setProperty("--lightning-opacity", peak);
+
+    drawBolt(xPct, yPct);
 
     window.setTimeout(() => {
       root.style.setProperty("--lightning-opacity", 0);
