@@ -1020,3 +1020,1203 @@ section,
   }
 
 }
+
+
+/* ============================================================
+   GLOBAL CYBERPUNK JUNGLE ATMOSPHERE
+   Complete atmospheric replacement.
+   Append after the existing site CSS.
+   ============================================================ */
+
+
+/* ============================================================
+   ROOT / SHARED VARIABLES
+   ============================================================ */
+
+:root {
+  --ambient-intensity: 0.72;
+  --ambient-leaf-opacity: 0.75;
+
+  --hero-progress: 0;
+  --hero-center-alpha: 1;
+  --hero-edge-alpha: 1;
+
+  --contact-progress: 0;
+  --contact-exit: 0;
+  --contact-top-alpha: 0.18;
+  --contact-bottom-alpha: 0.18;
+
+  --ambient-shift-x: 0px;
+  --ambient-shift-y: 0px;
+}
+
+
+/* ============================================================
+   GLOBAL ATMOSPHERE
+   ============================================================ */
+
+.ambient-layer {
+  position: fixed;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  /*
+   * Keep the atmospheric layer behind the site's content.
+   */
+  z-index: 0;
+
+  isolation: isolate;
+
+  contain: layout style paint;
+}
+
+
+/*
+ * Existing page structures should remain above the atmosphere.
+ *
+ * These rules deliberately do NOT alter nav positioning.
+ * If your site already has a main/site wrapper with z-index,
+ * keep that existing stacking context.
+ */
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* Keep explicit existing navigation stacking above atmosphere. */
+header {
+  z-index: 20;
+}
+
+
+/* ============================================================
+   RAIN
+   ============================================================ */
+
+.ambient-rain {
+  position: absolute;
+
+  inset: -20vh -10vw;
+
+  opacity:
+    calc(
+      0.10 +
+      var(--ambient-intensity) * 0.90
+    );
+
+  transition: opacity 220ms linear;
+
+  transform:
+    translate3d(
+      var(--ambient-shift-x),
+      var(--ambient-shift-y),
+      0
+    );
+
+  will-change: opacity;
+}
+
+
+/*
+ * Every drop is generated once.
+ * Only transform/opacity animate.
+ */
+.ambient-drop {
+  --drop-length: 48px;
+  --drop-duration: 1.7s;
+  --drop-delay: 0s;
+  --drop-drift: 8px;
+  --drop-opacity: 0.55;
+
+  position: absolute;
+
+  top: -15vh;
+
+  width: 1px;
+  height: var(--drop-length);
+
+  opacity: var(--drop-opacity);
+
+  border-radius: 999px;
+
+  transform: rotate(8deg);
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(105, 235, 255, 0.10) 10%,
+      rgba(80, 230, 255, 0.74) 58%,
+      rgba(210, 255, 255, 0.92) 84%,
+      rgba(150, 245, 255, 0.06) 100%
+    );
+
+  box-shadow:
+    0 0 4px rgba(80, 225, 255, 0.24);
+
+  animation:
+    ambient-rain-fall
+    calc(
+      var(--drop-duration) /
+      var(--ambient-rain-speed, 1)
+    )
+    linear
+    infinite;
+
+  animation-delay: var(--drop-delay);
+}
+
+
+.ambient-drop[data-depth="far"] {
+  width: 1px;
+
+  filter: blur(0.5px);
+
+  opacity:
+    calc(
+      var(--drop-opacity) * 0.50
+    );
+
+  box-shadow: none;
+}
+
+
+.ambient-drop[data-depth="mid"] {
+  width: 1px;
+
+  opacity:
+    calc(
+      var(--drop-opacity) * 0.78
+    );
+}
+
+
+.ambient-drop[data-depth="near"] {
+  width: 1.5px;
+
+  opacity:
+    calc(
+      var(--drop-opacity) * 1.15
+    );
+
+  filter: blur(0);
+
+  box-shadow:
+    0 0 7px rgba(75, 225, 255, 0.45),
+    0 0 13px rgba(55, 195, 255, 0.18);
+}
+
+
+@keyframes ambient-rain-fall {
+  0% {
+    transform:
+      translate3d(
+        0,
+        -14vh,
+        0
+      )
+      rotate(8deg);
+  }
+
+  100% {
+    transform:
+      translate3d(
+        var(--drop-drift),
+        135vh,
+        0
+      )
+      rotate(8deg);
+  }
+}
+
+
+/* -------------------------
+   Light theme rain
+   ------------------------- */
+
+[data-theme="light"] .ambient-drop {
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(18, 80, 91, 0.10) 12%,
+      rgba(14, 81, 95, 0.56) 58%,
+      rgba(18, 75, 88, 0.72) 82%,
+      transparent 100%
+    );
+
+  box-shadow: none;
+}
+
+
+/* ============================================================
+   JUNGLE FOLIAGE
+   ============================================================ */
+
+.ambient-leaves {
+  position: absolute;
+
+  inset: 0;
+
+  opacity: var(--ambient-leaf-opacity);
+
+  overflow: hidden;
+
+  transition:
+    opacity 320ms ease;
+}
+
+
+.ambient-leaf {
+  --leaf-x: 0px;
+  --leaf-y: 0px;
+  --leaf-rotate: 0deg;
+
+  position: absolute;
+
+  display: block;
+
+  width: clamp(130px, 18vw, 300px);
+
+  opacity: 0;
+
+  transform:
+    translate3d(
+      var(--leaf-x),
+      var(--leaf-y),
+      0
+    )
+    rotate(var(--leaf-rotate));
+
+  transform-origin: center;
+
+  will-change:
+    transform,
+    opacity;
+
+  transition: opacity 260ms ease;
+}
+
+
+/*
+ * The SVG itself is deliberately simple:
+ * silhouette + subtle neon edge.
+ */
+.ambient-leaf svg {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  overflow: visible;
+}
+
+
+.ambient-leaf path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* -------------------------
+   Monstera
+   ------------------------- */
+
+.leaf--monstera path:first-child {
+  fill: none;
+
+  stroke:
+    rgba(37, 255, 185, 0.18);
+
+  stroke-width: 2;
+}
+
+
+.leaf--monstera path:nth-child(2) {
+  fill:
+    rgba(3, 38, 31, 0.68);
+
+  stroke:
+    rgba(23, 255, 176, 0.16);
+
+  stroke-width: 1.5;
+}
+
+
+.leaf--monstera path:nth-child(3) {
+  fill: none;
+
+  stroke:
+    rgba(63, 255, 201, 0.20);
+
+  stroke-width: 2;
+}
+
+
+/* -------------------------
+   Banana / palm silhouettes
+   ------------------------- */
+
+.leaf--banana path,
+.leaf--palm path {
+  fill: none;
+
+  stroke:
+    rgba(18, 76, 60, 0.90);
+
+  stroke-width: 5;
+}
+
+
+.leaf--near {
+  filter:
+    drop-shadow(
+      0 0 12px
+      rgba(0, 255, 185, 0.10)
+    );
+}
+
+
+.leaf--mid {
+  filter:
+    blur(0.35px);
+}
+
+
+.leaf--deep {
+  filter:
+    blur(0.8px);
+}
+
+
+.leaf--far {
+  filter:
+    blur(1.6px);
+}
+
+
+/* ============================================================
+   DISTRIBUTION
+   ============================================================ */
+
+/*
+ * These positions intentionally avoid making the atmosphere
+ * look like four decorative corner stickers.
+ */
+
+.leaf--1 {
+  left: -6vw;
+  top: 8vh;
+
+  width:
+    clamp(125px, 16vw, 245px);
+}
+
+
+.leaf--2 {
+  right: 4vw;
+  top: 21vh;
+
+  width:
+    clamp(135px, 16vw, 240px);
+}
+
+
+.leaf--3 {
+  left: 15vw;
+  top: -7vh;
+
+  width:
+    clamp(180px, 23vw, 340px);
+}
+
+
+.leaf--4 {
+  right: -7vw;
+  bottom: 6vh;
+
+  width:
+    clamp(155px, 20vw, 300px);
+}
+
+
+.leaf--5 {
+  left: 5vw;
+  bottom: -4vh;
+
+  width:
+    clamp(125px, 16vw, 235px);
+}
+
+
+.leaf--6 {
+  right: 20vw;
+  bottom: -8vh;
+
+  width:
+    clamp(170px, 22vw, 330px);
+}
+
+
+/* ============================================================
+   LIGHT THEME FOLIAGE
+   ============================================================ */
+
+[data-theme="light"] .leaf--monstera path:nth-child(2) {
+  fill:
+    rgba(10, 85, 72, 0.18);
+
+  stroke:
+    rgba(8, 95, 86, 0.16);
+}
+
+
+[data-theme="light"] .leaf--monstera path:nth-child(3) {
+  stroke:
+    rgba(8, 100, 90, 0.20);
+}
+
+
+[data-theme="light"] .leaf--banana path,
+[data-theme="light"] .leaf--palm path {
+  stroke:
+    rgba(8, 84, 75, 0.30);
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+/*
+ * IMPORTANT:
+ *
+ * The hero does NOT fade by simply reducing its opacity.
+ * Instead:
+ *
+ * 1. It moves upward.
+ * 2. It very slightly recedes.
+ * 3. It blurs subtly.
+ * 4. Its outer edges dissolve.
+ * 5. Its center eventually fades.
+ *
+ * That eliminates the visible rectangular "box" edge.
+ */
+
+#top.hero {
+  --hero-progress: 0;
+
+  --hero-center-alpha: 1;
+  --hero-edge-alpha: 1;
+
+  position: relative;
+
+  z-index: 1;
+
+  /*
+   * Keep a little opacity fade for the center,
+   * but let the mask do most of the work.
+   */
+  opacity:
+    calc(
+      1 -
+      var(--hero-progress) * 0.20
+    );
+
+  transform:
+    translate3d(
+      0,
+      calc(
+        var(--hero-progress) * -7vh
+      ),
+      0
+    )
+    scale(
+      calc(
+        1 -
+        var(--hero-progress) * 0.035
+      )
+    );
+
+  filter:
+    blur(
+      calc(
+        var(--hero-progress) * 2.4px
+      )
+    );
+
+  transform-origin:
+    center top;
+
+  /*
+   * Strong radial dissolution.
+   *
+   * The center remains visible longer.
+   * The borders disappear much earlier.
+   */
+  -webkit-mask-image:
+    radial-gradient(
+      ellipse 100% 94% at 50% 44%,
+
+      rgba(0, 0, 0, var(--hero-center-alpha)) 0%,
+
+      rgba(0, 0, 0, var(--hero-center-alpha)) 38%,
+
+      rgba(0, 0, 0, calc(
+        var(--hero-center-alpha) * 0.88
+      )) 52%,
+
+      rgba(0, 0, 0, var(--hero-edge-alpha)) 68%,
+
+      rgba(0, 0, 0, calc(
+        var(--hero-edge-alpha) * 0.35
+      )) 84%,
+
+      transparent 100%
+    );
+
+  mask-image:
+    radial-gradient(
+      ellipse 100% 94% at 50% 44%,
+
+      rgba(0, 0, 0, var(--hero-center-alpha)) 0%,
+
+      rgba(0, 0, 0, var(--hero-center-alpha)) 38%,
+
+      rgba(0, 0, 0, calc(
+        var(--hero-center-alpha) * 0.88
+      )) 52%,
+
+      rgba(0, 0, 0, var(--hero-edge-alpha)) 68%,
+
+      rgba(0, 0, 0, calc(
+        var(--hero-edge-alpha) * 0.35
+      )) 84%,
+
+      transparent 100%
+    );
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: 118% 116%;
+  mask-size: 118% 116%;
+
+  -webkit-mask-position: center top;
+  mask-position: center top;
+
+  will-change:
+    transform,
+    opacity,
+    filter;
+}
+
+
+/* ============================================================
+   HERO ATMOSPHERIC GLOW
+   ============================================================ */
+
+#top.hero::before {
+  content: "";
+
+  position: absolute;
+
+  inset:
+    -10%
+    -7%
+    -14%;
+
+  z-index: -1;
+
+  pointer-events: none;
+
+  opacity:
+    calc(
+      0.12 +
+      (1 - var(--hero-progress)) * 0.40
+    );
+
+  background:
+
+    radial-gradient(
+      ellipse at 16% 18%,
+      rgba(0, 235, 255, 0.18),
+      transparent 46%
+    ),
+
+    radial-gradient(
+      ellipse at 85% 62%,
+      rgba(24, 255, 145, 0.13),
+      transparent 50%
+    ),
+
+    radial-gradient(
+      ellipse at 52% 100%,
+      rgba(255, 0, 185, 0.08),
+      transparent 50%
+    );
+
+  filter:
+    blur(
+      calc(
+        16px +
+        var(--hero-progress) * 18px
+      )
+    );
+
+  transition:
+    opacity 150ms linear;
+}
+
+
+/*
+ * Soft atmospheric veil toward the next section.
+ * This makes the hero exit feel gradual instead of abrupt.
+ */
+#top.hero::after {
+  content: "";
+
+  position: absolute;
+
+  left: -10%;
+  right: -10%;
+
+  bottom: -12%;
+
+  height: 38%;
+
+  pointer-events: none;
+
+  z-index: 2;
+
+  opacity:
+    calc(
+      var(--hero-progress) * 0.58
+    );
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.05) 28%,
+      rgba(0, 0, 0, 0.14) 64%,
+      rgba(0, 0, 0, 0.28) 100%
+    );
+
+  filter: blur(16px);
+}
+
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+
+/*
+ * The contact section gets a much stronger atmospheric entrance.
+ *
+ * It:
+ * - rises slightly
+ * - begins partially transparent
+ * - becomes fully present
+ * - has a soft vertical mask
+ * - intensifies surrounding atmosphere
+ */
+
+#contact.contact {
+  --contact-progress: 0;
+  --contact-exit: 0;
+
+  --contact-top-alpha: 0.12;
+  --contact-bottom-alpha: 0.16;
+
+  position: relative;
+
+  z-index: 1;
+
+  transform:
+    translate3d(
+      0,
+      calc(
+        (1 - var(--contact-progress)) * 30px
+      ),
+      0
+    );
+
+  /*
+   * Stronger entrance than before.
+   */
+  opacity:
+    calc(
+      0.68 +
+      var(--contact-progress) * 0.32 -
+      var(--contact-exit) * 0.16
+    );
+
+  filter:
+    blur(
+      calc(
+        (1 - var(--contact-progress)) * 1.8px
+      )
+    );
+
+  /*
+   * Strong atmospheric vertical reveal.
+   *
+   * The top edge fades in from the previous section.
+   * The bottom edge can fade gracefully if content follows.
+   */
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+
+      transparent 0%,
+
+      rgba(
+        0,
+        0,
+        0,
+        var(--contact-top-alpha)
+      )
+      calc(
+        6% +
+        (1 - var(--contact-progress)) * 16%
+      ),
+
+      #000
+      calc(
+        24% -
+        var(--contact-progress) * 10%
+      ),
+
+      #000 76%,
+
+      rgba(
+        0,
+        0,
+        0,
+        var(--contact-bottom-alpha)
+      ) 94%,
+
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+
+      transparent 0%,
+
+      rgba(
+        0,
+        0,
+        0,
+        var(--contact-top-alpha)
+      )
+      calc(
+        6% +
+        (1 - var(--contact-progress)) * 16%
+      ),
+
+      #000
+      calc(
+        24% -
+        var(--contact-progress) * 10%
+      ),
+
+      #000 76%,
+
+      rgba(
+        0,
+        0,
+        0,
+        var(--contact-bottom-alpha)
+      ) 94%,
+
+      transparent 100%
+    );
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  will-change:
+    transform,
+    opacity,
+    filter;
+}
+
+
+/* ============================================================
+   CONTACT ATMOSPHERIC FIELD
+   ============================================================ */
+
+#contact.contact::before {
+  content: "";
+
+  position: absolute;
+
+  inset:
+    -18%
+    -10%
+    -18%;
+
+  z-index: -1;
+
+  pointer-events: none;
+
+  opacity:
+    calc(
+      0.12 +
+      var(--contact-progress) * 0.78
+    );
+
+  background:
+
+    radial-gradient(
+      ellipse at 16% 68%,
+      rgba(0, 235, 255, 0.18),
+      transparent 40%
+    ),
+
+    radial-gradient(
+      ellipse at 86% 28%,
+      rgba(255, 0, 190, 0.14),
+      transparent 42%
+    ),
+
+    radial-gradient(
+      ellipse at 52% 110%,
+      rgba(25, 255, 140, 0.14),
+      transparent 48%
+    );
+
+  filter:
+    blur(
+      calc(
+        12px +
+        var(--contact-progress) * 18px
+      )
+    );
+
+  transition:
+    opacity 160ms linear;
+}
+
+
+/*
+ * Additional atmospheric wash.
+ * This gives the contact area a genuine environmental
+ * transition instead of a static gradient.
+ */
+#contact.contact::after {
+  content: "";
+
+  position: absolute;
+
+  inset: -8%;
+
+  z-index: -1;
+
+  pointer-events: none;
+
+  opacity:
+    calc(
+      var(--contact-progress) * 0.72
+    );
+
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      rgba(0, 210, 225, 0.08),
+      transparent 64%
+    );
+
+  filter: blur(22px);
+}
+
+
+/* ============================================================
+   LIGHT THEME CONTACT
+   ============================================================ */
+
+[data-theme="light"] #contact.contact::before {
+  background:
+
+    radial-gradient(
+      ellipse at 16% 68%,
+      rgba(10, 105, 120, 0.12),
+      transparent 42%
+    ),
+
+    radial-gradient(
+      ellipse at 84% 28%,
+      rgba(170, 20, 125, 0.07),
+      transparent 44%
+    ),
+
+    radial-gradient(
+      ellipse at 52% 108%,
+      rgba(10, 125, 90, 0.08),
+      transparent 50%
+    );
+}
+
+
+[data-theme="light"] #contact.contact::after {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(10, 105, 120, 0.045),
+      transparent 66%
+    );
+}
+
+
+/* ============================================================
+   LIGHTNING
+   ============================================================ */
+
+.ambient-lightning {
+  position: absolute;
+
+  width: 58vw;
+  height: 55vh;
+
+  left:
+    var(--lightning-x, 50%);
+
+  top:
+    var(--lightning-y, 8%);
+
+  transform:
+    translate(-50%, -50%);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(130, 245, 255, 0.20) 0%,
+      rgba(90, 185, 255, 0.08) 28%,
+      transparent 70%
+    );
+
+  mix-blend-mode: screen;
+
+  filter:
+    blur(18px);
+}
+
+
+/*
+ * Slightly different animations prevent
+ * every lightning event feeling identical.
+ */
+
+.ambient-lightning.is-flashing {
+  animation:
+    ambient-lightning-flash
+    180ms
+    ease-out
+    both;
+}
+
+
+.ambient-lightning.is-double {
+  animation:
+    ambient-lightning-double
+    380ms
+    ease-out
+    both;
+}
+
+
+@keyframes ambient-lightning-flash {
+  0% {
+    opacity: 0;
+  }
+
+  12% {
+    opacity:
+      var(--lightning-strength, 0.28);
+  }
+
+  28% {
+    opacity:
+      calc(
+        var(--lightning-strength, 0.28) * 0.58
+      );
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+
+@keyframes ambient-lightning-double {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  12% {
+    opacity:
+      var(--lightning-strength, 0.28);
+  }
+
+  22% {
+    opacity: 0;
+  }
+
+  46% {
+    opacity:
+      calc(
+        var(--lightning-strength, 0.28) * 0.62
+      );
+  }
+
+  64% {
+    opacity: 0;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  .ambient-rain {
+    inset:
+      -15vh
+      -18vw;
+  }
+
+
+  .ambient-leaf {
+    width:
+      clamp(95px, 27vw, 190px);
+  }
+
+
+  /*
+   * Remove the two largest distant elements on mobile.
+   * The remaining foliage retains the jungle atmosphere
+   * without competing with content.
+   */
+  .leaf--3,
+  .leaf--6 {
+    display: none;
+  }
+
+
+  .leaf--1 {
+    left: -12vw;
+    top: 9vh;
+  }
+
+
+  .leaf--2 {
+    right: -11vw;
+    top: 27vh;
+  }
+
+
+  .leaf--4 {
+    right: -12vw;
+    bottom: 10vh;
+  }
+
+
+  .leaf--5 {
+    left: -8vw;
+    bottom: -2vh;
+  }
+
+
+  /*
+   * Slightly smaller hero movement on mobile.
+   */
+  #top.hero {
+    transform:
+      translate3d(
+        0,
+        calc(
+          var(--hero-progress) * -4vh
+        ),
+        0
+      )
+      scale(
+        calc(
+          1 -
+          var(--hero-progress) * 0.02
+        )
+      );
+  }
+
+
+  #contact.contact {
+    transform:
+      translate3d(
+        0,
+        calc(
+          (1 - var(--contact-progress)) * 18px
+        ),
+        0
+      );
+  }
+
+
+  .ambient-lightning {
+    width: 75vw;
+    height: 45vh;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ambient-drop {
+    animation: none !important;
+  }
+
+
+  .ambient-lightning {
+    display: none !important;
+  }
+
+
+  #top.hero,
+  #contact.contact,
+  .ambient-leaf,
+  .ambient-rain {
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+
+  #top.hero {
+    opacity: 1;
+  }
+
+
+  .ambient-rain {
+    opacity: 0.24;
+  }
+}

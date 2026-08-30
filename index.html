@@ -98,11 +98,90 @@
       }
     })();
   </script>
-  <div class="ambient-layer" aria-hidden="true">
-    <div class="ambient-rain"></div>
-    <div class="ambient-leaves"></div>
-    <div class="ambient-glow"></div>
+<!-- =========================================================
+     GLOBAL ATMOSPHERE
+     Add exactly once to the page.
+     ========================================================= -->
+
+<div class="ambient-layer" aria-hidden="true">
+
+  <!-- Distant lightning -->
+  <div class="ambient-lightning"></div>
+
+  <!-- Rain -->
+  <div class="ambient-rain"></div>
+
+  <!-- Jungle foliage -->
+  <div class="ambient-leaves">
+
+    <!-- Deep banana leaf -->
+    <div class="ambient-leaf leaf--banana leaf--deep leaf--1">
+      <svg viewBox="0 0 180 300" aria-hidden="true">
+        <path d="M90 290C89 218 88 136 90 8" />
+        <path d="M90 36C47 50 18 91 18 144C45 135 73 104 90 72" />
+        <path d="M91 36C135 50 163 91 163 144C136 135 108 104 91 72" />
+        <path d="M90 72C48 87 25 128 25 184C53 170 76 139 90 105" />
+        <path d="M90 72C132 87 155 128 155 184C127 170 104 139 90 105" />
+      </svg>
+    </div>
+
+    <!-- Mid-distance monstera -->
+    <div class="ambient-leaf leaf--monstera leaf--mid leaf--2">
+      <svg viewBox="0 0 240 240" aria-hidden="true">
+        <path d="M118 226C119 181 121 145 124 111" />
+        <path d="M122 108C90 45 28 41 12 91C3 120 25 137 48 132C23 163 52 193 79 174C78 210 112 218 128 186C143 215 177 207 176 173C204 192 231 162 205 132C232 138 243 109 226 85C199 47 149 52 122 108Z" />
+        <path d="M122 108L57 81M122 108L34 120M122 108L61 159M122 108L105 187M122 108L176 76M122 108L208 112M122 108L183 157M122 108L145 190" />
+      </svg>
+    </div>
+
+    <!-- Distant palm -->
+    <div class="ambient-leaf leaf--palm leaf--far leaf--3">
+      <svg viewBox="0 0 320 250" aria-hidden="true">
+        <path d="M154 240C157 185 160 130 164 82" />
+        <path d="M165 84C111 57 58 58 16 78C72 91 111 101 151 110" />
+        <path d="M165 84C111 35 65 16 28 18C72 49 110 75 151 99" />
+        <path d="M165 84C178 34 207 8 241 2C220 40 196 72 174 101" />
+        <path d="M165 84C211 53 258 58 307 87C254 96 211 103 174 111" />
+        <path d="M165 84C191 113 207 148 203 184C180 148 169 126 160 104" />
+        <path d="M165 84C130 114 107 149 111 185C137 150 151 126 169 103" />
+      </svg>
+    </div>
+
+    <!-- Foreground banana -->
+    <div class="ambient-leaf leaf--banana leaf--near leaf--4">
+      <svg viewBox="0 0 180 300" aria-hidden="true">
+        <path d="M90 290C89 218 88 136 90 8" />
+        <path d="M90 36C47 50 18 91 18 144C45 135 73 104 90 72" />
+        <path d="M91 36C135 50 163 91 163 144C136 135 108 104 91 72" />
+        <path d="M90 72C48 87 25 128 25 184C53 170 76 139 90 105" />
+        <path d="M90 72C132 87 155 128 155 184C127 170 104 139 90 105" />
+      </svg>
+    </div>
+
+    <!-- Deep monstera -->
+    <div class="ambient-leaf leaf--monstera leaf--deep leaf--5">
+      <svg viewBox="0 0 240 240" aria-hidden="true">
+        <path d="M118 226C119 181 121 145 124 111" />
+        <path d="M122 108C90 45 28 41 12 91C3 120 25 137 48 132C23 163 52 193 79 174C78 210 112 218 128 186C143 215 177 207 176 173C204 192 231 162 205 132C232 138 243 109 226 85C199 47 149 52 122 108Z" />
+        <path d="M122 108L57 81M122 108L34 120M122 108L61 159M122 108L105 187M122 108L176 76M122 108L208 112M122 108L183 157M122 108L145 190" />
+      </svg>
+    </div>
+
+    <!-- Mid foreground palm -->
+    <div class="ambient-leaf leaf--palm leaf--mid leaf--6">
+      <svg viewBox="0 0 320 250" aria-hidden="true">
+        <path d="M154 240C157 185 160 130 164 82" />
+        <path d="M165 84C111 57 58 58 16 78C72 91 111 101 151 110" />
+        <path d="M165 84C111 35 65 16 28 18C72 49 110 75 151 99" />
+        <path d="M165 84C178 34 207 8 241 2C220 40 196 72 174 101" />
+        <path d="M165 84C211 53 258 58 307 87C254 96 211 103 174 111" />
+        <path d="M165 84C191 113 207 148 203 184C180 148 169 126 160 104" />
+        <path d="M165 84C130 114 107 149 111 185C137 150 151 126 169 103" />
+      </svg>
+    </div>
+
   </div>
+</div>
   <a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:0;background:#1b2c45;color:#fff;padding:0.75rem 1rem;z-index:999;">Skip to content</a>
 
   <!-- ============ NAV ============ -->

@@ -263,35 +263,65 @@
   }
 })();
 
+/* ============================================================
+   GLOBAL ATMOSPHERIC ENGINE
+   Vanilla JS
+   One scroll listener
+   One requestAnimationFrame loop
+   ============================================================ */
 
-document.addEventListener("DOMContentLoaded", () => {
+(() => {
+  "use strict";
 
-  /* =====================================================================
-     ELEMENTS
-     ===================================================================== */
-
-  const root = document.documentElement;
+  /* ----------------------------------------------------------
+     DOM CACHE
+     ---------------------------------------------------------- */
 
   const ambientLayer =
     document.querySelector(".ambient-layer");
 
-  const rainContainer =
+  const ambientRain =
     document.querySelector(".ambient-rain");
 
-  const leavesContainer =
+  const ambientLeaves =
     document.querySelector(".ambient-leaves");
 
-  const topSection =
-    document.querySelector("#top");
+  const lightning =
+    document.querySelector(".ambient-lightning");
 
-  const contactSection =
-    document.querySelector("#contact");
+  const hero =
+    document.querySelector("#top.hero");
 
-  const heroWrap =
-    topSection?.querySelector(".wrap");
+  const contact =
+    document.querySelector("#contact.contact");
 
-  const sections =
-    [...document.querySelectorAll("main section")];
+  const leafElements =
+    Array.from(
+      document.querySelectorAll(".ambient-leaf")
+    );
+
+
+  /*
+   * The atmospheric system cannot operate without these.
+   * Fail quietly rather than breaking the website.
+   */
+  if (
+    !ambientLayer ||
+    !ambientRain ||
+    !hero ||
+    !contact
+  ) {
+    console.warn(
+      "[ambient] Atmospheric layer could not initialize."
+    );
+
+    return;
+  }
+
+
+  /* ----------------------------------------------------------
+     PREFER-REDUCED-MOTION
+     ---------------------------------------------------------- */
 
   const reducedMotion =
     window.matchMedia(
@@ -299,41 +329,660 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
-  if (
-    !ambientLayer ||
-    !rainContainer ||
-    !leavesContainer
-  ) {
-    return;
+  /* ----------------------------------------------------------
+     STATE
+     ---------------------------------------------------------- */
+
+  const state = {
+    viewportWidth:
+      window.innerWidth,
+
+    viewportHeight:
+      window.innerHeight,
+
+    scrollY:
+      window.scrollY,
+
+    heroProgress:
+      0,
+
+    contactProgress:
+      0,
+
+    contactExit:
+      0,
+
+    pageProgress:
+      0,
+
+    previousMobile:
+      window.innerWidth <= 768
+  };
+
+
+  let rafPending = false;
+
+  let lightningTimer = null;
+
+
+  /* ----------------------------------------------------------
+     HELPERS
+     ---------------------------------------------------------- */
+
+  const clamp = (
+    value,
+    min = 0,
+    max = 1
+  ) =>
+    Math.min(
+      max,
+      Math.max(min, value)
+    );
+
+
+  const smoothstep = (
+    value
+  ) => {
+    const x =
+      clamp(value);
+
+    return (
+      x *
+      x *
+      (3 - 2 * x)
+    );
+  };
+
+
+  const lerp = (
+    a,
+    b,
+    amount
+  ) =>
+    a +
+    (b - a) *
+    amount;
+
+
+  const random = (
+    min,
+    max
+  ) =>
+    Math.random() *
+      (max - min) +
+    min;
+
+
+  /* ----------------------------------------------------------
+     SECTION PROGRESS
+     ---------------------------------------------------------- */
+
+  function getHeroProgress() {
+
+    const rect =
+      hero.getBoundingClientRect();
+
+    /*
+     * Hero begins transitioning once it starts leaving
+     * the top of the viewport.
+     *
+     * The transition completes after a large portion
+     * of the hero has moved away.
+     */
+    const start =
+      0;
+
+    const end =
+      -Math.max(
+        1,
+        rect.height * 0.76
+      );
+
+    return clamp(
+      (start - rect.top) /
+      (start - end)
+    );
   }
 
 
-  /* =====================================================================
-     SETTINGS
-     ===================================================================== */
+  function getContactProgress() {
 
-  const RAIN_COUNT =
-    window.innerWidth < 700
-      ? 45
-      : 90;
+    const rect =
+      contact.getBoundingClientRect();
 
-  const LEAF_COUNT =
-    window.innerWidth < 700
-      ? 8
-      : 18;
+    /*
+     * Entrance starts before contact reaches the viewport.
+     *
+     * This is intentionally stronger than a basic
+     * IntersectionObserver-style on/off trigger.
+     */
+    const start =
+      state.viewportHeight * 1.08;
+
+    const end =
+      state.viewportHeight * 0.30;
+
+    return smoothstep(
+      clamp(
+        (start - rect.top) /
+        (start - end)
+      )
+    );
+  }
 
 
-  /* =====================================================================
-     CREATE RAIN
-     ===================================================================== */
+  function getContactExit() {
+
+    const rect =
+      contact.getBoundingClientRect();
+
+    /*
+     * If another section/footer follows contact,
+     * this supplies a soft exit.
+     *
+     * At the normal bottom of the document this remains near 0,
+     * so the contact section does not suddenly disappear.
+     */
+    const distancePast =
+      state.viewportHeight -
+      rect.bottom;
+
+    const range =
+      Math.max(
+        1,
+        state.viewportHeight * 0.70
+      );
+
+    return smoothstep(
+      clamp(
+        distancePast /
+        range
+      )
+    );
+  }
+
+
+  function getPageProgress() {
+
+    const maxScroll =
+      document.documentElement.scrollHeight -
+      state.viewportHeight;
+
+    if (maxScroll <= 0) {
+      return 0;
+    }
+
+    return clamp(
+      state.scrollY /
+      maxScroll
+    );
+  }
+
+
+  /* ----------------------------------------------------------
+     ATMOSPHERE INTENSITY
+     ---------------------------------------------------------- */
+
+  function calculateAtmosphere() {
+
+    const heroPresence =
+      1 -
+      smoothstep(
+        state.heroProgress
+      );
+
+    const contactPresence =
+      smoothstep(
+        state.contactProgress
+      );
+
+
+    /*
+     * Middle-page baseline remains subtle.
+     */
+    const middle =
+      0.22;
+
+
+    /*
+     * Strong hero atmosphere.
+     */
+    const heroContribution =
+      heroPresence *
+      0.73;
+
+
+    /*
+     * Strong contact atmosphere.
+     */
+    const contactContribution =
+      contactPresence *
+      0.70;
+
+
+    const intensity =
+      clamp(
+        middle +
+        heroContribution +
+        contactContribution,
+        0.16,
+        1
+      );
+
+
+    const leaves =
+      clamp(
+        0.06 +
+        heroPresence * 0.94 +
+        contactPresence * 0.92,
+        0.05,
+        1
+      );
+
+
+    /*
+     * Rain speed responds subtly to atmosphere.
+     */
+    const rainSpeed =
+      lerp(
+        0.86,
+        1.16,
+        intensity
+      );
+
+
+    return {
+      intensity,
+      leaves,
+      rainSpeed
+    };
+  }
+
+
+  /* ----------------------------------------------------------
+     HERO UPDATE
+     ---------------------------------------------------------- */
+
+  function updateHero() {
+
+    const progress =
+      smoothstep(
+        state.heroProgress
+      );
+
+
+    /*
+     * Strong center fade near the end.
+     *
+     * Importantly:
+     * the hero isn't relying on opacity alone.
+     */
+    const centerAlpha =
+      lerp(
+        1,
+        0.16,
+        progress
+      );
+
+
+    /*
+     * Edge fades much faster than center.
+     */
+    const edgeAlpha =
+      lerp(
+        1,
+        0.05,
+        progress
+      );
+
+
+    hero.style.setProperty(
+      "--hero-progress",
+      progress.toFixed(4)
+    );
+
+
+    hero.style.setProperty(
+      "--hero-center-alpha",
+      centerAlpha.toFixed(4)
+    );
+
+
+    hero.style.setProperty(
+      "--hero-edge-alpha",
+      edgeAlpha.toFixed(4)
+    );
+  }
+
+
+  /* ----------------------------------------------------------
+     CONTACT UPDATE
+     ---------------------------------------------------------- */
+
+  function updateContact() {
+
+    const entrance =
+      smoothstep(
+        state.contactProgress
+      );
+
+    const exit =
+      smoothstep(
+        state.contactExit
+      );
+
+
+    /*
+     * Strong top dissolve at first.
+     * Then the full contact section becomes solid.
+     */
+    const topAlpha =
+      lerp(
+        0.04,
+        0.92,
+        entrance
+      );
+
+
+    /*
+     * Keep a very soft bottom atmospheric fade.
+     */
+    const bottomAlpha =
+      lerp(
+        0.10,
+        0.24,
+        entrance
+      );
+
+
+    contact.style.setProperty(
+      "--contact-progress",
+      entrance.toFixed(4)
+    );
+
+
+    contact.style.setProperty(
+      "--contact-exit",
+      exit.toFixed(4)
+    );
+
+
+    contact.style.setProperty(
+      "--contact-top-alpha",
+      topAlpha.toFixed(4)
+    );
+
+
+    contact.style.setProperty(
+      "--contact-bottom-alpha",
+      bottomAlpha.toFixed(4)
+    );
+  }
+
+
+  /* ----------------------------------------------------------
+     LEAF CONFIGURATION
+     ---------------------------------------------------------- */
+
+  const leafConfig =
+    leafElements.map(
+      (element, index) => ({
+
+        element,
+
+        /*
+         * Smaller depth values =
+         * slower parallax.
+         */
+        depth:
+          [
+            0.12,
+            0.24,
+            0.08,
+            0.40,
+            0.18,
+            0.31
+          ][index] ??
+          0.20,
+
+        phase:
+          index *
+          1.63,
+
+        direction:
+          index % 2 === 0
+            ? 1
+            : -1,
+
+        rotation:
+          [
+            -7,
+            9,
+            -3,
+            6,
+            -10,
+            4
+          ][index] ??
+          0
+      })
+    );
+
+
+  /* ----------------------------------------------------------
+     LEAF PARALLAX
+     ---------------------------------------------------------- */
+
+  function updateLeaves(
+    atmosphere
+  ) {
+
+    const now =
+      performance.now();
+
+    /*
+     * Very slow time-based movement.
+     */
+    const time =
+      now *
+      0.000075;
+
+
+    /*
+     * Page motion is intentionally gentle.
+     */
+    const pageShift =
+      (
+        state.pageProgress -
+        0.5
+      ) *
+      state.viewportHeight;
+
+
+    const heroPresence =
+      1 -
+      smoothstep(
+        state.heroProgress
+      );
+
+
+    const contactPresence =
+      smoothstep(
+        state.contactProgress
+      );
+
+
+    /*
+     * Both ends of the page are atmospheric.
+     * Middle remains intentionally subdued.
+     */
+    const environmentalPresence =
+      Math.max(
+        heroPresence * 0.96,
+        contactPresence * 0.94,
+        0.08
+      );
+
+
+    leafConfig.forEach(
+      config => {
+
+        const {
+          element,
+          depth,
+          phase,
+          direction,
+          rotation
+        } = config;
+
+
+        /*
+         * Scroll parallax.
+         */
+        const y =
+          pageShift *
+          depth *
+          direction *
+          -0.16;
+
+
+        /*
+         * Tiny horizontal sway.
+         */
+        const x =
+          Math.sin(
+            time +
+            phase
+          ) *
+          (
+            3 +
+            depth * 4
+          );
+
+
+        /*
+         * Gentle jungle movement.
+         */
+        const rotate =
+          rotation +
+          Math.sin(
+            time * 1.35 +
+            phase
+          ) *
+          (
+            0.8 +
+            depth * 2.1
+          );
+
+
+        /*
+         * Background leaves stay faint.
+         * Near leaves are more apparent at hero/contact.
+         */
+        const depthOpacity =
+          depth < 0.16
+            ? 0.34
+            : depth < 0.25
+              ? 0.51
+              : 0.68;
+
+
+        const opacity =
+          atmosphere.leaves *
+          environmentalPresence *
+          depthOpacity;
+
+
+        element.style.setProperty(
+          "--leaf-x",
+          `${x.toFixed(2)}px`
+        );
+
+
+        element.style.setProperty(
+          "--leaf-y",
+          `${y.toFixed(2)}px`
+        );
+
+
+        element.style.setProperty(
+          "--leaf-rotate",
+          `${rotate.toFixed(2)}deg`
+        );
+
+
+        element.style.opacity =
+          clamp(
+            opacity,
+            0,
+            0.78
+          ).toFixed(3);
+      }
+    );
+  }
+
+
+  /* ----------------------------------------------------------
+     RAIN
+     ---------------------------------------------------------- */
+
+  function updateRain(
+    atmosphere
+  ) {
+
+    ambientLayer.style.setProperty(
+      "--ambient-intensity",
+      atmosphere.intensity.toFixed(3)
+    );
+
+
+    ambientLayer.style.setProperty(
+      "--ambient-leaf-opacity",
+      atmosphere.leaves.toFixed(3)
+    );
+
+
+    ambientLayer.style.setProperty(
+      "--ambient-rain-speed",
+      atmosphere.rainSpeed.toFixed(3)
+    );
+
+
+    /*
+     * Extremely slight global atmosphere movement.
+     * This does not move content.
+     */
+    ambientLayer.style.setProperty(
+      "--ambient-shift-y",
+      `${(
+        state.pageProgress *
+        -18
+      ).toFixed(2)}px`
+    );
+  }
+
+
+  /* ----------------------------------------------------------
+     RAIN GENERATION
+     ---------------------------------------------------------- */
 
   function createRain() {
 
-    rainContainer.innerHTML = "";
+    /*
+     * Rebuilding is only done when the viewport crosses
+     * the mobile breakpoint.
+     */
+    ambientRain.innerHTML = "";
 
-    if (reducedMotion.matches) {
-      return;
-    }
+
+    const mobile =
+      state.viewportWidth <= 768;
+
+
+    const count =
+      mobile
+        ? 36
+        : 72;
+
 
     const fragment =
       document.createDocumentFragment();
@@ -341,592 +990,441 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (
       let i = 0;
-      i < RAIN_COUNT;
+      i < count;
       i++
     ) {
 
       const drop =
-        document.createElement("span");
+        document.createElement(
+          "span"
+        );
+
 
       drop.className =
         "ambient-drop";
 
 
-      const height =
-        35 + Math.random() * 120;
+      const depthRoll =
+        Math.random();
+
+
+      let depth;
+
+
+      if (
+        depthRoll < 0.25
+      ) {
+        depth = "far";
+      } else if (
+        depthRoll > 0.80
+      ) {
+        depth = "near";
+      } else {
+        depth = "mid";
+      }
+
+
+      const length =
+        depth === "far"
+          ? random(18, 38)
+          : depth === "near"
+            ? random(42, 82)
+            : random(28, 60);
+
 
       const duration =
-        0.8 + Math.random() * 1.5;
+        depth === "far"
+          ? random(1.8, 3.2)
+          : depth === "near"
+            ? random(0.72, 1.28)
+            : random(1.10, 2.20);
+
 
       const delay =
-        -(Math.random() * 3);
+        random(
+          -duration,
+          0
+        );
 
-      const x =
-        Math.random() * 100;
-
-      const opacity =
-        0.15 + Math.random() * 0.6;
 
       const drift =
-        -25 + Math.random() * 50;
+        random(
+          -16,
+          16
+        );
+
+
+      const opacity =
+        depth === "far"
+          ? random(0.25, 0.50)
+          : depth === "near"
+            ? random(0.54, 0.90)
+            : random(0.38, 0.72);
+
+
+      drop.dataset.depth =
+        depth;
+
+
+      drop.style.left =
+        `${random(0, 100).toFixed(2)}%`;
 
 
       drop.style.setProperty(
-        "--drop-height",
-        `${height}px`
+        "--drop-length",
+        `${length.toFixed(1)}px`
       );
+
 
       drop.style.setProperty(
         "--drop-duration",
-        `${duration}s`
+        `${duration.toFixed(2)}s`
       );
+
 
       drop.style.setProperty(
         "--drop-delay",
-        `${delay}s`
+        `${delay.toFixed(2)}s`
       );
 
+
       drop.style.setProperty(
-        "--drop-x",
-        `${x}%`
+        "--drop-drift",
+        `${drift.toFixed(1)}px`
       );
+
 
       drop.style.setProperty(
         "--drop-opacity",
-        opacity
-      );
-
-      drop.style.setProperty(
-        "--drift-end",
-        `${drift}px`
+        opacity.toFixed(2)
       );
 
 
-      fragment.appendChild(drop);
+      fragment.appendChild(
+        drop
+      );
     }
 
 
-    rainContainer.appendChild(
+    ambientRain.appendChild(
       fragment
     );
   }
 
 
-  /* =====================================================================
-     CREATE LEAVES
-     ===================================================================== */
-
-  const leaves = [];
-
-
-  function createLeaves() {
-
-    leavesContainer.innerHTML = "";
-
-    leaves.length = 0;
-
-
-    for (
-      let i = 0;
-      i < LEAF_COUNT;
-      i++
-    ) {
-
-      const leaf =
-        document.createElement("div");
-
-      leaf.className =
-        "ambient-leaf";
-
-
-      /*
-        Three depth planes.
-
-        Back:
-        slow / blurry / subtle
-
-        Mid:
-        medium
-
-        Front:
-        strongest movement
-      */
-      const depthOptions =
-        ["back", "mid", "front"];
-
-      const depth =
-        depthOptions[
-          Math.floor(
-            Math.random()
-            * depthOptions.length
-          )
-        ];
-
-
-      leaf.dataset.depth =
-        depth;
-
-
-      /*
-        Keep many leaves near edges so they
-        frame content instead of covering it.
-      */
-      const side =
-        Math.random() > 0.5
-          ? "left"
-          : "right";
-
-      const x =
-        side === "left"
-          ? -10 + Math.random() * 25
-          : 75 + Math.random() * 25;
-
-      const y =
-        Math.random() * 100;
-
-
-      const size =
-        depth === "front"
-          ? 160 + Math.random() * 200
-          : depth === "mid"
-            ? 110 + Math.random() * 140
-            : 80 + Math.random() * 100;
-
-
-      const rotation =
-        -80 + Math.random() * 160;
-
-
-      const opacity =
-        depth === "front"
-          ? 0.18 + Math.random() * 0.22
-          : depth === "mid"
-            ? 0.12 + Math.random() * 0.18
-            : 0.06 + Math.random() * 0.12;
-
-
-      /*
-        Different depth = different scroll speed.
-      */
-      const parallax =
-        depth === "front"
-          ? 0.14
-          : depth === "mid"
-            ? 0.08
-            : 0.035;
-
-
-      leaf.style.setProperty(
-        "--leaf-size",
-        `${size}px`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-x",
-        `${x}%`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-y",
-        `${y}%`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-rotation",
-        `${rotation}deg`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-opacity",
-        opacity
-      );
-
-
-      leaves.push({
-        element: leaf,
-        parallax,
-        rotation
-      });
-
-
-      leavesContainer.appendChild(
-        leaf
-      );
-    }
-  }
-
-
-  /* =====================================================================
-     ATMOSPHERE STATES
-     ===================================================================== */
-
-  function getAtmosphereState() {
-
-    const viewportCenter =
-      window.innerHeight * 0.5;
-
-
-    /*
-      Find which section currently owns
-      the center of the screen.
-    */
-    let activeSection =
-      sections[0];
-
-
-    let closestDistance =
-      Infinity;
-
-
-    sections.forEach(section => {
-
-      const rect =
-        section.getBoundingClientRect();
-
-      const center =
-        rect.top +
-        rect.height * 0.5;
-
-      const distance =
-        Math.abs(
-          center -
-          viewportCenter
-        );
-
-
-      if (
-        distance <
-        closestDistance
-      ) {
-
-        closestDistance =
-          distance;
-
-        activeSection =
-          section;
-      }
-    });
-
-
-    /*
-      Each section gets its own atmosphere personality.
-    */
-    const id =
-      activeSection?.id;
-
-
-    switch (id) {
-
-      case "top":
-        return {
-          opacity: 1,
-          speed: 1.0,
-          blur: 0,
-          density: 1,
-          glowX: "78%",
-          glowY: "25%"
-        };
-
-
-      case "about":
-        return {
-          opacity: 0.65,
-          speed: 0.8,
-          blur: 0.4,
-          density: 0.72,
-          glowX: "30%",
-          glowY: "30%"
-        };
-
-
-      case "experience":
-        return {
-          opacity: 0.48,
-          speed: 0.65,
-          blur: 0.8,
-          density: 0.5,
-          glowX: "70%",
-          glowY: "50%"
-        };
-
-
-      case "skills":
-        return {
-          opacity: 0.58,
-          speed: 0.72,
-          blur: 0.5,
-          density: 0.65,
-          glowX: "40%",
-          glowY: "65%"
-        };
-
-
-      case "contact":
-        /*
-          Bring the jungle back.
-
-          Contact becomes the atmospheric
-          second climax of the site.
-        */
-        return {
-          opacity: 0.95,
-          speed: 1.15,
-          blur: 0.2,
-          density: 1,
-          glowX: "20%",
-          glowY: "20%"
-        };
-
-
-      default:
-        return {
-          opacity: 0.7,
-          speed: 0.8,
-          blur: 0.5,
-          density: 0.7,
-          glowX: "50%",
-          glowY: "50%"
-        };
-    }
-  }
-
-
-  /* =====================================================================
-     HERO TAKEOVER
-     ===================================================================== */
-
-  function updateHeroTakeover() {
+  /* ----------------------------------------------------------
+     LIGHTNING
+     ---------------------------------------------------------- */
+
+  function scheduleLightning() {
 
     if (
-      !topSection ||
       reducedMotion.matches
     ) {
       return;
     }
 
 
-    const rect =
-      topSection.getBoundingClientRect();
+    const delay =
+      random(
+        14000,
+        36000
+      );
+
+
+    lightningTimer =
+      window.setTimeout(
+        () => {
+
+          triggerLightning();
+
+          scheduleLightning();
+
+        },
+        delay
+      );
+  }
+
+
+  function triggerLightning() {
+
+    if (
+      !lightning ||
+      reducedMotion.matches
+    ) {
+      return;
+    }
 
 
     /*
-      Start fading when the hero begins
-      moving out of the viewport.
-    */
-    const traveled =
-      Math.max(
+     * Respect existing data-theme.
+     */
+    const isLight =
+      document.documentElement
+        .dataset
+        .theme ===
+      "light";
+
+
+    /*
+     * Random distant location.
+     */
+    const x =
+      random(
+        8,
+        92
+      );
+
+
+    const y =
+      random(
         0,
-        -rect.top
+        42
       );
 
 
     /*
-      Control how long the fade takes.
-
-      Larger = slower cinematic handoff.
-    */
-    const distance =
-      Math.min(
-        rect.height * 0.8,
-        window.innerHeight * 0.95
-      );
-
-
-    const progress =
-      Math.min(
-        1,
-        traveled / distance
-      );
+     * Very subtle in light mode.
+     */
+    const strength =
+      isLight
+        ? random(
+            0.045,
+            0.10
+          )
+        : random(
+            0.17,
+            0.40
+          );
 
 
-    topSection.style.setProperty(
-      "--takeover-progress",
-      progress.toFixed(4)
+    /*
+     * Roughly one-third are double flashes.
+     */
+    const doubleFlash =
+      Math.random() <
+      0.30;
+
+
+    lightning.style.setProperty(
+      "--lightning-x",
+      `${x.toFixed(1)}%`
+    );
+
+
+    lightning.style.setProperty(
+      "--lightning-y",
+      `${y.toFixed(1)}%`
+    );
+
+
+    lightning.style.setProperty(
+      "--lightning-strength",
+      strength.toFixed(3)
     );
 
 
     /*
-      Content moves slightly faster than
-      the section itself.
-    */
-    if (heroWrap) {
+     * Restart CSS animation.
+     */
+    lightning.classList.remove(
+      "is-flashing",
+      "is-double"
+    );
 
-      const heroOffset =
-        -(progress * 38);
 
-      heroWrap.style.setProperty(
-        "--hero-parallax",
-        `${heroOffset}px`
-      );
-    }
+    void lightning.offsetWidth;
+
+
+    lightning.classList.add(
+      doubleFlash
+        ? "is-double"
+        : "is-flashing"
+    );
   }
 
 
-  /* =====================================================================
-     LEAF PARALLAX
-     ===================================================================== */
+  /* ----------------------------------------------------------
+     MAIN RENDER
+     ---------------------------------------------------------- */
 
-  function updateLeaves() {
+  function render() {
 
-    if (
-      reducedMotion.matches
-    ) {
-      return;
-    }
+    rafPending =
+      false;
 
 
-    const scrollY =
+    state.scrollY =
       window.scrollY;
 
 
-    leaves.forEach(leaf => {
-
-      /*
-        Each leaf has a different depth.
-
-        Front leaves move the most.
-        Back leaves barely move.
-      */
-      const movement =
-        -(scrollY * leaf.parallax);
+    state.heroProgress =
+      getHeroProgress();
 
 
-      const rotation =
-        leaf.rotation +
-        Math.sin(
-          scrollY * 0.001
-        ) * 4;
+    state.contactProgress =
+      getContactProgress();
 
 
-      leaf.element.style.setProperty(
-        "--leaf-shift-y",
-        `${movement}px`
-      );
+    state.contactExit =
+      getContactExit();
 
 
-      leaf.element.style.setProperty(
-        "--leaf-rotation",
-        `${rotation}deg`
-      );
-    });
-  }
+    state.pageProgress =
+      getPageProgress();
 
 
-  /* =====================================================================
-     APPLY ATMOSPHERE
-     ===================================================================== */
-
-  function updateAtmosphere() {
-
-    const state =
-      getAtmosphereState();
+    /*
+     * Centered calculation of the whole environmental field.
+     */
+    const atmosphere =
+      calculateAtmosphere();
 
 
-    root.style.setProperty(
-      "--ambient-opacity",
-      state.opacity
+    updateHero();
+
+    updateContact();
+
+    updateRain(
+      atmosphere
     );
 
-    root.style.setProperty(
-      "--rain-speed",
-      state.speed
-    );
-
-    root.style.setProperty(
-      "--ambient-blur",
-      `${state.blur}px`
-    );
-
-    root.style.setProperty(
-      "--leaf-density",
-      state.density
-    );
-
-
-    root.style.setProperty(
-      "--glow-x",
-      state.glowX
-    );
-
-    root.style.setProperty(
-      "--glow-y",
-      state.glowY
+    updateLeaves(
+      atmosphere
     );
   }
 
 
-  /* =====================================================================
-     SCROLL LOOP
-     ===================================================================== */
+  /* ----------------------------------------------------------
+     REQUEST RENDER
+     ---------------------------------------------------------- */
 
-  let ticking =
-    false;
+  function requestRender() {
 
-
-  function updateScene() {
-
-    updateHeroTakeover();
-
-    updateLeaves();
-
-    updateAtmosphere();
-
-    ticking =
-      false;
-  }
-
-
-  function onScroll() {
-
-    if (ticking) {
+    if (
+      rafPending
+    ) {
       return;
     }
 
 
-    window.requestAnimationFrame(
-      updateScene
-    );
-
-
-    ticking =
+    rafPending =
       true;
+
+
+    window.requestAnimationFrame(
+      render
+    );
   }
 
 
+  /* ----------------------------------------------------------
+     ONE SCROLL LISTENER
+     ---------------------------------------------------------- */
+
   window.addEventListener(
     "scroll",
-    onScroll,
+    requestRender,
     {
       passive: true
     }
   );
 
 
+  /* ----------------------------------------------------------
+     RESIZE
+     ---------------------------------------------------------- */
+
   window.addEventListener(
     "resize",
-    onScroll
-  );
-
-
-  reducedMotion.addEventListener(
-    "change",
     () => {
 
-      createRain();
+      state.viewportWidth =
+        window.innerWidth;
 
-      updateScene();
+      state.viewportHeight =
+        window.innerHeight;
+
+
+      const mobile =
+        state.viewportWidth <= 768;
+
+
+      /*
+       * Only rebuild rain when crossing
+       * desktop/mobile boundary.
+       */
+      if (
+        mobile !==
+        state.previousMobile
+      ) {
+
+        createRain();
+
+        state.previousMobile =
+          mobile;
+      }
+
+
+      requestRender();
+
+    },
+    {
+      passive: true
     }
   );
 
 
-  /* =====================================================================
+  /* ----------------------------------------------------------
+     REDUCED-MOTION CHANGES
+     ---------------------------------------------------------- */
+
+  function handleMotionChange() {
+
+    if (
+      reducedMotion.matches &&
+      lightningTimer
+    ) {
+
+      window.clearTimeout(
+        lightningTimer
+      );
+
+      lightningTimer =
+        null;
+    }
+
+
+    if (
+      !reducedMotion.matches &&
+      !lightningTimer
+    ) {
+
+      scheduleLightning();
+    }
+
+
+    requestRender();
+  }
+
+
+  /*
+   * Modern browsers.
+   */
+  reducedMotion.addEventListener(
+    "change",
+    handleMotionChange
+  );
+
+
+  /* ----------------------------------------------------------
      INITIALIZE
-     ===================================================================== */
+     ---------------------------------------------------------- */
 
   createRain();
 
-  createLeaves();
+  requestRender();
 
-  updateScene();
+  scheduleLightning();
 
-});
+})();
