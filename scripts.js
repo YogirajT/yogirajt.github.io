@@ -38,32 +38,6 @@
   syncToggleLabels();
 
   // ---------------------------------------------------------------------
-  // Rain layer (decorative only — purely an enhancement, hero reads fine
-  // without it). Skipped entirely under reduced-motion.
-  // ---------------------------------------------------------------------
-  var rainEl = document.getElementById("rain");
-  if (rainEl && !reduceMotion) {
-    var dropCount = window.innerWidth < 700 ? 26 : 46;
-    var frag = document.createDocumentFragment();
-    for (var r = 0; r < dropCount; r++) {
-      var drop = document.createElement("span");
-      drop.className = "drop";
-      var left = Math.random() * 100;
-      var duration = 0.9 + Math.random() * 1.1;
-      var delay = Math.random() * 2.5;
-      var height = 40 + Math.random() * 70;
-      var opacity = 0.25 + Math.random() * 0.5;
-      drop.style.left = left + "%";
-      drop.style.height = height + "px";
-      drop.style.opacity = opacity;
-      drop.style.animationDuration = duration + "s";
-      drop.style.animationDelay = "-" + delay + "s";
-      frag.appendChild(drop);
-    }
-    rainEl.appendChild(frag);
-  }
-
-  // ---------------------------------------------------------------------
   // Footer year
   // ---------------------------------------------------------------------
   var yearEl = document.getElementById("year");
@@ -263,7 +237,6 @@
   }
 })();
 
-
 document.addEventListener("DOMContentLoaded", () => {
 
   /* =====================================================================
@@ -272,661 +245,362 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const root = document.documentElement;
 
-  const ambientLayer =
-    document.querySelector(".ambient-layer");
+  const ambientLayer = document.querySelector(".ambient-layer");
+  const rainContainer = document.querySelector(".ambient-rain");
+  const leavesContainer = document.querySelector(".ambient-leaves");
+  const lightningEl = document.querySelector(".ambient-lightning");
 
-  const rainContainer =
-    document.querySelector(".ambient-rain");
+  const topSection = document.querySelector("#top");
+  const contactSection = document.querySelector("#contact");
+  const heroWrap = topSection ? topSection.querySelector(".wrap") : null;
 
-  const leavesContainer =
-    document.querySelector(".ambient-leaves");
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const topSection =
-    document.querySelector("#top");
-
-  const contactSection =
-    document.querySelector("#contact");
-
-  const heroWrap =
-    topSection?.querySelector(".wrap");
-
-  const sections =
-    [...document.querySelectorAll("main section")];
-
-  const reducedMotion =
-    window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
-
-
-  if (
-    !ambientLayer ||
-    !rainContainer ||
-    !leavesContainer
-  ) {
+  if (!ambientLayer || !rainContainer || !leavesContainer) {
     return;
   }
-
 
   /* =====================================================================
      SETTINGS
      ===================================================================== */
 
-  const RAIN_COUNT =
-    window.innerWidth < 700
-      ? 45
-      : 90;
+  const isMobile = window.innerWidth < 700;
+  const RAIN_COUNT = isMobile ? 45 : 90;
+  const LEAF_COUNT = isMobile ? 7 : 14;
 
-  const LEAF_COUNT =
-    window.innerWidth < 700
-      ? 8
-      : 18;
+  /* =====================================================================
+     LEAF LINE ART -- minimalist botanical contour drawings.
+     Three species, each drawn once and reused (position/size/rotation/
+     opacity vary per instance so no two leaves read as identical).
+     ===================================================================== */
 
+  const LEAF_SVGS = {
+    fern: `<svg viewBox="0 0 100 200" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M50 198 C 47 150 46 90 50 8" stroke-width="1.6"/>
+      <path d="M50 30 C 40 24 28 22 16 26"/><path d="M50 30 C 60 24 72 22 84 26"/>
+      <path d="M50 50 C 39 45 26 44 14 49"/><path d="M50 50 C 61 45 74 44 86 49"/>
+      <path d="M50 70 C 40 66 28 66 17 71"/><path d="M50 70 C 60 66 72 66 83 71"/>
+      <path d="M50 90 C 41 87 30 87 20 92"/><path d="M50 90 C 59 87 70 87 80 92"/>
+      <path d="M50 110 C 42 108 32 108 23 112"/><path d="M50 110 C 58 108 68 108 77 112"/>
+      <path d="M50 128 C 43 126 34 127 26 130"/><path d="M50 128 C 57 126 66 127 74 130"/>
+    </svg>`,
+    banana: `<svg viewBox="0 0 140 200" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M70 196 C 20 170 8 110 22 55 C 34 16 56 4 70 4 C 84 4 106 16 118 55 C 132 110 120 170 70 196 Z"/>
+      <path d="M70 190 C 69 140 69 70 70 8" stroke-width="1.6"/>
+      <path d="M70 30 C 55 34 40 46 30 62"/><path d="M70 30 C 85 34 100 46 110 62"/>
+      <path d="M70 55 C 54 60 40 72 31 88"/><path d="M70 55 C 86 60 100 72 109 88"/>
+      <path d="M70 85 C 55 90 42 102 34 116"/><path d="M70 85 C 85 90 98 102 106 116"/>
+      <path d="M70 115 C 57 120 46 130 39 142"/><path d="M70 115 C 83 120 94 130 101 142"/>
+      <path d="M70 145 C 60 150 51 158 45 166"/><path d="M70 145 C 80 150 89 158 95 166"/>
+    </svg>`,
+    palm: `<svg viewBox="0 0 160 200" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 190 C 30 140 70 90 130 20" stroke-width="1.6"/>
+      <path d="M20 168 C 26 156 34 148 44 144"/><path d="M20 168 C 16 156 15 146 18 136"/>
+      <path d="M28 152 C 34 140 42 132 52 128"/><path d="M28 152 C 23 141 22 131 25 121"/>
+      <path d="M37 135 C 42 122 50 114 60 110"/><path d="M37 135 C 32 125 31 116 34 106"/>
+      <path d="M47 117 C 51 104 58 96 68 92"/><path d="M47 117 C 42 108 41 99 44 90"/>
+      <path d="M57 99 C 60 86 66 78 76 74"/><path d="M57 99 C 52 91 51 82 54 74"/>
+      <path d="M67 81 C 69 68 74 60 84 56"/><path d="M67 81 C 63 74 62 66 65 58"/>
+      <path d="M77 63 C 78 50 82 42 91 38"/>
+    </svg>`
+  };
+  const LEAF_TYPES = Object.keys(LEAF_SVGS);
+  const LEAF_TINTS = ["var(--green)", "var(--cyan)", "var(--green)"]; // mostly green, occasional cyan accent
 
   /* =====================================================================
      CREATE RAIN
      ===================================================================== */
 
   function createRain() {
-
     rainContainer.innerHTML = "";
+    if (reducedMotionQuery.matches) return;
 
-    if (reducedMotion.matches) {
-      return;
-    }
+    const fragment = document.createDocumentFragment();
 
-    const fragment =
-      document.createDocumentFragment();
+    for (let i = 0; i < RAIN_COUNT; i++) {
+      const drop = document.createElement("span");
+      drop.className = "ambient-drop";
+      drop.dataset.depth = Math.random() > 0.65 ? "front" : Math.random() > 0.5 ? "mid" : "back";
 
+      const height = 35 + Math.random() * 120;
+      const duration = 0.8 + Math.random() * 1.5;
+      const delay = -(Math.random() * 3);
+      const x = Math.random() * 100;
+      const opacity = 0.2 + Math.random() * 0.6;
+      const drift = -25 + Math.random() * 50;
 
-    for (
-      let i = 0;
-      i < RAIN_COUNT;
-      i++
-    ) {
-
-      const drop =
-        document.createElement("span");
-
-      drop.className =
-        "ambient-drop";
-
-
-      const height =
-        35 + Math.random() * 120;
-
-      const duration =
-        0.8 + Math.random() * 1.5;
-
-      const delay =
-        -(Math.random() * 3);
-
-      const x =
-        Math.random() * 100;
-
-      const opacity =
-        0.15 + Math.random() * 0.6;
-
-      const drift =
-        -25 + Math.random() * 50;
-
-
-      drop.style.setProperty(
-        "--drop-height",
-        `${height}px`
-      );
-
-      drop.style.setProperty(
-        "--drop-duration",
-        `${duration}s`
-      );
-
-      drop.style.setProperty(
-        "--drop-delay",
-        `${delay}s`
-      );
-
-      drop.style.setProperty(
-        "--drop-x",
-        `${x}%`
-      );
-
-      drop.style.setProperty(
-        "--drop-opacity",
-        opacity
-      );
-
-      drop.style.setProperty(
-        "--drift-end",
-        `${drift}px`
-      );
-
+      drop.style.setProperty("--drop-height", `${height}px`);
+      drop.style.setProperty("--drop-duration", `${duration}s`);
+      drop.style.setProperty("--drop-delay", `${delay}s`);
+      drop.style.setProperty("--drop-x", `${x}%`);
+      drop.style.setProperty("--drop-opacity", opacity);
+      drop.style.setProperty("--drift-end", `${drift}px`);
 
       fragment.appendChild(drop);
     }
 
-
-    rainContainer.appendChild(
-      fragment
-    );
+    rainContainer.appendChild(fragment);
   }
-
 
   /* =====================================================================
      CREATE LEAVES
+     Placed in the outer margins (not stacked in literal corners) so they
+     frame content without ever reading as static corner stickers. Depth
+     controls size, blur and how far a leaf sways relative to scroll.
      ===================================================================== */
 
   const leaves = [];
 
-
   function createLeaves() {
-
     leavesContainer.innerHTML = "";
-
     leaves.length = 0;
 
+    for (let i = 0; i < LEAF_COUNT; i++) {
+      const type = LEAF_TYPES[Math.floor(Math.random() * LEAF_TYPES.length)];
+      const depthOptions = ["back", "mid", "front"];
+      const depth = depthOptions[Math.floor(Math.random() * depthOptions.length)];
 
-    for (
-      let i = 0;
-      i < LEAF_COUNT;
-      i++
-    ) {
+      const leaf = document.createElement("div");
+      leaf.className = "ambient-leaf";
+      leaf.dataset.depth = depth;
+      leaf.innerHTML = LEAF_SVGS[type];
 
-      const leaf =
-        document.createElement("div");
+      // Spread across the full page height, hugging the outer margins.
+      const side = Math.random() > 0.5 ? "left" : "right";
+      const x = side === "left" ? -6 + Math.random() * 16 : 90 - Math.random() * 16;
+      const y = 4 + Math.random() * 92;
 
-      leaf.className =
-        "ambient-leaf";
+      const size = depth === "front" ? 130 + Math.random() * 90
+                 : depth === "mid"   ? 90 + Math.random() * 70
+                 :                     60 + Math.random() * 60;
 
+      const rotation = -30 + Math.random() * 60;
+      const flip = side === "left" ? 1 : -1; // mirror right-side leaves so they lean inward
 
-      /*
-        Three depth planes.
+      const baseOpacity = depth === "front" ? 0.22 + Math.random() * 0.16
+                         : depth === "mid"   ? 0.14 + Math.random() * 0.12
+                         :                     0.08 + Math.random() * 0.08;
 
-        Back:
-        slow / blurry / subtle
+      const swayRange = depth === "front" ? 18 : depth === "mid" ? 10 : 5;
+      const tint = LEAF_TINTS[Math.floor(Math.random() * LEAF_TINTS.length)];
 
-        Mid:
-        medium
-
-        Front:
-        strongest movement
-      */
-      const depthOptions =
-        ["back", "mid", "front"];
-
-      const depth =
-        depthOptions[
-          Math.floor(
-            Math.random()
-            * depthOptions.length
-          )
-        ];
-
-
-      leaf.dataset.depth =
-        depth;
-
-
-      /*
-        Keep many leaves near edges so they
-        frame content instead of covering it.
-      */
-      const side =
-        Math.random() > 0.5
-          ? "left"
-          : "right";
-
-      const x =
-        side === "left"
-          ? -10 + Math.random() * 25
-          : 75 + Math.random() * 25;
-
-      const y =
-        Math.random() * 100;
-
-
-      const size =
-        depth === "front"
-          ? 160 + Math.random() * 200
-          : depth === "mid"
-            ? 110 + Math.random() * 140
-            : 80 + Math.random() * 100;
-
-
-      const rotation =
-        -80 + Math.random() * 160;
-
-
-      const opacity =
-        depth === "front"
-          ? 0.18 + Math.random() * 0.22
-          : depth === "mid"
-            ? 0.12 + Math.random() * 0.18
-            : 0.06 + Math.random() * 0.12;
-
-
-      /*
-        Different depth = different scroll speed.
-      */
-      const parallax =
-        depth === "front"
-          ? 0.14
-          : depth === "mid"
-            ? 0.08
-            : 0.035;
-
-
-      leaf.style.setProperty(
-        "--leaf-size",
-        `${size}px`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-x",
-        `${x}%`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-y",
-        `${y}%`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-rotation",
-        `${rotation}deg`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-opacity",
-        opacity
-      );
-
+      leaf.style.setProperty("--leaf-size", `${size}px`);
+      leaf.style.setProperty("--leaf-x", `${x}%`);
+      leaf.style.setProperty("--leaf-y", `${y}%`);
+      leaf.style.setProperty("--leaf-rotation", `${rotation}deg`);
+      leaf.style.setProperty("--leaf-opacity", baseOpacity);
+      leaf.style.setProperty("--leaf-tint", tint);
+      leaf.style.setProperty("--leaf-flip", flip);
 
       leaves.push({
         element: leaf,
-        parallax,
-        rotation
+        baseRotation: rotation,
+        swayRange,
+        swaySeed: Math.random() * Math.PI * 2,
+        swaySpeed: 0.00025 + Math.random() * 0.00025
       });
 
-
-      leavesContainer.appendChild(
-        leaf
-      );
+      leavesContainer.appendChild(leaf);
     }
   }
 
-
   /* =====================================================================
-     ATMOSPHERE STATES
+     LEAF MOVEMENT
+     Slow, gentle, and bounded -- a leaf never drifts permanently off
+     screen the further the page scrolls. Sway comes from time (a slow
+     idle breathing motion) plus a small scroll-bounded offset per depth.
      ===================================================================== */
 
-  function getAtmosphereState() {
+  function updateLeaves(scrollY, now) {
+    if (reducedMotionQuery.matches) return;
 
-    const viewportCenter =
-      window.innerHeight * 0.5;
-
-
-    /*
-      Find which section currently owns
-      the center of the screen.
-    */
-    let activeSection =
-      sections[0];
-
-
-    let closestDistance =
-      Infinity;
-
-
-    sections.forEach(section => {
-
-      const rect =
-        section.getBoundingClientRect();
-
-      const center =
-        rect.top +
-        rect.height * 0.5;
-
-      const distance =
-        Math.abs(
-          center -
-          viewportCenter
-        );
-
-
-      if (
-        distance <
-        closestDistance
-      ) {
-
-        closestDistance =
-          distance;
-
-        activeSection =
-          section;
-      }
-    });
-
-
-    /*
-      Each section gets its own atmosphere personality.
-    */
-    const id =
-      activeSection?.id;
-
-
-    switch (id) {
-
-      case "top":
-        return {
-          opacity: 1,
-          speed: 1.0,
-          blur: 0,
-          density: 1,
-          glowX: "78%",
-          glowY: "25%"
-        };
-
-
-      case "about":
-        return {
-          opacity: 0.65,
-          speed: 0.8,
-          blur: 0.4,
-          density: 0.72,
-          glowX: "30%",
-          glowY: "30%"
-        };
-
-
-      case "experience":
-        return {
-          opacity: 0.48,
-          speed: 0.65,
-          blur: 0.8,
-          density: 0.5,
-          glowX: "70%",
-          glowY: "50%"
-        };
-
-
-      case "skills":
-        return {
-          opacity: 0.58,
-          speed: 0.72,
-          blur: 0.5,
-          density: 0.65,
-          glowX: "40%",
-          glowY: "65%"
-        };
-
-
-      case "contact":
-        /*
-          Bring the jungle back.
-
-          Contact becomes the atmospheric
-          second climax of the site.
-        */
-        return {
-          opacity: 0.95,
-          speed: 1.15,
-          blur: 0.2,
-          density: 1,
-          glowX: "20%",
-          glowY: "20%"
-        };
-
-
-      default:
-        return {
-          opacity: 0.7,
-          speed: 0.8,
-          blur: 0.5,
-          density: 0.7,
-          glowX: "50%",
-          glowY: "50%"
-        };
-    }
-  }
-
-
-  /* =====================================================================
-     HERO TAKEOVER
-     ===================================================================== */
-
-  function updateHeroTakeover() {
-
-    if (
-      !topSection ||
-      reducedMotion.matches
-    ) {
-      return;
-    }
-
-
-    const rect =
-      topSection.getBoundingClientRect();
-
-
-    /*
-      Start fading when the hero begins
-      moving out of the viewport.
-    */
-    const traveled =
-      Math.max(
-        0,
-        -rect.top
-      );
-
-
-    /*
-      Control how long the fade takes.
-
-      Larger = slower cinematic handoff.
-    */
-    const distance =
-      Math.min(
-        rect.height * 0.8,
-        window.innerHeight * 0.95
-      );
-
-
-    const progress =
-      Math.min(
-        1,
-        traveled / distance
-      );
-
-
-    topSection.style.setProperty(
-      "--takeover-progress",
-      progress.toFixed(4)
-    );
-
-
-    /*
-      Content moves slightly faster than
-      the section itself.
-    */
-    if (heroWrap) {
-
-      const heroOffset =
-        -(progress * 38);
-
-      heroWrap.style.setProperty(
-        "--hero-parallax",
-        `${heroOffset}px`
-      );
-    }
-  }
-
-
-  /* =====================================================================
-     LEAF PARALLAX
-     ===================================================================== */
-
-  function updateLeaves() {
-
-    if (
-      reducedMotion.matches
-    ) {
-      return;
-    }
-
-
-    const scrollY =
-      window.scrollY;
-
+    const vh = window.innerHeight || 800;
+    // Bounded by viewport height so leaves sway with scroll without
+    // ever accumulating an unbounded, permanent upward drift.
+    const scrollPhase = (scrollY % vh) / vh;
 
     leaves.forEach(leaf => {
+      const idleSway = Math.sin(now * leaf.swaySpeed + leaf.swaySeed) * leaf.swayRange;
+      const scrollSway = Math.sin(scrollPhase * Math.PI * 2 + leaf.swaySeed) * (leaf.swayRange * 0.6);
 
-      /*
-        Each leaf has a different depth.
-
-        Front leaves move the most.
-        Back leaves barely move.
-      */
-      const movement =
-        -(scrollY * leaf.parallax);
-
-
-      const rotation =
-        leaf.rotation +
-        Math.sin(
-          scrollY * 0.001
-        ) * 4;
-
-
-      leaf.element.style.setProperty(
-        "--leaf-shift-y",
-        `${movement}px`
-      );
-
-
-      leaf.element.style.setProperty(
-        "--leaf-rotation",
-        `${rotation}deg`
-      );
+      leaf.element.style.setProperty("--leaf-shift-y", `${(idleSway * 0.4).toFixed(2)}px`);
+      leaf.element.style.setProperty("--leaf-shift-x", `${(scrollSway * 0.3).toFixed(2)}px`);
+      leaf.element.style.setProperty("--leaf-rotation", `${(leaf.baseRotation + idleSway * 0.25).toFixed(2)}deg`);
     });
   }
 
-
   /* =====================================================================
-     APPLY ATMOSPHERE
+     LIGHTNING -- occasional, randomly positioned, from the edges only.
+     Scheduled independently of the scroll loop with its own timers.
      ===================================================================== */
 
-  function updateAtmosphere() {
+  let lightningTimer = null;
 
-    const state =
-      getAtmosphereState();
+  function flashOnce(peak) {
+    if (!lightningEl) return;
+    const edge = Math.floor(Math.random() * 3); // 0 left, 1 right, 2 top
+    const x = edge === 0 ? `${-5 + Math.random() * 10}%`
+            : edge === 1 ? `${95 + Math.random() * 10}%`
+            : `${Math.random() * 100}%`;
+    const y = edge === 2 ? `${-5 + Math.random() * 10}%` : `${Math.random() * 60}%`;
 
+    root.style.setProperty("--lightning-x", x);
+    root.style.setProperty("--lightning-y", y);
+    root.style.setProperty("--lightning-opacity", peak);
 
-    root.style.setProperty(
-      "--ambient-opacity",
-      state.opacity
-    );
-
-    root.style.setProperty(
-      "--rain-speed",
-      state.speed
-    );
-
-    root.style.setProperty(
-      "--ambient-blur",
-      `${state.blur}px`
-    );
-
-    root.style.setProperty(
-      "--leaf-density",
-      state.density
-    );
-
-
-    root.style.setProperty(
-      "--glow-x",
-      state.glowX
-    );
-
-    root.style.setProperty(
-      "--glow-y",
-      state.glowY
-    );
+    window.setTimeout(() => {
+      root.style.setProperty("--lightning-opacity", 0);
+    }, 90 + Math.random() * 80);
   }
 
+  function triggerLightning() {
+    if (reducedMotionQuery.matches) return;
+
+    const isLight = root.getAttribute("data-theme") === "light";
+    const peak = isLight
+      ? 0.05 + Math.random() * 0.08
+      : 0.16 + Math.random() * 0.22;
+
+    flashOnce(peak);
+
+    // Occasionally a double or triple flash, same general direction.
+    const extraFlashes = Math.random() > 0.8 ? (Math.random() > 0.5 ? 2 : 1) : 0;
+    for (let i = 1; i <= extraFlashes; i++) {
+      window.setTimeout(() => flashOnce(peak * (0.6 + Math.random() * 0.3)), i * (140 + Math.random() * 120));
+    }
+  }
+
+  function scheduleLightning() {
+    const delay = 7000 + Math.random() * 14000;
+    lightningTimer = window.setTimeout(() => {
+      triggerLightning();
+      scheduleLightning();
+    }, delay);
+  }
 
   /* =====================================================================
-     SCROLL LOOP
+     SCROLL-RELATIVE PROGRESS
+     heroProgress and contactProgress are each measured against their own
+     section's position -- never against total page scroll -- so the
+     atmosphere reacts to the right section regardless of how much content
+     sits between them.
      ===================================================================== */
 
-  let ticking =
-    false;
-
-
-  function updateScene() {
-
-    updateHeroTakeover();
-
-    updateLeaves();
-
-    updateAtmosphere();
-
-    ticking =
-      false;
+  function getHeroProgress() {
+    if (!topSection) return 0;
+    const rect = topSection.getBoundingClientRect();
+    const traveled = Math.max(0, -rect.top);
+    const distance = Math.min(rect.height * 0.85, window.innerHeight);
+    return distance > 0 ? Math.min(1, traveled / distance) : 0;
   }
 
-
-  function onScroll() {
-
-    if (ticking) {
-      return;
-    }
-
-
-    window.requestAnimationFrame(
-      updateScene
-    );
-
-
-    ticking =
-      true;
+  function getContactProgress() {
+    if (!contactSection) return 1;
+    const rect = contactSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const start = vh; // contact's top just entering the bottom of the viewport
+    const end = vh * 0.35; // contact has arrived, roughly a third down the screen
+    if (rect.top >= start) return 0;
+    if (rect.top <= end) return 1;
+    return (start - rect.top) / (start - end);
   }
 
+  /* =====================================================================
+     APPLY ATMOSPHERE -- one function, one set of custom properties.
+     ===================================================================== */
 
-  window.addEventListener(
-    "scroll",
-    onScroll,
-    {
-      passive: true
+  const MIDDLE_BASELINE = 0.32;
+
+  function updateAtmosphere(heroProgress, contactProgress) {
+    const heroFactor = 1 - heroProgress;
+    const contactFactor = contactProgress;
+    const intensity = MIDDLE_BASELINE + (1 - MIDDLE_BASELINE) * Math.max(heroFactor, contactFactor);
+
+    root.style.setProperty("--rain-intensity", intensity.toFixed(3));
+    root.style.setProperty("--rain-speed", (0.8 + intensity * 0.4).toFixed(3));
+    root.style.setProperty("--leaf-density", intensity.toFixed(3));
+    root.style.setProperty("--ambient-blur", `${((1 - intensity) * 0.6).toFixed(2)}px`);
+
+    // Glow drifts diagonally down the page rather than jumping per section.
+    const glowX = 22 + Math.max(heroFactor, contactFactor) * 55;
+    const glowY = 20 + (1 - Math.max(heroFactor, contactFactor)) * 45;
+    root.style.setProperty("--glow-x", `${glowX.toFixed(1)}%`);
+    root.style.setProperty("--glow-y", `${glowY.toFixed(1)}%`);
+  }
+
+  /* =====================================================================
+     HERO + CONTACT TRANSITIONS
+     ===================================================================== */
+
+  function updateHeroTransition(heroProgress) {
+    if (!topSection) return;
+    topSection.style.setProperty("--hero-progress", heroProgress.toFixed(4));
+  }
+
+  function updateContactTransition(contactProgress) {
+    if (!contactSection) return;
+    contactSection.style.setProperty("--contact-progress", contactProgress.toFixed(4));
+  }
+
+  /* =====================================================================
+     ANIMATION LOOP -- one centralized requestAnimationFrame loop drives
+     every atmospheric effect (rain intensity, leaf sway, hero transition,
+     contact transition, glow position). Reading layout values fresh each
+     frame means it responds to scroll AND resize with zero extra
+     listeners, and leaves keep their slow idle sway even at rest.
+     ===================================================================== */
+
+  let rafId = null;
+
+  function frame(now) {
+    const heroProgress = getHeroProgress();
+    const contactProgress = getContactProgress();
+
+    updateAtmosphere(heroProgress, contactProgress);
+    updateHeroTransition(heroProgress);
+    updateContactTransition(contactProgress);
+    updateLeaves(window.scrollY, now);
+
+    rafId = window.requestAnimationFrame(frame);
+  }
+
+  function startLoop() {
+    if (rafId !== null) return;
+    rafId = window.requestAnimationFrame(frame);
+  }
+
+  function stopLoop() {
+    if (rafId === null) return;
+    window.cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  reducedMotionQuery.addEventListener("change", () => {
+    createRain();
+
+    if (reducedMotionQuery.matches) {
+      stopLoop();
+      window.clearTimeout(lightningTimer);
+      // Leave the CSS reduced-motion fallback values in charge.
+      updateAtmosphere(0, 1);
+    } else {
+      startLoop();
+      scheduleLightning();
     }
-  );
-
-
-  window.addEventListener(
-    "resize",
-    onScroll
-  );
-
-
-  reducedMotion.addEventListener(
-    "change",
-    () => {
-
-      createRain();
-
-      updateScene();
-    }
-  );
-
+  });
 
   /* =====================================================================
      INITIALIZE
      ===================================================================== */
 
   createRain();
-
   createLeaves();
 
-  updateScene();
+  if (reducedMotionQuery.matches) {
+    updateAtmosphere(0, 1);
+  } else {
+    startLoop();
+    scheduleLightning();
+  }
 
 });
