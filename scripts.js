@@ -266,46 +266,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const isMobile = window.innerWidth < 700;
   const RAIN_COUNT = isMobile ? 45 : 90;
-  const LEAF_COUNT = isMobile ? 7 : 14;
+  const LEAF_COUNT = isMobile ? 6 : 11;
 
   /* =====================================================================
-     LEAF LINE ART -- minimalist botanical contour drawings.
-     Three species, each drawn once and reused (position/size/rotation/
-     opacity vary per instance so no two leaves read as identical).
+     LEAF SILHOUETTES -- tasteful filled tropical foliage, not thin line
+     art. Monstera uses a real SVG mask to cut its signature leaf holes;
+     fern and palm are built from filled leaflet/blade shapes along a
+     stem. Each is drawn once per instance (monstera needs a unique mask
+     id since multiple copies share the DOM at once).
      ===================================================================== */
 
+  let leafUid = 0;
+
   const LEAF_SVGS = {
-    fern: `<svg viewBox="0 0 100 200" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M50 198 C 47 150 46 90 50 8" stroke-width="1.6"/>
-      <path d="M50 30 C 40 24 28 22 16 26"/><path d="M50 30 C 60 24 72 22 84 26"/>
-      <path d="M50 50 C 39 45 26 44 14 49"/><path d="M50 50 C 61 45 74 44 86 49"/>
-      <path d="M50 70 C 40 66 28 66 17 71"/><path d="M50 70 C 60 66 72 66 83 71"/>
-      <path d="M50 90 C 41 87 30 87 20 92"/><path d="M50 90 C 59 87 70 87 80 92"/>
-      <path d="M50 110 C 42 108 32 108 23 112"/><path d="M50 110 C 58 108 68 108 77 112"/>
-      <path d="M50 128 C 43 126 34 127 26 130"/><path d="M50 128 C 57 126 66 127 74 130"/>
+    monstera: () => {
+      const id = `leaf-monstera-${leafUid++}`;
+      return `<svg viewBox="0 0 100 150" fill="currentColor">
+        <defs>
+          <mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="150">
+            <rect x="0" y="0" width="100" height="150" fill="#fff"/>
+            <ellipse cx="40" cy="55" rx="6" ry="10" fill="#000" transform="rotate(-20 40 55)"/>
+            <ellipse cx="63" cy="78" rx="7" ry="12" fill="#000" transform="rotate(15 63 78)"/>
+            <ellipse cx="38" cy="103" rx="5" ry="9" fill="#000" transform="rotate(-10 38 103)"/>
+          </mask>
+        </defs>
+        <path mask="url(#${id})" d="M50 4 L64 14 L58 26 L76 32 L66 48 L84 56 L72 70 L90 80 L76 94 L88 106 L72 116 L80 130 L62 136 L54 148 L50 150 L46 148 L38 136 L20 130 L28 116 L12 106 L24 94 L10 80 L28 70 L16 56 L34 48 L24 32 L42 26 L36 14 Z"/>
+        <path d="M50 148 L50 20" stroke="currentColor" stroke-opacity="0.3" stroke-width="1.4" fill="none"/>
+      </svg>`;
+    },
+    fern: () => `<svg viewBox="0 0 100 200" fill="currentColor">
+      <path d="M50 197 C 49 150 49 80 50 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-opacity="0.9"/>
+      <ellipse cx="34" cy="26" rx="5" ry="13" transform="rotate(-35 34 26)"/><ellipse cx="66" cy="26" rx="5" ry="13" transform="rotate(35 66 26)"/>
+      <ellipse cx="30" cy="48" rx="6" ry="16" transform="rotate(-38 30 48)"/><ellipse cx="70" cy="48" rx="6" ry="16" transform="rotate(38 70 48)"/>
+      <ellipse cx="27" cy="72" rx="6.5" ry="18" transform="rotate(-40 27 72)"/><ellipse cx="73" cy="72" rx="6.5" ry="18" transform="rotate(40 73 72)"/>
+      <ellipse cx="27" cy="98" rx="6.5" ry="18" transform="rotate(-40 27 98)"/><ellipse cx="73" cy="98" rx="6.5" ry="18" transform="rotate(40 73 98)"/>
+      <ellipse cx="30" cy="124" rx="6" ry="16" transform="rotate(-38 30 124)"/><ellipse cx="70" cy="124" rx="6" ry="16" transform="rotate(38 70 124)"/>
+      <ellipse cx="34" cy="148" rx="5" ry="13" transform="rotate(-34 34 148)"/><ellipse cx="66" cy="148" rx="5" ry="13" transform="rotate(34 66 148)"/>
+      <ellipse cx="38" cy="168" rx="4" ry="10" transform="rotate(-30 38 168)"/><ellipse cx="62" cy="168" rx="4" ry="10" transform="rotate(30 62 168)"/>
     </svg>`,
-    banana: `<svg viewBox="0 0 140 200" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M70 196 C 20 170 8 110 22 55 C 34 16 56 4 70 4 C 84 4 106 16 118 55 C 132 110 120 170 70 196 Z"/>
-      <path d="M70 190 C 69 140 69 70 70 8" stroke-width="1.6"/>
-      <path d="M70 30 C 55 34 40 46 30 62"/><path d="M70 30 C 85 34 100 46 110 62"/>
-      <path d="M70 55 C 54 60 40 72 31 88"/><path d="M70 55 C 86 60 100 72 109 88"/>
-      <path d="M70 85 C 55 90 42 102 34 116"/><path d="M70 85 C 85 90 98 102 106 116"/>
-      <path d="M70 115 C 57 120 46 130 39 142"/><path d="M70 115 C 83 120 94 130 101 142"/>
-      <path d="M70 145 C 60 150 51 158 45 166"/><path d="M70 145 C 80 150 89 158 95 166"/>
-    </svg>`,
-    palm: `<svg viewBox="0 0 160 200" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8 190 C 30 140 70 90 130 20" stroke-width="1.6"/>
-      <path d="M20 168 C 26 156 34 148 44 144"/><path d="M20 168 C 16 156 15 146 18 136"/>
-      <path d="M28 152 C 34 140 42 132 52 128"/><path d="M28 152 C 23 141 22 131 25 121"/>
-      <path d="M37 135 C 42 122 50 114 60 110"/><path d="M37 135 C 32 125 31 116 34 106"/>
-      <path d="M47 117 C 51 104 58 96 68 92"/><path d="M47 117 C 42 108 41 99 44 90"/>
-      <path d="M57 99 C 60 86 66 78 76 74"/><path d="M57 99 C 52 91 51 82 54 74"/>
-      <path d="M67 81 C 69 68 74 60 84 56"/><path d="M67 81 C 63 74 62 66 65 58"/>
-      <path d="M77 63 C 78 50 82 42 91 38"/>
+    palm: () => `<svg viewBox="0 0 160 200" fill="currentColor">
+      <path d="M14 192 C 40 150 80 90 142 22" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-opacity="0.9"/>
+      <ellipse cx="26" cy="176" rx="3.2" ry="18" transform="rotate(-35 26 176)"/><ellipse cx="26" cy="176" rx="3.2" ry="16" transform="rotate(150 26 176)"/>
+      <ellipse cx="44" cy="152" rx="3.4" ry="21" transform="rotate(-40 44 152)"/><ellipse cx="44" cy="152" rx="3.4" ry="19" transform="rotate(145 44 152)"/>
+      <ellipse cx="62" cy="128" rx="3.6" ry="25" transform="rotate(-45 62 128)"/><ellipse cx="62" cy="128" rx="3.6" ry="22" transform="rotate(140 62 128)"/>
+      <ellipse cx="80" cy="104" rx="3.6" ry="25" transform="rotate(-50 80 104)"/><ellipse cx="80" cy="104" rx="3.6" ry="22" transform="rotate(135 80 104)"/>
+      <ellipse cx="98" cy="80" rx="3.4" ry="21" transform="rotate(-55 98 80)"/><ellipse cx="98" cy="80" rx="3.4" ry="19" transform="rotate(130 98 80)"/>
+      <ellipse cx="116" cy="56" rx="3" ry="17" transform="rotate(-60 116 56)"/><ellipse cx="116" cy="56" rx="3" ry="15" transform="rotate(125 116 56)"/>
+      <ellipse cx="132" cy="36" rx="2.6" ry="13" transform="rotate(-65 132 36)"/><ellipse cx="132" cy="36" rx="2.6" ry="11" transform="rotate(120 132 36)"/>
     </svg>`
   };
   const LEAF_TYPES = Object.keys(LEAF_SVGS);
-  const LEAF_TINTS = ["var(--green)", "var(--cyan)", "var(--green)"]; // mostly green, occasional cyan accent
+  const LEAF_TINTS = ["var(--green)", "var(--green)", "var(--cyan)"]; // mostly green, occasional cyan rim-light
 
   /* =====================================================================
      CREATE RAIN
@@ -326,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const duration = 0.8 + Math.random() * 1.5;
       const delay = -(Math.random() * 3);
       const x = Math.random() * 100;
-      const opacity = 0.2 + Math.random() * 0.6;
+      const opacity = 0.45 + Math.random() * 0.5;
       const drift = -25 + Math.random() * 50;
 
       drop.style.setProperty("--drop-height", `${height}px`);
@@ -344,12 +355,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =====================================================================
      CREATE LEAVES
-     Placed in the outer margins (not stacked in literal corners) so they
-     frame content without ever reading as static corner stickers. Depth
-     controls size, blur and how far a leaf sways relative to scroll.
+     Every leaf stems from an edge -- left, right, top or bottom -- never
+     floats near the center. Sides are the most common; a smaller share
+     hangs from the top or rises from the bottom, so the jungle frames the
+     viewport from all four sides rather than clustering in corners.
      ===================================================================== */
 
   const leaves = [];
+  const LEAF_EDGES = ["left", "left", "right", "right", "top", "bottom"];
 
   function createLeaves() {
     leavesContainer.innerHTML = "";
@@ -359,27 +372,45 @@ document.addEventListener("DOMContentLoaded", () => {
       const type = LEAF_TYPES[Math.floor(Math.random() * LEAF_TYPES.length)];
       const depthOptions = ["back", "mid", "front"];
       const depth = depthOptions[Math.floor(Math.random() * depthOptions.length)];
+      const edge = LEAF_EDGES[Math.floor(Math.random() * LEAF_EDGES.length)];
 
       const leaf = document.createElement("div");
       leaf.className = "ambient-leaf";
       leaf.dataset.depth = depth;
-      leaf.innerHTML = LEAF_SVGS[type];
+      leaf.dataset.edge = edge;
+      leaf.innerHTML = LEAF_SVGS[type]();
 
-      // Spread across the full page height, hugging the outer margins.
-      const side = Math.random() > 0.5 ? "left" : "right";
-      const x = side === "left" ? -6 + Math.random() * 16 : 90 - Math.random() * 16;
-      const y = 4 + Math.random() * 92;
+      let x, y, rotation, flip;
 
-      const size = depth === "front" ? 130 + Math.random() * 90
-                 : depth === "mid"   ? 90 + Math.random() * 70
-                 :                     60 + Math.random() * 60;
+      if (edge === "left") {
+        x = -10 + Math.random() * 14;
+        y = Math.random() * 100;
+        rotation = -25 + Math.random() * 50;
+        flip = 1;
+      } else if (edge === "right") {
+        x = 92 + Math.random() * 14;
+        y = Math.random() * 100;
+        rotation = -25 + Math.random() * 50;
+        flip = -1;
+      } else if (edge === "top") {
+        x = 8 + Math.random() * 84;
+        y = -12 + Math.random() * 14;
+        rotation = 160 + Math.random() * 40; // hangs downward, tip pointing into the scene
+        flip = Math.random() > 0.5 ? 1 : -1;
+      } else {
+        x = 8 + Math.random() * 84;
+        y = 90 + Math.random() * 16;
+        rotation = -20 + Math.random() * 40; // grows upward, like undergrowth
+        flip = Math.random() > 0.5 ? 1 : -1;
+      }
 
-      const rotation = -30 + Math.random() * 60;
-      const flip = side === "left" ? 1 : -1; // mirror right-side leaves so they lean inward
+      const size = depth === "front" ? 150 + Math.random() * 110
+                 : depth === "mid"   ? 100 + Math.random() * 70
+                 :                     70 + Math.random() * 45;
 
-      const baseOpacity = depth === "front" ? 0.22 + Math.random() * 0.16
-                         : depth === "mid"   ? 0.14 + Math.random() * 0.12
-                         :                     0.08 + Math.random() * 0.08;
+      const baseOpacity = depth === "front" ? 0.34 + Math.random() * 0.18
+                         : depth === "mid"   ? 0.20 + Math.random() * 0.14
+                         :                     0.12 + Math.random() * 0.08;
 
       const swayRange = depth === "front" ? 18 : depth === "mid" ? 10 : 5;
       const tint = LEAF_TINTS[Math.floor(Math.random() * LEAF_TINTS.length)];

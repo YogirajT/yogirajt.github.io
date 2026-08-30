@@ -27,7 +27,7 @@
   --magenta: #ff2ec4;
   --green: #39ff88;
   --violet: #a855f7;
-  --rain: rgba(150, 210, 255, 0.55);
+  --rain: rgba(196, 232, 255, 0.95);
   --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
   --glow-cyan: 0 0 14px rgba(34, 232, 255, 0.55);
   --glow-green: 0 0 14px rgba(57, 255, 136, 0.45);
@@ -242,7 +242,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   background:
     radial-gradient(900px 500px at 82% -10%, color-mix(in srgb, var(--magenta) 20%, transparent), transparent 60%),
     radial-gradient(700px 500px at -10% 90%, color-mix(in srgb, var(--green) 16%, transparent), transparent 60%),
-    color-mix(in srgb, var(--bg) 84%, transparent);
+    color-mix(in srgb, var(--bg) 62%, transparent);
   color: var(--ink);
   position: relative;
   overflow: hidden;
@@ -536,7 +536,10 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   left: var(--drop-x, 50%);
   width: 1px;
   height: var(--drop-height, 90px);
-  background: linear-gradient(to bottom, transparent, var(--rain));
+  background: linear-gradient(to bottom,
+    transparent,
+    color-mix(in srgb, var(--rain) 70%, white 10%) 55%,
+    var(--rain) 100%);
   opacity: var(--drop-opacity, 0.5);
   transform: translate3d(0, 0, 0);
   animation: ambient-fall calc(var(--drop-duration, 1.4s) / var(--rain-speed)) linear infinite;
@@ -686,7 +689,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   background:
     radial-gradient(700px 400px at 15% 10%, color-mix(in srgb, var(--green) 14%, transparent), transparent 60%),
     radial-gradient(700px 400px at 85% 90%, color-mix(in srgb, var(--magenta) 14%, transparent), transparent 60%),
-    color-mix(in srgb, var(--bg-2) 80%, transparent);
+    color-mix(in srgb, var(--bg-2) 62%, transparent);
   backdrop-filter: blur(2px);
 }
 
