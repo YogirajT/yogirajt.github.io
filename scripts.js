@@ -703,3 +703,493 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+
+
+/* ==========================================================================
+   COOKIE CONSENT + GOOGLE ANALYTICS
+   Google Analytics is loaded only after explicit consent.
+   ========================================================================== */
+
+(function () {
+  "use strict";
+
+  /*
+   * Replace with your real Google Analytics 4 Measurement ID.
+   *
+   * Example:
+   * const GA_MEASUREMENT_ID = "G-ABC123XYZ";
+   */
+
+  const GA_MEASUREMENT_ID = "G-48BYR598ZB";
+
+  const CONSENT_STORAGE_KEY = "yt_cookie_consent";
+
+  let analyticsLoaded = false;
+
+
+  /* ------------------------------------------------------------------------
+     STORAGE
+     ------------------------------------------------------------------------ */
+
+  function getConsent() {
+    try {
+      return localStorage.getItem(CONSENT_STORAGE_KEY);
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  function saveConsent(value) {
+    try {
+      localStorage.setItem(
+        CONSENT_STORAGE_KEY,
+        value
+      );
+    } catch (error) {
+      console.warn(
+        "Unable to save privacy preference."
+      );
+    }
+  }
+
+
+  /* ------------------------------------------------------------------------
+     GOOGLE ANALYTICS
+     ------------------------------------------------------------------------ */
+
+  function loadGoogleAnalytics() {
+    if (analyticsLoaded) {
+      return;
+    }
+
+
+    if (
+      !GA_MEASUREMENT_ID ||
+      GA_MEASUREMENT_ID === "G-XXXXXXXXXX"
+    ) {
+      console.warn(
+        "Google Analytics Measurement ID has not been configured."
+      );
+
+      return;
+    }
+
+
+    analyticsLoaded = true;
+
+
+    /*
+     * Make sure GA is not globally disabled.
+     */
+
+    window[
+      "ga-disable-" + GA_MEASUREMENT_ID
+    ] = false;
+
+
+    /*
+     * Create the Google Analytics script only now,
+     * after the visitor has given consent.
+     */
+
+    const script = document.createElement("script");
+
+    script.async = true;
+
+    script.src =
+      "https://www.googletagmanager.com/gtag/js?id=" +
+      encodeURIComponent(GA_MEASUREMENT_ID);
+
+
+    document.head.appendChild(script);
+
+
+    /*
+     * Initialise gtag.
+     */
+
+    window.dataLayer =
+      window.dataLayer || [];
+
+
+    window.gtag =
+      window.gtag ||
+      function () {
+        window.dataLayer.push(arguments);
+      };
+
+
+    window.gtag(
+      "js",
+      new Date()
+    );
+
+
+    /*
+     * Explicitly grant analytics only.
+     *
+     * Advertising-related storage remains denied.
+     */
+
+    window.gtag(
+      "consent",
+      "default",
+      {
+        analytics_storage: "granted",
+
+        ad_storage: "denied",
+
+        ad_user_data: "denied",
+
+        ad_personalization: "denied"
+      }
+    );
+
+
+    window.gtag(
+      "config",
+      GA_MEASUREMENT_ID,
+      {
+        anonymize_ip: true
+      }
+    );
+  }
+
+
+  /* ------------------------------------------------------------------------
+     DISABLE ANALYTICS
+     ------------------------------------------------------------------------ */
+
+  function disableGoogleAnalytics() {
+
+    if (
+      !GA_MEASUREMENT_ID ||
+      GA_MEASUREMENT_ID === "G-XXXXXXXXXX"
+    ) {
+      return;
+    }
+
+
+    window[
+      "ga-disable-" + GA_MEASUREMENT_ID
+    ] = true;
+
+
+    /*
+     * If gtag has already loaded, update consent.
+     */
+
+    if (typeof window.gtag === "function") {
+
+      window.gtag(
+        "consent",
+        "update",
+        {
+          analytics_storage: "denied",
+
+          ad_storage: "denied",
+
+          ad_user_data: "denied",
+
+          ad_personalization: "denied"
+        }
+      );
+
+    }
+
+  }
+
+
+  /* ------------------------------------------------------------------------
+     BANNER
+     ------------------------------------------------------------------------ */
+
+  function showBanner() {
+
+    const banner =
+      document.getElementById(
+        "cookie-banner"
+      );
+
+
+    if (!banner) {
+      return;
+    }
+
+
+    banner.hidden = false;
+
+
+    requestAnimationFrame(function () {
+      banner.classList.add(
+        "is-visible"
+      );
+    });
+
+  }
+
+
+  function hideBanner() {
+
+    const banner =
+      document.getElementById(
+        "cookie-banner"
+      );
+
+
+    if (!banner) {
+      return;
+    }
+
+
+    banner.classList.remove(
+      "is-visible"
+    );
+
+
+    window.setTimeout(
+      function () {
+        banner.hidden = true;
+      },
+      350
+    );
+
+  }
+
+
+  /* ------------------------------------------------------------------------
+     OPEN PRIVACY PAGE
+     ------------------------------------------------------------------------ */
+
+  function openPrivacyPage() {
+
+    window.location.href =
+      "privacy.html";
+
+  }
+
+
+  /* ------------------------------------------------------------------------
+     INITIALISE
+     ------------------------------------------------------------------------ */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+      const acceptButton =
+        document.getElementById(
+          "cookie-accept"
+        );
+
+
+      const rejectButton =
+        document.getElementById(
+          "cookie-reject"
+        );
+
+
+      const settingsButton =
+        document.getElementById(
+          "cookie-settings"
+        );
+
+
+      const privacySettingsButton =
+        document.getElementById(
+          "privacy-cookie-settings"
+        );
+
+
+      const savedConsent =
+        getConsent();
+
+
+      /*
+       * First visit:
+       * Show the choice.
+       */
+
+      if (!savedConsent) {
+
+        showBanner();
+
+      }
+
+
+      /*
+       * Previous acceptance:
+       * Load analytics.
+       */
+
+      if (
+        savedConsent === "accepted"
+      ) {
+
+        loadGoogleAnalytics();
+
+      }
+
+
+      /*
+       * Previous rejection:
+       * Keep analytics disabled.
+       */
+
+      if (
+        savedConsent === "rejected"
+      ) {
+
+        disableGoogleAnalytics();
+
+      }
+
+
+      /* --------------------------------------------------------------
+         ACCEPT
+         -------------------------------------------------------------- */
+
+      if (acceptButton) {
+
+        acceptButton.addEventListener(
+          "click",
+          function () {
+
+            saveConsent(
+              "accepted"
+            );
+
+
+            loadGoogleAnalytics();
+
+
+            hideBanner();
+
+          }
+        );
+
+      }
+
+
+      /* --------------------------------------------------------------
+         REJECT
+         -------------------------------------------------------------- */
+
+      if (rejectButton) {
+
+        rejectButton.addEventListener(
+          "click",
+          function () {
+
+            saveConsent(
+              "rejected"
+            );
+
+
+            disableGoogleAnalytics();
+
+
+            hideBanner();
+
+          }
+        );
+
+      }
+
+
+      /* --------------------------------------------------------------
+         PRIVACY POLICY LINK
+         -------------------------------------------------------------- */
+
+      if (settingsButton) {
+
+        settingsButton.addEventListener(
+          "click",
+          openPrivacyPage
+        );
+
+      }
+
+
+      /* --------------------------------------------------------------
+         CHANGE CONSENT FROM PRIVACY PAGE
+         -------------------------------------------------------------- */
+
+      if (privacySettingsButton) {
+
+        privacySettingsButton.addEventListener(
+          "click",
+          function () {
+
+            /*
+             * Clear the previous decision and
+             * show the banner again.
+             */
+
+            try {
+
+              localStorage.removeItem(
+                CONSENT_STORAGE_KEY
+              );
+
+            } catch (error) {
+
+              console.warn(
+                "Unable to reset privacy preference."
+              );
+
+            }
+
+
+            disableGoogleAnalytics();
+
+
+            showBanner();
+
+          }
+        );
+
+      }
+
+    }
+  );
+
+})();
+
+const footerCookieSettingsButton =
+  document.getElementById(
+    "footer-cookie-settings"
+  );
+
+if (footerCookieSettingsButton) {
+
+  footerCookieSettingsButton.addEventListener(
+    "click",
+    function () {
+
+      try {
+
+        localStorage.removeItem(
+          CONSENT_STORAGE_KEY
+        );
+
+      } catch (error) {
+
+        console.warn(
+          "Unable to reset privacy preference."
+        );
+
+      }
+
+
+      disableGoogleAnalytics();
+
+
+      showBanner();
+
+    }
+  );
+
+}
