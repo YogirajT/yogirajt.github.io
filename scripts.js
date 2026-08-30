@@ -1,7 +1,9 @@
 (() => {
   "use strict";
 
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
   var finePointer = window.matchMedia("(pointer: fine)").matches;
 
   // Mark JS as active so CSS can opt certain elements into a hidden->reveal
@@ -12,7 +14,10 @@
   // Theme toggle (light / dark) — persisted, synced across both buttons
   // ---------------------------------------------------------------------
   var root = document.documentElement;
-  var themeButtons = [document.getElementById("theme-toggle-desktop"), document.getElementById("theme-toggle-mobile")].filter(Boolean);
+  var themeButtons = [
+    document.getElementById("theme-toggle-desktop"),
+    document.getElementById("theme-toggle-mobile"),
+  ].filter(Boolean);
 
   function currentTheme() {
     return root.getAttribute("data-theme") === "light" ? "light" : "dark";
@@ -32,14 +37,9 @@
     if (oldTheme === t) return;
 
     const directionClass =
-      t === "light"
-        ? "theme-shifting-to-light"
-        : "theme-shifting-to-dark";
+      t === "light" ? "theme-shifting-to-light" : "theme-shifting-to-dark";
 
-    root.classList.remove(
-      "theme-shifting-to-light",
-      "theme-shifting-to-dark"
-    );
+    root.classList.remove("theme-shifting-to-light", "theme-shifting-to-dark");
 
     // Trigger cinematic overlay
     root.classList.add(directionClass);
@@ -49,7 +49,7 @@
 
     try {
       localStorage.setItem("theme", t);
-    } catch (e) { }
+    } catch (e) {}
 
     syncToggleLabels();
 
@@ -104,7 +104,7 @@
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
     );
 
     document.querySelectorAll(".reveal").forEach(function (el) {
@@ -124,35 +124,43 @@
       });
     });
   } else {
-    document.querySelectorAll(".reveal, .job, .skill-group, .earlier-item").forEach(function (el) {
-      el.classList.add("in-view");
-    });
+    document
+      .querySelectorAll(".reveal, .job, .skill-group, .earlier-item")
+      .forEach(function (el) {
+        el.classList.add("in-view");
+      });
   }
 
   // Safety net: if for any reason the observer never fires for an element
   // (older/unusual browsers), force everything visible after a short delay
   // so content can never get stuck hidden.
   window.setTimeout(function () {
-    document.querySelectorAll(".reveal, .job, .skill-group, .earlier-item").forEach(function (el) {
-      el.classList.add("in-view");
-    });
+    document
+      .querySelectorAll(".reveal, .job, .skill-group, .earlier-item")
+      .forEach(function (el) {
+        el.classList.add("in-view");
+      });
   }, 2500);
 
   // ---------------------------------------------------------------------
   // Scroll-spy: highlight the current section in the nav
   // ---------------------------------------------------------------------
   var sections = ["about", "experience", "skills", "education", "contact"]
-    .map(function (id) { return document.getElementById(id); })
+    .map(function (id) {
+      return document.getElementById(id);
+    })
     .filter(Boolean);
   var navLinkMap = {};
-  document.querySelectorAll('.nav-links a, .nav-toggle-panel a').forEach(function (a) {
-    var href = a.getAttribute("href") || "";
-    if (href.charAt(0) === "#") {
-      var id = href.slice(1);
-      navLinkMap[id] = navLinkMap[id] || [];
-      navLinkMap[id].push(a);
-    }
-  });
+  document
+    .querySelectorAll(".nav-links a, .nav-toggle-panel a")
+    .forEach(function (a) {
+      var href = a.getAttribute("href") || "";
+      if (href.charAt(0) === "#") {
+        var id = href.slice(1);
+        navLinkMap[id] = navLinkMap[id] || [];
+        navLinkMap[id].push(a);
+      }
+    });
 
   if ("IntersectionObserver" in window && sections.length) {
     var spy = new IntersectionObserver(
@@ -160,15 +168,22 @@
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
           Object.keys(navLinkMap).forEach(function (id) {
-            navLinkMap[id].forEach(function (a) { a.classList.remove("active"); });
+            navLinkMap[id].forEach(function (a) {
+              a.classList.remove("active");
+            });
           });
           var links = navLinkMap[entry.target.id];
-          if (links) links.forEach(function (a) { a.classList.add("active"); });
+          if (links)
+            links.forEach(function (a) {
+              a.classList.add("active");
+            });
         });
       },
-      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
     );
-    sections.forEach(function (s) { spy.observe(s); });
+    sections.forEach(function (s) {
+      spy.observe(s);
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -192,7 +207,10 @@
           window.setTimeout(type, speed);
         } else {
           var caret = document.querySelector(".hero-role .caret");
-          if (caret) window.setTimeout(function () { caret.style.display = "none"; }, 1400);
+          if (caret)
+            window.setTimeout(function () {
+              caret.style.display = "none";
+            }, 1400);
         }
       })();
     }
@@ -203,8 +221,12 @@
   // ---------------------------------------------------------------------
   var hero = document.querySelector(".hero");
   if (hero && finePointer && !reduceMotion) {
-    hero.addEventListener("pointerenter", function () { hero.classList.add("spot-active"); });
-    hero.addEventListener("pointerleave", function () { hero.classList.remove("spot-active"); });
+    hero.addEventListener("pointerenter", function () {
+      hero.classList.add("spot-active");
+    });
+    hero.addEventListener("pointerleave", function () {
+      hero.classList.remove("spot-active");
+    });
     hero.addEventListener("pointermove", function (e) {
       var rect = hero.getBoundingClientRect();
       var x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -258,7 +280,9 @@
       document.body.appendChild(toastEl);
     }
     toastEl.textContent = msg;
-    requestAnimationFrame(function () { toastEl.classList.add("show"); });
+    requestAnimationFrame(function () {
+      toastEl.classList.add("show");
+    });
     window.clearTimeout(showToast._t);
     showToast._t = window.setTimeout(function () {
       toastEl.classList.remove("show");
@@ -267,7 +291,6 @@
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
-
   /* =====================================================================
      ELEMENTS
      ===================================================================== */
@@ -284,7 +307,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const contactSection = document.querySelector("#contact");
   const heroWrap = topSection ? topSection.querySelector(".wrap") : null;
 
-  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const reducedMotionQuery = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
 
   if (!ambientLayer || !rainContainer || !leavesContainer) {
     return;
@@ -314,11 +339,30 @@ document.addEventListener("DOMContentLoaded", () => {
     let circleCount, rMin, rMax, spreadMain, spreadCross, sprigCount, sprigLen;
 
     if (preset === "canopy") {
-      circleCount = 9; rMin = 26; rMax = 48; spreadMain = 108; spreadCross = 52; sprigCount = 2; sprigLen = 40;
+      circleCount = 9;
+      rMin = 26;
+      rMax = 48;
+      spreadMain = 108;
+      spreadCross = 52;
+      sprigCount = 2;
+      sprigLen = 40;
     } else if (preset === "fern") {
-      circleCount = 6; rMin = 14; rMax = 24; spreadMain = 92; spreadCross = 28; sprigCount = 7; sprigLen = 68;
-    } else { // palm
-      circleCount = 5; rMin = 20; rMax = 34; spreadMain = 98; spreadCross = 32; sprigCount = 4; sprigLen = 96;
+      circleCount = 6;
+      rMin = 14;
+      rMax = 24;
+      spreadMain = 92;
+      spreadCross = 28;
+      sprigCount = 7;
+      sprigLen = 68;
+    } else {
+      // palm
+      circleCount = 5;
+      rMin = 20;
+      rMax = 34;
+      spreadMain = 98;
+      spreadCross = 32;
+      sprigCount = 4;
+      sprigLen = 96;
     }
 
     let circles = "";
@@ -339,8 +383,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const baseY = orientation === "h" ? c + crossJ : c + along;
       const dirOut = Math.random() > 0.5 ? 1 : -1;
       const reach = sprigLen * (0.7 + Math.random() * 0.5);
-      const tipX = orientation === "h" ? baseX + (Math.random() - 0.5) * 30 : baseX + dirOut * reach;
-      const tipY = orientation === "h" ? baseY + dirOut * reach : baseY + (Math.random() - 0.5) * 30;
+      const tipX =
+        orientation === "h"
+          ? baseX + (Math.random() - 0.5) * 30
+          : baseX + dirOut * reach;
+      const tipY =
+        orientation === "h"
+          ? baseY + dirOut * reach
+          : baseY + (Math.random() - 0.5) * 30;
       const midX = (baseX + tipX) / 2 + (Math.random() - 0.5) * 20;
       const midY = (baseY + tipY) / 2 + (Math.random() - 0.5) * 20;
       sprigs += `<path d="M ${baseX.toFixed(1)} ${baseY.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${tipX.toFixed(1)} ${tipY.toFixed(1)}" stroke="currentColor" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.8"/>`;
@@ -355,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "color-mix(in srgb, var(--green) 42%, black 58%)",
     "color-mix(in srgb, var(--green) 60%, black 40%)",
     "var(--green)",
-    "var(--cyan)"
+    "var(--cyan)",
   ]; // mostly dark jungle-shadow green, occasional lit green or cyan rim-light
 
   /* =====================================================================
@@ -371,7 +421,8 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < RAIN_COUNT; i++) {
       const drop = document.createElement("span");
       drop.className = "ambient-drop";
-      drop.dataset.depth = Math.random() > 0.65 ? "front" : Math.random() > 0.5 ? "mid" : "back";
+      drop.dataset.depth =
+        Math.random() > 0.65 ? "front" : Math.random() > 0.5 ? "mid" : "back";
 
       const height = 35 + Math.random() * 120;
       const duration = 0.8 + Math.random() * 1.5;
@@ -412,9 +463,10 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < LEAF_COUNT; i++) {
       const type = LEAF_TYPES[Math.floor(Math.random() * LEAF_TYPES.length)];
       const depthOptions = ["front", "front", "mid", "mid", "back"];
-      const depth = depthOptions[Math.floor(Math.random() * depthOptions.length)];
+      const depth =
+        depthOptions[Math.floor(Math.random() * depthOptions.length)];
       const edge = LEAF_EDGES[Math.floor(Math.random() * LEAF_EDGES.length)];
-      const orientation = (edge === "left" || edge === "right") ? "v" : "h";
+      const orientation = edge === "left" || edge === "right" ? "v" : "h";
 
       const leaf = document.createElement("div");
       leaf.className = "ambient-leaf";
@@ -423,20 +475,35 @@ document.addEventListener("DOMContentLoaded", () => {
       leaf.innerHTML = buildCluster(type, orientation);
 
       let x, y;
-      if (edge === "left") { x = -14 + Math.random() * 16; y = Math.random() * 100; }
-      else if (edge === "right") { x = 98 + Math.random() * 16; y = Math.random() * 100; }
-      else if (edge === "top") { x = 6 + Math.random() * 88; y = -16 + Math.random() * 16; }
-      else { x = 6 + Math.random() * 88; y = 96 + Math.random() * 20; }
+      if (edge === "left") {
+        x = -14 + Math.random() * 16;
+        y = Math.random() * 100;
+      } else if (edge === "right") {
+        x = 98 + Math.random() * 16;
+        y = Math.random() * 100;
+      } else if (edge === "top") {
+        x = 6 + Math.random() * 88;
+        y = -16 + Math.random() * 16;
+      } else {
+        x = 6 + Math.random() * 88;
+        y = 96 + Math.random() * 20;
+      }
 
       const rotation = -8 + Math.random() * 16; // subtle sway tilt only, mass shape does the rest
 
-      const size = depth === "front" ? 230 + Math.random() * 150
-        : depth === "mid" ? 160 + Math.random() * 100
-          : 110 + Math.random() * 70;
+      const size =
+        depth === "front"
+          ? 230 + Math.random() * 150
+          : depth === "mid"
+            ? 160 + Math.random() * 100
+            : 110 + Math.random() * 70;
 
-      const baseOpacity = depth === "front" ? 0.5 + Math.random() * 0.22
-        : depth === "mid" ? 0.34 + Math.random() * 0.18
-          : 0.22 + Math.random() * 0.12;
+      const baseOpacity =
+        depth === "front"
+          ? 0.5 + Math.random() * 0.22
+          : depth === "mid"
+            ? 0.34 + Math.random() * 0.18
+            : 0.22 + Math.random() * 0.12;
 
       const swayRange = depth === "front" ? 14 : depth === "mid" ? 8 : 4;
       const tint = LEAF_TINTS[Math.floor(Math.random() * LEAF_TINTS.length)];
@@ -453,7 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
         baseRotation: rotation,
         swayRange,
         swaySeed: Math.random() * Math.PI * 2,
-        swaySpeed: 0.00025 + Math.random() * 0.00025
+        swaySpeed: 0.00025 + Math.random() * 0.00025,
       });
 
       leavesContainer.appendChild(leaf);
@@ -475,13 +542,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // ever accumulating an unbounded, permanent upward drift.
     const scrollPhase = (scrollY % vh) / vh;
 
-    leaves.forEach(leaf => {
-      const idleSway = Math.sin(now * leaf.swaySpeed + leaf.swaySeed) * leaf.swayRange;
-      const scrollSway = Math.sin(scrollPhase * Math.PI * 2 + leaf.swaySeed) * (leaf.swayRange * 0.6);
+    leaves.forEach((leaf) => {
+      const idleSway =
+        Math.sin(now * leaf.swaySpeed + leaf.swaySeed) * leaf.swayRange;
+      const scrollSway =
+        Math.sin(scrollPhase * Math.PI * 2 + leaf.swaySeed) *
+        (leaf.swayRange * 0.6);
 
-      leaf.element.style.setProperty("--leaf-shift-y", `${(idleSway * 0.4).toFixed(2)}px`);
-      leaf.element.style.setProperty("--leaf-shift-x", `${(scrollSway * 0.3).toFixed(2)}px`);
-      leaf.element.style.setProperty("--leaf-rotation", `${(leaf.baseRotation + idleSway * 0.25).toFixed(2)}deg`);
+      leaf.element.style.setProperty(
+        "--leaf-shift-y",
+        `${(idleSway * 0.4).toFixed(2)}px`,
+      );
+      leaf.element.style.setProperty(
+        "--leaf-shift-x",
+        `${(scrollSway * 0.3).toFixed(2)}px`,
+      );
+      leaf.element.style.setProperty(
+        "--leaf-rotation",
+        `${(leaf.baseRotation + idleSway * 0.25).toFixed(2)}deg`,
+      );
     });
   }
 
@@ -521,7 +600,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const branchT = 0.35 + Math.random() * 0.3;
     const bx = x1 + (x2 - x1) * branchT;
     const by = y1 + (y2 - y1) * branchT;
-    const branchD = jaggedPath(bx, by, bx + (Math.random() - 0.5) * w * 0.12, by + (y2 - y1) * 0.3, 3, 22);
+    const branchD = jaggedPath(
+      bx,
+      by,
+      bx + (Math.random() - 0.5) * w * 0.12,
+      by + (y2 - y1) * 0.3,
+      3,
+      22,
+    );
     const showBranch = Math.random() > 0.45;
 
     boltSvg.innerHTML =
@@ -529,16 +615,19 @@ document.addEventListener("DOMContentLoaded", () => {
       `<path class="bolt-core" d="${mainD}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
       (showBranch
         ? `<path class="bolt-glow" d="${branchD}" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
-        `<path class="bolt-core" d="${branchD}" fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>`
+          `<path class="bolt-core" d="${branchD}" fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>`
         : "");
   }
 
   function flashOnce(peak) {
     if (!lightningEl) return;
     const edge = Math.floor(Math.random() * 3); // 0 left, 1 right, 2 top
-    const xPct = edge === 0 ? -5 + Math.random() * 10
-      : edge === 1 ? 95 + Math.random() * 10
-        : Math.random() * 100;
+    const xPct =
+      edge === 0
+        ? -5 + Math.random() * 10
+        : edge === 1
+          ? 95 + Math.random() * 10
+          : Math.random() * 100;
     const yPct = edge === 2 ? -5 + Math.random() * 10 : Math.random() * 60;
 
     root.style.setProperty("--lightning-x", `${xPct}%`);
@@ -547,9 +636,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     drawBolt(xPct, yPct);
 
-    window.setTimeout(() => {
-      root.style.setProperty("--lightning-opacity", 0);
-    }, 90 + Math.random() * 80);
+    window.setTimeout(
+      () => {
+        root.style.setProperty("--lightning-opacity", 0);
+      },
+      90 + Math.random() * 80,
+    );
   }
 
   function triggerLightning() {
@@ -563,9 +655,13 @@ document.addEventListener("DOMContentLoaded", () => {
     flashOnce(peak);
 
     // Occasionally a double or triple flash, same general direction.
-    const extraFlashes = Math.random() > 0.8 ? (Math.random() > 0.5 ? 2 : 1) : 0;
+    const extraFlashes =
+      Math.random() > 0.8 ? (Math.random() > 0.5 ? 2 : 1) : 0;
     for (let i = 1; i <= extraFlashes; i++) {
-      window.setTimeout(() => flashOnce(peak * (0.6 + Math.random() * 0.3)), i * (140 + Math.random() * 120));
+      window.setTimeout(
+        () => flashOnce(peak * (0.6 + Math.random() * 0.3)),
+        i * (140 + Math.random() * 120),
+      );
     }
   }
 
@@ -613,12 +709,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAtmosphere(heroProgress, contactProgress) {
     const heroFactor = 1 - heroProgress;
     const contactFactor = contactProgress;
-    const intensity = MIDDLE_BASELINE + (1 - MIDDLE_BASELINE) * Math.max(heroFactor, contactFactor);
+    const intensity =
+      MIDDLE_BASELINE +
+      (1 - MIDDLE_BASELINE) * Math.max(heroFactor, contactFactor);
 
     root.style.setProperty("--rain-intensity", intensity.toFixed(3));
     // root.style.setProperty("--rain-speed", (0.8 + intensity * 0.4).toFixed(3));
     root.style.setProperty("--leaf-density", intensity.toFixed(3));
-    root.style.setProperty("--ambient-blur", `${((1 - intensity) * 0.6).toFixed(2)}px`);
+    root.style.setProperty(
+      "--ambient-blur",
+      `${((1 - intensity) * 0.6).toFixed(2)}px`,
+    );
 
     // Glow drifts diagonally down the page rather than jumping per section.
     const glowX = 22 + Math.max(heroFactor, contactFactor) * 55;
@@ -638,7 +739,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateContactTransition(contactProgress) {
     if (!contactSection) return;
-    contactSection.style.setProperty("--contact-progress", contactProgress.toFixed(4));
+    contactSection.style.setProperty(
+      "--contact-progress",
+      contactProgress.toFixed(4),
+    );
   }
 
   /* =====================================================================
@@ -701,10 +805,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startLoop();
     scheduleLightning();
   }
-
 });
-
-
 
 /* ==========================================================================
    COOKIE CONSENT + GOOGLE ANALYTICS
@@ -727,7 +828,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let analyticsLoaded = false;
 
-
   /* ------------------------------------------------------------------------
      STORAGE
      ------------------------------------------------------------------------ */
@@ -740,20 +840,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   function saveConsent(value) {
     try {
-      localStorage.setItem(
-        CONSENT_STORAGE_KEY,
-        value
-      );
+      localStorage.setItem(CONSENT_STORAGE_KEY, value);
     } catch (error) {
-      console.warn(
-        "Unable to save privacy preference."
-      );
+      console.warn("Unable to save privacy preference.");
     }
   }
-
 
   /* ------------------------------------------------------------------------
      GOOGLE ANALYTICS
@@ -764,30 +857,19 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-
-    if (
-      !GA_MEASUREMENT_ID ||
-      GA_MEASUREMENT_ID === "G-XXXXXXXXXX"
-    ) {
-      console.warn(
-        "Google Analytics Measurement ID has not been configured."
-      );
+    if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
+      console.warn("Google Analytics Measurement ID has not been configured.");
 
       return;
     }
 
-
     analyticsLoaded = true;
-
 
     /*
      * Make sure GA is not globally disabled.
      */
 
-    window[
-      "ga-disable-" + GA_MEASUREMENT_ID
-    ] = false;
-
+    window["ga-disable-" + GA_MEASUREMENT_ID] = false;
 
     /*
      * Create the Google Analytics script only now,
@@ -802,17 +884,13 @@ document.addEventListener("DOMContentLoaded", () => {
       "https://www.googletagmanager.com/gtag/js?id=" +
       encodeURIComponent(GA_MEASUREMENT_ID);
 
-
     document.head.appendChild(script);
-
 
     /*
      * Initialise gtag.
      */
 
-    window.dataLayer =
-      window.dataLayer || [];
-
+    window.dataLayer = window.dataLayer || [];
 
     window.gtag =
       window.gtag ||
@@ -820,12 +898,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.dataLayer.push(arguments);
       };
 
-
-    window.gtag(
-      "js",
-      new Date()
-    );
-
+    window.gtag("js", new Date());
 
     /*
      * Explicitly grant analytics only.
@@ -833,363 +906,207 @@ document.addEventListener("DOMContentLoaded", () => {
      * Advertising-related storage remains denied.
      */
 
-    window.gtag(
-      "consent",
-      "default",
-      {
-        analytics_storage: "granted",
+    window.gtag("consent", "default", {
+      analytics_storage: "granted",
 
-        ad_storage: "denied",
+      ad_storage: "denied",
 
-        ad_user_data: "denied",
+      ad_user_data: "denied",
 
-        ad_personalization: "denied"
-      }
-    );
+      ad_personalization: "denied",
+    });
 
-
-    window.gtag(
-      "config",
-      GA_MEASUREMENT_ID,
-      {
-        anonymize_ip: true
-      }
-    );
+    window.gtag("config", GA_MEASUREMENT_ID, {
+      anonymize_ip: true,
+    });
   }
-
 
   /* ------------------------------------------------------------------------
      DISABLE ANALYTICS
      ------------------------------------------------------------------------ */
 
   function disableGoogleAnalytics() {
-
-    if (
-      !GA_MEASUREMENT_ID ||
-      GA_MEASUREMENT_ID === "G-XXXXXXXXXX"
-    ) {
+    if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
       return;
     }
 
-
-    window[
-      "ga-disable-" + GA_MEASUREMENT_ID
-    ] = true;
-
+    window["ga-disable-" + GA_MEASUREMENT_ID] = true;
 
     /*
      * If gtag has already loaded, update consent.
      */
 
     if (typeof window.gtag === "function") {
+      window.gtag("consent", "update", {
+        analytics_storage: "denied",
 
-      window.gtag(
-        "consent",
-        "update",
-        {
-          analytics_storage: "denied",
+        ad_storage: "denied",
 
-          ad_storage: "denied",
+        ad_user_data: "denied",
 
-          ad_user_data: "denied",
-
-          ad_personalization: "denied"
-        }
-      );
-
+        ad_personalization: "denied",
+      });
     }
-
   }
-
 
   /* ------------------------------------------------------------------------
      BANNER
      ------------------------------------------------------------------------ */
 
   function showBanner() {
-
-    const banner =
-      document.getElementById(
-        "cookie-banner"
-      );
-
+    const banner = document.getElementById("cookie-banner");
 
     if (!banner) {
       return;
     }
-
 
     banner.hidden = false;
 
-
     requestAnimationFrame(function () {
-      banner.classList.add(
-        "is-visible"
-      );
+      banner.classList.add("is-visible");
     });
-
   }
 
-
   function hideBanner() {
-
-    const banner =
-      document.getElementById(
-        "cookie-banner"
-      );
-
+    const banner = document.getElementById("cookie-banner");
 
     if (!banner) {
       return;
     }
 
+    banner.classList.remove("is-visible");
 
-    banner.classList.remove(
-      "is-visible"
-    );
-
-
-    window.setTimeout(
-      function () {
-        banner.hidden = true;
-      },
-      350
-    );
-
+    window.setTimeout(function () {
+      banner.hidden = true;
+    }, 350);
   }
-
 
   /* ------------------------------------------------------------------------
      OPEN PRIVACY PAGE
      ------------------------------------------------------------------------ */
 
   function openPrivacyPage() {
-
-    window.location.href =
-      "privacy.html";
-
+    window.location.href = "privacy.html";
   }
-
 
   /* ------------------------------------------------------------------------
      INITIALISE
      ------------------------------------------------------------------------ */
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+  document.addEventListener("DOMContentLoaded", function () {
+    const acceptButton = document.getElementById("cookie-accept");
 
-      const acceptButton =
-        document.getElementById(
-          "cookie-accept"
-        );
+    const rejectButton = document.getElementById("cookie-reject");
 
+    const settingsButton = document.getElementById("cookie-settings");
 
-      const rejectButton =
-        document.getElementById(
-          "cookie-reject"
-        );
+    const privacySettingsButton = document.getElementById(
+      "privacy-cookie-settings",
+    );
 
+    const savedConsent = getConsent();
 
-      const settingsButton =
-        document.getElementById(
-          "cookie-settings"
-        );
+    /*
+     * First visit:
+     * Show the choice.
+     */
 
+    if (!savedConsent) {
+      showBanner();
+    }
 
-      const privacySettingsButton =
-        document.getElementById(
-          "privacy-cookie-settings"
-        );
+    /*
+     * Previous acceptance:
+     * Load analytics.
+     */
 
+    if (savedConsent === "accepted") {
+      loadGoogleAnalytics();
+    }
 
-      const savedConsent =
-        getConsent();
+    /*
+     * Previous rejection:
+     * Keep analytics disabled.
+     */
 
+    if (savedConsent === "rejected") {
+      disableGoogleAnalytics();
+    }
 
-      /*
-       * First visit:
-       * Show the choice.
-       */
-
-      if (!savedConsent) {
-
-        showBanner();
-
-      }
-
-
-      /*
-       * Previous acceptance:
-       * Load analytics.
-       */
-
-      if (
-        savedConsent === "accepted"
-      ) {
-
-        loadGoogleAnalytics();
-
-      }
-
-
-      /*
-       * Previous rejection:
-       * Keep analytics disabled.
-       */
-
-      if (
-        savedConsent === "rejected"
-      ) {
-
-        disableGoogleAnalytics();
-
-      }
-
-
-      /* --------------------------------------------------------------
+    /* --------------------------------------------------------------
          ACCEPT
          -------------------------------------------------------------- */
 
-      if (acceptButton) {
+    if (acceptButton) {
+      acceptButton.addEventListener("click", function () {
+        saveConsent("accepted");
 
-        acceptButton.addEventListener(
-          "click",
-          function () {
+        loadGoogleAnalytics();
 
-            saveConsent(
-              "accepted"
-            );
+        hideBanner();
+      });
+    }
 
-
-            loadGoogleAnalytics();
-
-
-            hideBanner();
-
-          }
-        );
-
-      }
-
-
-      /* --------------------------------------------------------------
+    /* --------------------------------------------------------------
          REJECT
          -------------------------------------------------------------- */
 
-      if (rejectButton) {
+    if (rejectButton) {
+      rejectButton.addEventListener("click", function () {
+        saveConsent("rejected");
 
-        rejectButton.addEventListener(
-          "click",
-          function () {
+        disableGoogleAnalytics();
 
-            saveConsent(
-              "rejected"
-            );
+        hideBanner();
+      });
+    }
 
-
-            disableGoogleAnalytics();
-
-
-            hideBanner();
-
-          }
-        );
-
-      }
-
-
-      /* --------------------------------------------------------------
+    /* --------------------------------------------------------------
          PRIVACY POLICY LINK
          -------------------------------------------------------------- */
 
-      if (settingsButton) {
+    if (settingsButton) {
+      settingsButton.addEventListener("click", openPrivacyPage);
+    }
 
-        settingsButton.addEventListener(
-          "click",
-          openPrivacyPage
-        );
-
-      }
-
-
-      /* --------------------------------------------------------------
+    /* --------------------------------------------------------------
          CHANGE CONSENT FROM PRIVACY PAGE
          -------------------------------------------------------------- */
 
-      if (privacySettingsButton) {
+    if (privacySettingsButton) {
+      privacySettingsButton.addEventListener("click", function () {
+        /*
+         * Clear the previous decision and
+         * show the banner again.
+         */
 
-        privacySettingsButton.addEventListener(
-          "click",
-          function () {
+        try {
+          localStorage.removeItem(CONSENT_STORAGE_KEY);
+        } catch (error) {
+          console.warn("Unable to reset privacy preference.");
+        }
 
-            /*
-             * Clear the previous decision and
-             * show the banner again.
-             */
+        disableGoogleAnalytics();
 
-            try {
-
-              localStorage.removeItem(
-                CONSENT_STORAGE_KEY
-              );
-
-            } catch (error) {
-
-              console.warn(
-                "Unable to reset privacy preference."
-              );
-
-            }
-
-
-            disableGoogleAnalytics();
-
-
-            showBanner();
-
-          }
-        );
-
-      }
-
+        showBanner();
+      });
     }
+  });
+
+  const footerCookieSettingsButton = document.getElementById(
+    "footer-cookie-settings",
   );
 
-})();
-
-const footerCookieSettingsButton =
-  document.getElementById(
-    "footer-cookie-settings"
-  );
-
-if (footerCookieSettingsButton) {
-
-  footerCookieSettingsButton.addEventListener(
-    "click",
-    function () {
-
+  if (footerCookieSettingsButton) {
+    footerCookieSettingsButton.addEventListener("click", function () {
       try {
-
-        localStorage.removeItem(
-          CONSENT_STORAGE_KEY
-        );
-
+        localStorage.removeItem(CONSENT_STORAGE_KEY);
       } catch (error) {
-
-        console.warn(
-          "Unable to reset privacy preference."
-        );
-
+        console.warn("Unable to reset privacy preference.");
       }
-
 
       disableGoogleAnalytics();
-
-
       showBanner();
-
-    }
-  );
-
-}
+    });
+  }
+})();
