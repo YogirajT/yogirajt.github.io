@@ -807,29 +807,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
 /* ==========================================================================
-   COOKIE CONSENT + GOOGLE ANALYTICS — BASIC / CONSENT-GATED
+   COOKIE CONSENT + GOOGLE ANALYTICS — CONSENT MODE ADVANCED
 
-   Google Analytics is NOT loaded before consent.
+   Google Analytics / Google tag loads before the consent decision.
 
-   First visit:
-     - No gtag.js request
-     - No Google Analytics request
-     - Consent banner is shown
+   Default:
+     analytics_storage = denied
+     ad_storage        = denied
+     ad_user_data      = denied
+     ad_personalization = denied
 
    Accept:
-     - Save consent
-     - Load gtag.js
-     - Initialise Google Analytics
-     - Send the page_view
+     analytics_storage = granted
 
    Reject:
-     - Save rejection
-     - Do not load Google Analytics
-
-   Returning visitor:
-     - "accepted" -> load Google Analytics immediately
-     - "rejected" -> keep Google Analytics completely unloaded
+     analytics_storage = denied
 
    No advertising features are enabled.
    ========================================================================== */
@@ -841,7 +835,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const CONSENT_STORAGE_KEY = "yt_cookie_consent";
 
   let analyticsLoaded = false;
-  let analyticsLoading = false;
+
+  /* ------------------------------------------------------------------------
+     GOOGLE TAG / CONSENT MODE
+     ------------------------------------------------------------------------ */
+
+  window.dataLayer = window.dataLayer || [];
+
+  window.gtag =
+    window.gtag ||
+    function () {
+      window.dataLayer.push(arguments);
+    };
+
+  /*
+   * IMPORTANT:
+   *
+   * This MUST execute before gtag.js is loaded.
+   *
+   * The default state is denied.
+   */
+  window.gtag("consent", "default", {
+    analytics_storage: "denied",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+
+    /*
+     * Give the page a short amount of time to restore a previously
+     * saved consent decision.
+     */
+    wait_for_update: 500,
+  });
 
   /* ------------------------------------------------------------------------
      STORAGE
@@ -851,7 +876,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       return localStorage.getItem(CONSENT_STORAGE_KEY);
     } catch (error) {
-      console.warn("Unable to read privacy preference.");
       return null;
     }
   }
@@ -864,23 +888,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function clearConsent() {
-    try {
-      localStorage.removeItem(CONSENT_STORAGE_KEY);
-    } catch (error) {
-      console.warn("Unable to reset privacy preference.");
-    }
+  /* ------------------------------------------------------------------------
+     CONSENT STATE
+     ------------------------------------------------------------------------ */
+
+  function grantAnalyticsConsent() {
+    window.gtag("consent", "update", {
+      analytics_storage: "granted",
+
+      /*
+       * We don't use advertising features.
+       */
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    console.log("Analytics consent granted.");
+  }
+
+  function denyAnalyticsConsent() {
+    window.gtag("consent", "update", {
+      analytics_storage: "denied",
+
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    console.log("Analytics consent denied.");
   }
 
   /* ------------------------------------------------------------------------
-     GOOGLE ANALYTICS
+     LOAD GOOGLE TAG
      ------------------------------------------------------------------------ */
 
   function loadGoogleAnalytics() {
-    /*
-     * Prevent duplicate loading.
-     */
-    if (analyticsLoaded || analyticsLoading) {
+    if (analyticsLoaded) {
       return;
     }
 
@@ -889,40 +933,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    analyticsLoading = true;
-
-    /*
-     * Create dataLayer and gtag ONLY when consent has already been granted.
-     */
-    window.dataLayer = window.dataLayer || [];
-
-    window.gtag =
-      window.gtag ||
-      function () {
-        window.dataLayer.push(arguments);
-      };
+    analyticsLoaded = true;
 
     /*
      * Initialise the Google tag.
+     *
+     * The consent state is already "denied" at this point.
      */
     window.gtag("js", new Date());
 
-    /*
-     * Analytics is being loaded only after explicit consent.
-     *
-     * Advertising-related storage remains disabled.
-     */
     window.gtag("config", GA_MEASUREMENT_ID, {
       anonymize_ip: true,
-      allow_google_signals: false,
-      allow_ad_personalization_signals: false,
     });
 
     /*
-     * Load Google's script.
-     *
-     * THIS is the first point at which the browser is allowed to request
-     * anything from googletagmanager.com.
+     * Load Google's gtag.js.
      */
     const script = document.createElement("script");
 
@@ -933,19 +958,12 @@ document.addEventListener("DOMContentLoaded", () => {
       encodeURIComponent(GA_MEASUREMENT_ID);
 
     script.onload = function () {
-      analyticsLoaded = true;
-      analyticsLoading = false;
-
-      console.log(
-        "Google Analytics loaded after consent:",
-        GA_MEASUREMENT_ID,
-      );
+      console.log("Google Analytics loaded:", GA_MEASUREMENT_ID);
     };
 
     script.onerror = function () {
-      analyticsLoading = false;
-
       console.error("Google Analytics failed to load.");
+      analyticsLoaded = false;
     };
 
     document.head.appendChild(script);
@@ -988,19 +1006,11 @@ document.addEventListener("DOMContentLoaded", () => {
      ------------------------------------------------------------------------ */
 
   function acceptAnalytics() {
-    /*
-     * Save the decision FIRST.
-     */
     saveConsent("accepted");
 
-    /*
-     * Now — and only now — load Google Analytics.
-     */
-    loadGoogleAnalytics();
+    grantAnalyticsConsent();
 
     hideBanner();
-
-    console.log("Analytics consent granted.");
   }
 
   /* ------------------------------------------------------------------------
@@ -1008,16 +1018,11 @@ document.addEventListener("DOMContentLoaded", () => {
      ------------------------------------------------------------------------ */
 
   function rejectAnalytics() {
-    /*
-     * Save rejection.
-     *
-     * Crucially, we do NOT call loadGoogleAnalytics().
-     */
     saveConsent("rejected");
 
-    hideBanner();
+    denyAnalyticsConsent();
 
-    console.log("Analytics consent denied.");
+    hideBanner();
   }
 
   /* ------------------------------------------------------------------------
@@ -1025,21 +1030,21 @@ document.addEventListener("DOMContentLoaded", () => {
      ------------------------------------------------------------------------ */
 
   function resetConsent() {
-    /*
-     * Remove the previous decision.
-     */
-    clearConsent();
+    try {
+      localStorage.removeItem(CONSENT_STORAGE_KEY);
+    } catch (error) {
+      console.warn("Unable to reset privacy preference.");
+    }
 
     /*
-     * If Analytics has already been loaded in this page session, we cannot
-     * undo the network requests that have already happened.
-     *
-     * We therefore reload the page after clearing the preference.
-     *
-     * On the next load, because there is no consent, Google Analytics will
-     * NOT be loaded.
+     * Revoke analytics consent immediately.
      */
-    window.location.reload();
+    denyAnalyticsConsent();
+
+    /*
+     * Show the banner again so the visitor can make a new choice.
+     */
+    showBanner();
   }
 
   /* ------------------------------------------------------------------------
@@ -1068,51 +1073,39 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     /*
-     * Read the saved consent decision.
+     * Read the saved decision BEFORE loading Google's script.
      */
     const savedConsent = getConsent();
 
+    /*
+     * Google tag loads regardless of consent.
+     *
+     * Consent is currently DENIED because of the default state declared
+     * at the top of this script.
+     */
+    loadGoogleAnalytics();
+
     /* --------------------------------------------------------------
-       RETURNING VISITOR — ACCEPTED
+       PREVIOUS ACCEPTANCE
        -------------------------------------------------------------- */
 
     if (savedConsent === "accepted") {
-      /*
-       * Explicit consent was previously given.
-       *
-       * Analytics can be loaded immediately.
-       */
-      loadGoogleAnalytics();
+      grantAnalyticsConsent();
     }
 
     /* --------------------------------------------------------------
-       RETURNING VISITOR — REJECTED
+       PREVIOUS REJECTION
        -------------------------------------------------------------- */
 
-    else if (savedConsent === "rejected") {
-      /*
-       * Do absolutely nothing.
-       *
-       * No Google Analytics script.
-       * No dataLayer.
-       * No gtag.
-       * No Google requests.
-       */
-      console.log("Analytics remains disabled.");
+    if (savedConsent === "rejected") {
+      denyAnalyticsConsent();
     }
 
     /* --------------------------------------------------------------
        FIRST VISIT
        -------------------------------------------------------------- */
 
-    else {
-      /*
-       * No decision yet.
-       *
-       * Most importantly:
-       *
-       * DO NOT load Google Analytics here.
-       */
+    if (!savedConsent) {
       showBanner();
     }
 
