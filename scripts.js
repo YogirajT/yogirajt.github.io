@@ -587,7 +587,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const intensity = MIDDLE_BASELINE + (1 - MIDDLE_BASELINE) * Math.max(heroFactor, contactFactor);
 
     root.style.setProperty("--rain-intensity", intensity.toFixed(3));
-    root.style.setProperty("--rain-speed", (0.8 + intensity * 0.4).toFixed(3));
+    // root.style.setProperty("--rain-speed", (0.8 + intensity * 0.4).toFixed(3));
     root.style.setProperty("--leaf-density", intensity.toFixed(3));
     root.style.setProperty("--ambient-blur", `${((1 - intensity) * 0.6).toFixed(2)}px`);
 
