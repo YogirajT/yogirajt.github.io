@@ -27,7 +27,7 @@
   }
   function setTheme(t) {
     root.setAttribute("data-theme", t);
-    try { localStorage.setItem("theme", t); } catch (e) {}
+    try { localStorage.setItem("theme", t); } catch (e) { }
     syncToggleLabels();
   }
   themeButtons.forEach(function (btn) {
@@ -314,8 +314,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const RAIN_COUNT =
     window.innerWidth < 700
-      ? 45
-      : 90;
+      ? 85
+      : 130;
 
   const LEAF_COUNT =
     window.innerWidth < 700
@@ -339,70 +339,47 @@ document.addEventListener("DOMContentLoaded", () => {
       document.createDocumentFragment();
 
 
-    for (
-      let i = 0;
-      i < RAIN_COUNT;
-      i++
-    ) {
+    for (let i = 0; i < RAIN_COUNT; i++) {
+      const drop = document.createElement("span");
 
-      const drop =
-        document.createElement("span");
+      drop.className = "drop";
 
-      drop.className =
-        "ambient-drop";
-
-
-      const height =
-        35 + Math.random() * 120;
-
-      const duration =
-        0.8 + Math.random() * 1.5;
-
-      const delay =
-        -(Math.random() * 3);
-
-      const x =
-        Math.random() * 100;
-
-      const opacity =
-        0.15 + Math.random() * 0.6;
-
-      const drift =
-        -25 + Math.random() * 50;
-
+      drop.style.left = `${Math.random() * 100}%`;
 
       drop.style.setProperty(
-        "--drop-height",
-        `${height}px`
+        "--rain-duration",
+        `${0.9 + Math.random() * 1.8}s`
       );
 
       drop.style.setProperty(
-        "--drop-duration",
-        `${duration}s`
+        "--rain-delay",
+        `${Math.random() * -3}s`
+      );
+
+      drop.style.animationDelay =
+        `${Math.random() * -3}s`;
+
+      drop.style.setProperty(
+        "--rain-length",
+        `${35 + Math.random() * 85}px`
       );
 
       drop.style.setProperty(
-        "--drop-delay",
-        `${delay}s`
+        "--rain-width",
+        `${1 + Math.random() * 1.4}px`
       );
 
       drop.style.setProperty(
-        "--drop-x",
-        `${x}%`
+        "--rain-opacity",
+        `${0.35 + Math.random() * 0.65}`
       );
 
       drop.style.setProperty(
-        "--drop-opacity",
-        opacity
+        "--rain-drift",
+        `${-60 + Math.random() * 40}px`
       );
 
-      drop.style.setProperty(
-        "--drift-end",
-        `${drift}px`
-      );
-
-
-      fragment.appendChild(drop);
+      rainContainer.appendChild(drop);
     }
 
 
@@ -456,10 +433,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const depth =
         depthOptions[
-          Math.floor(
-            Math.random()
-            * depthOptions.length
-          )
+        Math.floor(
+          Math.random()
+          * depthOptions.length
+        )
         ];
 
 
@@ -815,44 +792,82 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================================
      APPLY ATMOSPHERE
      ===================================================================== */
-
+  const ambient = document.querySelector(".ambient-layer");
+  const top = document.querySelector("#top");
+  const contact = document.querySelector("#contact");
+  function clamp(value, min = 0, max = 1) {
+    return Math.min(Math.max(value, min), max);
+  }
   function updateAtmosphere() {
+    const scrollY = window.scrollY;
+    const viewportHeight = window.innerHeight;
 
-    const state =
-      getAtmosphereState();
+    const topRect = top.getBoundingClientRect();
+    const contactRect = contact.getBoundingClientRect();
 
+    /* -------------------------------------------------
+       HERO PROGRESS
+       0 = hero fully visible
+       1 = hero has scrolled away
+    ------------------------------------------------- */
 
-    root.style.setProperty(
+    const heroProgress = clamp(
+      -topRect.top / (top.offsetHeight * 0.8)
+    );
+
+    /* -------------------------------------------------
+       CONTACT PROGRESS
+       0 = contact not visible
+       1 = contact centered / dominant
+    ------------------------------------------------- */
+
+    const contactProgress = clamp(
+      (viewportHeight - contactRect.top) /
+      (viewportHeight * 0.8)
+    );
+
+    /*
+      Atmosphere strength:
+  
+      HERO      → 1
+      MIDDLE    → ~0.25
+      CONTACT   → 1
+    */
+
+    const heroStrength = 1 - heroProgress;
+    const contactStrength = contactProgress;
+
+    const atmosphereStrength = Math.max(
+      0.28,
+      heroStrength,
+      contactStrength
+    );
+
+    /*
+      CSS variables
+    */
+
+    ambient.style.setProperty(
       "--ambient-opacity",
-      state.opacity
+      0.45 + atmosphereStrength * 0.55
     );
 
-    root.style.setProperty(
-      "--rain-speed",
-      state.speed
-    );
-
-    root.style.setProperty(
-      "--ambient-blur",
-      `${state.blur}px`
-    );
-
-    root.style.setProperty(
+    ambient.style.setProperty(
       "--leaf-density",
-      state.density
+      0.35 + atmosphereStrength * 0.65
     );
 
-
-    root.style.setProperty(
-      "--glow-x",
-      state.glowX
+    ambient.style.setProperty(
+      "--ambient-blur",
+      `${(1 - atmosphereStrength) * 2}px`
     );
 
-    root.style.setProperty(
-      "--glow-y",
-      state.glowY
+    ambient.style.setProperty(
+      "--rain-speed",
+      0.65 + atmosphereStrength * 0.8
     );
   }
+
 
 
   /* =====================================================================
@@ -868,6 +883,25 @@ document.addEventListener("DOMContentLoaded", () => {
     updateHeroTakeover();
 
     updateLeaves();
+
+    let ticking = false;
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            updateAtmosphere();
+            ticking = false;
+          });
+
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener("resize", updateAtmosphere);
 
     updateAtmosphere();
 
