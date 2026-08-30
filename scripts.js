@@ -808,25 +808,53 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   COOKIE CONSENT + GOOGLE ANALYTICS
-   Google Analytics is loaded only after explicit consent.
+   COOKIE CONSENT + GOOGLE ANALYTICS — CONSENT MODE ADVANCED
+
+   Google Analytics loads before consent, but analytics/ad storage starts
+   denied. If the visitor accepts analytics, consent is updated to granted.
+
+   No advertising features are enabled.
    ========================================================================== */
 
 (function () {
   "use strict";
 
-  /*
-   * Replace with your real Google Analytics 4 Measurement ID.
-   *
-   * Example:
-   * const GA_MEASUREMENT_ID = "G-ABC123XYZ";
-   */
-
   const GA_MEASUREMENT_ID = "G-48BYR598ZB";
-
   const CONSENT_STORAGE_KEY = "yt_cookie_consent";
 
   let analyticsLoaded = false;
+
+  /* ------------------------------------------------------------------------
+     GOOGLE CONSENT MODE
+     ------------------------------------------------------------------------ */
+
+  window.dataLayer = window.dataLayer || [];
+
+  window.gtag =
+    window.gtag ||
+    function () {
+      window.dataLayer.push(arguments);
+    };
+
+  /*
+   * IMPORTANT:
+   * This must happen before Google Analytics is loaded.
+   *
+   * All storage starts denied.
+   */
+
+  window.gtag("consent", "default", {
+    analytics_storage: "denied",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+
+    /*
+     * Gives the consent banner time to initialise before Google processes
+     * the consent state.
+     */
+    wait_for_update: 500,
+  });
 
   /* ------------------------------------------------------------------------
      STORAGE
@@ -849,7 +877,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------------------------------------
-     GOOGLE ANALYTICS
+     LOAD GOOGLE ANALYTICS
      ------------------------------------------------------------------------ */
 
   function loadGoogleAnalytics() {
@@ -857,48 +885,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
-      console.warn("Google Analytics Measurement ID has not been configured.");
+    if (!GA_MEASUREMENT_ID) {
+      console.warn("Google Analytics Measurement ID is missing.");
       return;
     }
 
     analyticsLoaded = true;
 
-    console.log("Google Analytics: loading", GA_MEASUREMENT_ID);
+    /*
+     * Keep analytics disabled until the saved consent state is checked.
+     */
+    window["ga-disable-" + GA_MEASUREMENT_ID] = true;
 
     /*
-
-* Enable Google Analytics.
-  */
-    window["ga-disable-" + GA_MEASUREMENT_ID] = false;
-
-    /*
-
-* Create the dataLayer and gtag BEFORE loading Google's script.
-  */
-    window.dataLayer = window.dataLayer || [];
-
-    window.gtag =
-      window.gtag ||
-      function () {
-        window.dataLayer.push(arguments);
-      };
-
-    /*
-
-* Set the consent state before configuring GA.
-  */
-    window.gtag("consent", "default", {
-      analytics_storage: "granted",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-    });
-
-    /*
-
-* Initialise Google Analytics.
-  */
+     * Initialise the Google tag.
+     */
     window.gtag("js", new Date());
 
     window.gtag("config", GA_MEASUREMENT_ID, {
@@ -906,9 +907,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /*
-
-* Load Google's gtag.js.
-  */
+     * Load Google's script.
+     */
     const script = document.createElement("script");
 
     script.async = true;
@@ -918,11 +918,11 @@ document.addEventListener("DOMContentLoaded", () => {
       encodeURIComponent(GA_MEASUREMENT_ID);
 
     script.onload = function () {
-      console.log("Google Analytics script loaded.");
+      console.log("Google Analytics loaded:", GA_MEASUREMENT_ID);
     };
 
     script.onerror = function () {
-      console.error("Google Analytics script failed to load.");
+      console.error("Google Analytics failed to load.");
       analyticsLoaded = false;
     };
 
@@ -930,31 +930,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------------------------------------
-     DISABLE ANALYTICS
+     ACCEPT ANALYTICS
      ------------------------------------------------------------------------ */
 
-  function disableGoogleAnalytics() {
-    if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
-      return;
-    }
+  function acceptAnalytics() {
+    saveConsent("accepted");
+
+    /*
+     * Allow Google Analytics storage.
+     *
+     * Advertising-related storage remains denied.
+     */
+
+    window["ga-disable-" + GA_MEASUREMENT_ID] = false;
+
+    window.gtag("consent", "update", {
+      analytics_storage: "granted",
+
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    console.log("Analytics consent granted.");
+
+    hideBanner();
+  }
+
+  /* ------------------------------------------------------------------------
+     REJECT ANALYTICS
+     ------------------------------------------------------------------------ */
+
+  function rejectAnalytics() {
+    saveConsent("rejected");
 
     window["ga-disable-" + GA_MEASUREMENT_ID] = true;
 
-    /*
-     * If gtag has already loaded, update consent.
-     */
+    window.gtag("consent", "update", {
+      analytics_storage: "denied",
 
-    if (typeof window.gtag === "function") {
-      window.gtag("consent", "update", {
-        analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
 
-        ad_storage: "denied",
+    console.log("Analytics consent denied.");
 
-        ad_user_data: "denied",
-
-        ad_personalization: "denied",
-      });
-    }
+    hideBanner();
   }
 
   /* ------------------------------------------------------------------------
@@ -990,7 +1012,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------------------------------------
-     OPEN PRIVACY PAGE
+     RESET CONSENT
+     ------------------------------------------------------------------------ */
+
+  function resetConsent() {
+    try {
+      localStorage.removeItem(CONSENT_STORAGE_KEY);
+    } catch (error) {
+      console.warn("Unable to reset privacy preference.");
+    }
+
+    /*
+     * Immediately revoke analytics consent.
+     */
+
+    window["ga-disable-" + GA_MEASUREMENT_ID] = true;
+
+    window.gtag("consent", "update", {
+      analytics_storage: "denied",
+
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    showBanner();
+  }
+
+  /* ------------------------------------------------------------------------
+     PRIVACY PAGE
      ------------------------------------------------------------------------ */
 
   function openPrivacyPage() {
@@ -1003,118 +1053,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("DOMContentLoaded", function () {
     const acceptButton = document.getElementById("cookie-accept");
-
     const rejectButton = document.getElementById("cookie-reject");
-
     const settingsButton = document.getElementById("cookie-settings");
-
     const privacySettingsButton = document.getElementById(
       "privacy-cookie-settings",
     );
+    const footerCookieSettingsButton = document.getElementById(
+      "footer-cookie-settings",
+    );
+
+    /*
+     * Load the Google tag immediately.
+     *
+     * Consent is STILL DENIED at this point.
+     */
+
+    loadGoogleAnalytics();
 
     const savedConsent = getConsent();
 
-    /*
-     * First visit:
-     * Show the choice.
-     */
+    /* --------------------------------------------------------------
+       PREVIOUS ACCEPTANCE
+       -------------------------------------------------------------- */
+
+    if (savedConsent === "accepted") {
+      window["ga-disable-" + GA_MEASUREMENT_ID] = false;
+
+      window.gtag("consent", "update", {
+        analytics_storage: "granted",
+
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+      });
+    }
+
+    /* --------------------------------------------------------------
+       PREVIOUS REJECTION
+       -------------------------------------------------------------- */
+
+    if (savedConsent === "rejected") {
+      window["ga-disable-" + GA_MEASUREMENT_ID] = true;
+
+      window.gtag("consent", "update", {
+        analytics_storage: "denied",
+
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+      });
+    }
+
+    /* --------------------------------------------------------------
+       FIRST VISIT
+       -------------------------------------------------------------- */
 
     if (!savedConsent) {
       showBanner();
     }
 
-    /*
-     * Previous acceptance:
-     * Load analytics.
-     */
-
-    if (savedConsent === "accepted") {
-      loadGoogleAnalytics();
-    }
-
-    /*
-     * Previous rejection:
-     * Keep analytics disabled.
-     */
-
-    if (savedConsent === "rejected") {
-      disableGoogleAnalytics();
-    }
-
     /* --------------------------------------------------------------
-         ACCEPT
-         -------------------------------------------------------------- */
+       ACCEPT
+       -------------------------------------------------------------- */
 
     if (acceptButton) {
-      acceptButton.addEventListener("click", function () {
-        saveConsent("accepted");
-
-        loadGoogleAnalytics();
-
-        hideBanner();
-      });
+      acceptButton.addEventListener("click", acceptAnalytics);
     }
 
     /* --------------------------------------------------------------
-         REJECT
-         -------------------------------------------------------------- */
+       REJECT
+       -------------------------------------------------------------- */
 
     if (rejectButton) {
-      rejectButton.addEventListener("click", function () {
-        saveConsent("rejected");
-
-        disableGoogleAnalytics();
-
-        hideBanner();
-      });
+      rejectButton.addEventListener("click", rejectAnalytics);
     }
 
     /* --------------------------------------------------------------
-         PRIVACY POLICY LINK
-         -------------------------------------------------------------- */
+       PRIVACY POLICY
+       -------------------------------------------------------------- */
 
     if (settingsButton) {
       settingsButton.addEventListener("click", openPrivacyPage);
     }
 
     /* --------------------------------------------------------------
-         CHANGE CONSENT FROM PRIVACY PAGE
-         -------------------------------------------------------------- */
+       CHANGE COOKIE SETTINGS — PRIVACY PAGE
+       -------------------------------------------------------------- */
 
     if (privacySettingsButton) {
-      privacySettingsButton.addEventListener("click", function () {
-        /*
-         * Clear the previous decision and
-         * show the banner again.
-         */
+      privacySettingsButton.addEventListener("click", resetConsent);
+    }
 
-        try {
-          localStorage.removeItem(CONSENT_STORAGE_KEY);
-        } catch (error) {
-          console.warn("Unable to reset privacy preference.");
-        }
+    /* --------------------------------------------------------------
+       CHANGE COOKIE SETTINGS — FOOTER
+       -------------------------------------------------------------- */
 
-        disableGoogleAnalytics();
-
-        showBanner();
-      });
+    if (footerCookieSettingsButton) {
+      footerCookieSettingsButton.addEventListener("click", resetConsent);
     }
   });
-
-  const footerCookieSettingsButton = document.getElementById(
-    "footer-cookie-settings",
-  );
-
-  if (footerCookieSettingsButton) {
-    footerCookieSettingsButton.addEventListener("click", function () {
-      try {
-        localStorage.removeItem(CONSENT_STORAGE_KEY);
-      } catch (error) {
-        console.warn("Unable to reset privacy preference.");
-      }
-
-      disableGoogleAnalytics();
-      showBanner();
-    });
-  }
 })();
