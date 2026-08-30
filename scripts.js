@@ -265,694 +265,260 @@
 
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* =====================================================================
-     ELEMENTS
-     ===================================================================== */
-
-  const root = document.documentElement;
-
-  const ambientLayer =
-    document.querySelector(".ambient-layer");
-
-  const rainContainer =
-    document.querySelector(".ambient-rain");
-
-  const leavesContainer =
-    document.querySelector(".ambient-leaves");
-
-  const topSection =
-    document.querySelector("#top");
-
-  const contactSection =
-    document.querySelector("#contact");
-
-  const heroWrap =
-    topSection?.querySelector(".wrap");
-
-  const sections =
-    [...document.querySelectorAll("main section")];
-
-  const reducedMotion =
-    window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
-
-
-  if (
-    !ambientLayer ||
-    !rainContainer ||
-    !leavesContainer
-  ) {
-    return;
-  }
-
-
-  /* =====================================================================
-     SETTINGS
-     ===================================================================== */
-
-  const RAIN_COUNT =
-    window.innerWidth < 700
-      ? 85
-      : 130;
-
-  const LEAF_COUNT =
-    window.innerWidth < 700
-      ? 8
-      : 18;
-
-
-/* ============================================================
-   AMBIENT RAIN
-   ============================================================ */
-
-const ambientRain = document.querySelector(".ambient-rain");
-
-if (ambientRain) {
-  const rainCount = 110;
-
-  for (let i = 0; i < rainCount; i++) {
-    const drop = document.createElement("span");
-
-    drop.className = "drop";
-
-    const left = Math.random() * 100;
-    const duration = 0.7 + Math.random() * 1.1;
-    const delay = Math.random() * -2;
-    const height = 30 + Math.random() * 80;
-    const width = Math.random() > 0.8 ? 2 : 1;
-    const opacity = 0.3 + Math.random() * 0.7;
-    const drift = -30 + Math.random() * 30;
-
-    drop.style.left = `${left}%`;
-    drop.style.setProperty(
-      "--drop-duration",
-      `${duration}s`
-    );
-
-    drop.style.setProperty(
-      "--drop-delay",
-      `${delay}s`
-    );
-
-    drop.style.setProperty(
-      "--drop-height",
-      `${height}px`
-    );
-
-    drop.style.setProperty(
-      "--drop-width",
-      `${width}px`
-    );
-
-    drop.style.setProperty(
-      "--drop-opacity",
-      opacity
-    );
-
-    drop.style.setProperty(
-      "--drop-drift",
-      `${drift}px`
-    );
-
-    ambientRain.appendChild(drop);
-  }
-}
-
-
-  /* =====================================================================
-     CREATE LEAVES
-     ===================================================================== */
-
-  const leaves = [];
-
-
-  function createLeaves() {
-
-    leavesContainer.innerHTML = "";
-
-    leaves.length = 0;
-
-
-    for (
-      let i = 0;
-      i < LEAF_COUNT;
-      i++
-    ) {
-
-      const leaf =
-        document.createElement("div");
-
-      leaf.className =
-        "ambient-leaf";
-
-
-      /*
-        Three depth planes.
-
-        Back:
-        slow / blurry / subtle
-
-        Mid:
-        medium
-
-        Front:
-        strongest movement
-      */
-      const depthOptions =
-        ["back", "mid", "front"];
-
-      const depth =
-        depthOptions[
-        Math.floor(
-          Math.random()
-          * depthOptions.length
-        )
-        ];
-
-
-      leaf.dataset.depth =
-        depth;
-
-
-      /*
-        Keep many leaves near edges so they
-        frame content instead of covering it.
-      */
-      const side =
-        Math.random() > 0.5
-          ? "left"
-          : "right";
-
-      const x =
-        side === "left"
-          ? -10 + Math.random() * 25
-          : 75 + Math.random() * 25;
-
-      const y =
-        Math.random() * 100;
-
-
-      const size =
-        depth === "front"
-          ? 160 + Math.random() * 200
-          : depth === "mid"
-            ? 110 + Math.random() * 140
-            : 80 + Math.random() * 100;
-
-
-      const rotation =
-        -80 + Math.random() * 160;
-
-
-      const opacity =
-        depth === "front"
-          ? 0.18 + Math.random() * 0.22
-          : depth === "mid"
-            ? 0.12 + Math.random() * 0.18
-            : 0.06 + Math.random() * 0.12;
-
-
-      /*
-        Different depth = different scroll speed.
-      */
-      const parallax =
-        depth === "front"
-          ? 0.14
-          : depth === "mid"
-            ? 0.08
-            : 0.035;
-
-
-      leaf.style.setProperty(
-        "--leaf-size",
-        `${size}px`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-x",
-        `${x}%`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-y",
-        `${y}%`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-rotation",
-        `${rotation}deg`
-      );
-
-      leaf.style.setProperty(
-        "--leaf-opacity",
-        opacity
-      );
-
-
-      leaves.push({
-        element: leaf,
-        parallax,
-        rotation
-      });
-
-
-      leavesContainer.appendChild(
-        leaf
-      );
-    }
-  }
-
-
-  /* =====================================================================
-     ATMOSPHERE STATES
-     ===================================================================== */
-
-  function getAtmosphereState() {
-
-    const viewportCenter =
-      window.innerHeight * 0.5;
-
-
-    /*
-      Find which section currently owns
-      the center of the screen.
-    */
-    let activeSection =
-      sections[0];
-
-
-    let closestDistance =
-      Infinity;
-
-
-    sections.forEach(section => {
-
-      const rect =
-        section.getBoundingClientRect();
-
-      const center =
-        rect.top +
-        rect.height * 0.5;
-
-      const distance =
-        Math.abs(
-          center -
-          viewportCenter
-        );
-
-
-      if (
-        distance <
-        closestDistance
-      ) {
-
-        closestDistance =
-          distance;
-
-        activeSection =
-          section;
-      }
-    });
-
-
-    /*
-      Each section gets its own atmosphere personality.
-    */
-    const id =
-      activeSection?.id;
-
-
-    switch (id) {
-
-      case "top":
-        return {
-          opacity: 1,
-          speed: 1.0,
-          blur: 0,
-          density: 1,
-          glowX: "78%",
-          glowY: "25%"
-        };
-
-
-      case "about":
-        return {
-          opacity: 0.65,
-          speed: 0.8,
-          blur: 0.4,
-          density: 0.72,
-          glowX: "30%",
-          glowY: "30%"
-        };
-
-
-      case "experience":
-        return {
-          opacity: 0.48,
-          speed: 0.65,
-          blur: 0.8,
-          density: 0.5,
-          glowX: "70%",
-          glowY: "50%"
-        };
-
-
-      case "skills":
-        return {
-          opacity: 0.58,
-          speed: 0.72,
-          blur: 0.5,
-          density: 0.65,
-          glowX: "40%",
-          glowY: "65%"
-        };
-
-
-      case "contact":
-        /*
-          Bring the jungle back.
-
-          Contact becomes the atmospheric
-          second climax of the site.
-        */
-        return {
-          opacity: 0.95,
-          speed: 1.15,
-          blur: 0.2,
-          density: 1,
-          glowX: "20%",
-          glowY: "20%"
-        };
-
-
-      default:
-        return {
-          opacity: 0.7,
-          speed: 0.8,
-          blur: 0.5,
-          density: 0.7,
-          glowX: "50%",
-          glowY: "50%"
-        };
-    }
-  }
-
-
-  /* =====================================================================
-     HERO TAKEOVER
-     ===================================================================== */
-
-  function updateHeroTakeover() {
-
-    if (
-      !topSection ||
-      reducedMotion.matches
-    ) {
-      return;
-    }
-
-
-    const rect =
-      topSection.getBoundingClientRect();
-
-
-    /*
-      Start fading when the hero begins
-      moving out of the viewport.
-    */
-    const traveled =
-      Math.max(
-        0,
-        -rect.top
-      );
-
-
-    /*
-      Control how long the fade takes.
-
-      Larger = slower cinematic handoff.
-    */
-    const distance =
-      Math.min(
-        rect.height * 0.8,
-        window.innerHeight * 0.95
-      );
-
-
-    const progress =
-      Math.min(
-        1,
-        traveled / distance
-      );
-
-
-    topSection.style.setProperty(
-      "--takeover-progress",
-      progress.toFixed(4)
-    );
-
-
-    /*
-      Content moves slightly faster than
-      the section itself.
-    */
-    if (heroWrap) {
-
-      const heroOffset =
-        -(progress * 38);
-
-      heroWrap.style.setProperty(
-        "--hero-parallax",
-        `${heroOffset}px`
-      );
-    }
-  }
-
-
-  /* =====================================================================
-     LEAF PARALLAX
-     ===================================================================== */
-
-  function updateLeaves() {
-
-    if (
-      reducedMotion.matches
-    ) {
-      return;
-    }
-
-
-    const scrollY =
-      window.scrollY;
-
-
-    leaves.forEach(leaf => {
-
-      /*
-        Each leaf has a different depth.
-
-        Front leaves move the most.
-        Back leaves barely move.
-      */
-      const movement =
-        -(scrollY * leaf.parallax);
-
-
-      const rotation =
-        leaf.rotation +
-        Math.sin(
-          scrollY * 0.001
-        ) * 4;
-
-
-      leaf.element.style.setProperty(
-        "--leaf-shift-y",
-        `${movement}px`
-      );
-
-
-      leaf.element.style.setProperty(
-        "--leaf-rotation",
-        `${rotation}deg`
-      );
-    });
-  }
-
-
-  /* =====================================================================
-     APPLY ATMOSPHERE
-     ===================================================================== */
-  const ambient = document.querySelector(".ambient-layer");
   const top = document.querySelector("#top");
   const contact = document.querySelector("#contact");
-  function clamp(value, min = 0, max = 1) {
-    return Math.min(Math.max(value, min), max);
+  const ambient = document.querySelector(".ambient-layer");
+  const rain = document.querySelector(".ambient-rain");
+  const leaves = [...document.querySelectorAll(".ambient-leaf")];
+
+  /* -------------------------------------------------------
+     CREATE RAIN
+  ------------------------------------------------------- */
+
+  if (rain) {
+    const rainCount = window.innerWidth < 700 ? 80 : 140;
+
+    for (let i = 0; i < rainCount; i++) {
+      const drop = document.createElement("span");
+
+      drop.className = "drop";
+
+      drop.style.left = `${Math.random() * 100}%`;
+      drop.style.setProperty(
+        "--rain-length",
+        `${35 + Math.random() * 85}px`
+      );
+
+      drop.style.setProperty(
+        "--rain-duration",
+        `${0.7 + Math.random() * 1.3}s`
+      );
+
+      drop.style.setProperty(
+        "--rain-delay",
+        `${-Math.random() * 3}s`
+      );
+
+      drop.style.setProperty(
+        "--rain-drift",
+        `${-20 - Math.random() * 60}px`
+      );
+
+      drop.style.setProperty(
+        "--rain-opacity",
+        `${0.45 + Math.random() * 0.55}`
+      );
+
+      rain.appendChild(drop);
+    }
   }
+
+
+  /* -------------------------------------------------------
+     LIGHTNING
+  ------------------------------------------------------- */
+
+  const lightning = document.createElement("div");
+
+  lightning.className = "lightning-flash";
+
+  document.body.appendChild(lightning);
+
+  function triggerLightning() {
+    lightning.classList.remove("flash");
+
+    void lightning.offsetWidth;
+
+    lightning.classList.add("flash");
+
+    const next =
+      7000 + Math.random() * 15000;
+
+    setTimeout(triggerLightning, next);
+  }
+
+  setTimeout(triggerLightning, 4000);
+
+
+  /* -------------------------------------------------------
+     SCROLL PARALLAX
+  ------------------------------------------------------- */
+
+  let ticking = false;
+
   function updateAtmosphere() {
     const scrollY = window.scrollY;
-    const viewportHeight = window.innerHeight;
-
-    const topRect = top.getBoundingClientRect();
-    const contactRect = contact.getBoundingClientRect();
-
-    /* -------------------------------------------------
-       HERO PROGRESS
-       0 = hero fully visible
-       1 = hero has scrolled away
-    ------------------------------------------------- */
-
-    const heroProgress = clamp(
-      -topRect.top / (top.offsetHeight * 0.8)
-    );
-
-    /* -------------------------------------------------
-       CONTACT PROGRESS
-       0 = contact not visible
-       1 = contact centered / dominant
-    ------------------------------------------------- */
-
-    const contactProgress = clamp(
-      (viewportHeight - contactRect.top) /
-      (viewportHeight * 0.8)
-    );
-
-    /*
-      Atmosphere strength:
-  
-      HERO      → 1
-      MIDDLE    → ~0.25
-      CONTACT   → 1
-    */
-
-    const heroStrength = 1 - heroProgress;
-    const contactStrength = contactProgress;
-
-    const atmosphereStrength = Math.max(
-      0.28,
-      heroStrength,
-      contactStrength
-    );
-
-    /*
-      CSS variables
-    */
-
-    ambient.style.setProperty(
-      "--ambient-opacity",
-      0.45 + atmosphereStrength * 0.55
-    );
-
-    ambient.style.setProperty(
-      "--leaf-density",
-      0.35 + atmosphereStrength * 0.65
-    );
-
-    ambient.style.setProperty(
-      "--ambient-blur",
-      `${(1 - atmosphereStrength) * 2}px`
-    );
-
-    ambient.style.setProperty(
-      "--rain-speed",
-      0.65 + atmosphereStrength * 0.8
-    );
-  }
+    const viewport = window.innerHeight;
 
 
+    /* TOP FADE / SCALE */
 
-  /* =====================================================================
-     SCROLL LOOP
-     ===================================================================== */
+    if (top) {
+      const rect = top.getBoundingClientRect();
 
-  let ticking =
-    false;
+      const progress = Math.min(
+        1,
+        Math.max(
+          0,
+          -rect.top / (rect.height * 0.85)
+        )
+      );
 
+      const opacity = 1 - progress * 0.85;
 
-  function updateScene() {
+      const scale =
+        1 - progress * 0.06;
 
-    updateHeroTakeover();
+      const translate =
+        -progress * 80;
 
-    updateLeaves();
+      const blur =
+        progress * 2.5;
 
-    let ticking = false;
+      top.style.opacity = opacity;
+      top.style.transform =
+        `translateY(${translate}px) scale(${scale})`;
 
-    window.addEventListener(
-      "scroll",
-      () => {
-        if (!ticking) {
-          window.requestAnimationFrame(() => {
-            updateAtmosphere();
-            ticking = false;
-          });
-
-          ticking = true;
-        }
-      },
-      { passive: true }
-    );
-
-    window.addEventListener("resize", updateAtmosphere);
-
-    updateAtmosphere();
-
-    ticking =
-      false;
-  }
-
-
-  function onScroll() {
-
-    if (ticking) {
-      return;
+      top.style.filter =
+        `blur(${blur}px)`;
     }
 
 
-    window.requestAnimationFrame(
-      updateScene
+    /* CONTACT PROGRESS */
+
+    let contactProgress = 0;
+
+    if (contact) {
+      const rect =
+        contact.getBoundingClientRect();
+
+      contactProgress = Math.min(
+        1,
+        Math.max(
+          0,
+          (viewport - rect.top) /
+          (viewport + rect.height * 0.4)
+        )
+      );
+    }
+
+
+    /* AMBIENT LAYER */
+
+    const documentHeight =
+      document.documentElement.scrollHeight;
+
+    const pageProgress =
+      scrollY /
+      Math.max(1, documentHeight - viewport);
+
+
+    /*
+      Rain:
+      Strong at top
+      Calmer in middle
+      Strong again near contact
+    */
+
+    const rainIntensity =
+      Math.max(
+        0.25,
+        1 -
+        Math.abs(pageProgress - 0.5) * 1.3
+      );
+
+    const topIntensity =
+      Math.max(
+        0,
+        1 - pageProgress * 5
+      );
+
+    const contactIntensity =
+      Math.max(
+        0,
+        (pageProgress - 0.7) * 3.5
+      );
+
+    const finalIntensity =
+      Math.min(
+        1,
+        Math.max(
+          topIntensity,
+          contactIntensity,
+          0.35
+        )
+      );
+
+
+    if (ambient) {
+      ambient.style.opacity =
+        0.55 + finalIntensity * 0.45;
+
+      ambient.style.filter =
+        `blur(${(1 - finalIntensity) * 1.2}px)`;
+    }
+
+
+    /* RAIN SPEED */
+
+    document.documentElement.style.setProperty(
+      "--ambient-rain-speed",
+      0.8 + finalIntensity * 0.5
     );
 
 
-    ticking =
-      true;
+    /* LEAF PARALLAX */
+
+    leaves.forEach((leaf, index) => {
+      const direction =
+        index % 2 === 0 ? 1 : -1;
+
+      const amount =
+        20 + index * 8;
+
+      const y =
+        scrollY * amount * 0.003;
+
+      const rotate =
+        direction *
+        Math.sin(scrollY * 0.002 + index) *
+        4;
+
+      leaf.style.transform =
+        `translate3d(
+          ${direction * y * 0.3}px,
+          ${y}px,
+          0
+        )
+        rotate(${rotate}deg)`;
+    });
+
+
+    ticking = false;
   }
 
 
   window.addEventListener(
     "scroll",
-    onScroll,
-    {
-      passive: true
-    }
+    () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateAtmosphere();
+        });
+
+        ticking = true;
+      }
+    },
+    { passive: true }
   );
 
 
   window.addEventListener(
     "resize",
-    onScroll
+    updateAtmosphere,
+    { passive: true }
   );
 
 
-  reducedMotion.addEventListener(
-    "change",
-    () => {
-
-      createRain();
-
-      updateScene();
-    }
-  );
-
-
-  /* =====================================================================
-     INITIALIZE
-     ===================================================================== */
-
-  createRain();
-
-  createLeaves();
-
-  updateScene();
-
+  updateAtmosphere();
 });
