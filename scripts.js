@@ -807,11 +807,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
 /* ==========================================================================
    COOKIE CONSENT + GOOGLE ANALYTICS — CONSENT MODE ADVANCED
 
-   Google Analytics loads before consent, but analytics/ad storage starts
-   denied. If the visitor accepts analytics, consent is updated to granted.
+   Google Analytics / Google tag loads before the consent decision.
+
+   Default:
+     analytics_storage = denied
+     ad_storage        = denied
+     ad_user_data      = denied
+     ad_personalization = denied
+
+   Accept:
+     analytics_storage = granted
+
+   Reject:
+     analytics_storage = denied
 
    No advertising features are enabled.
    ========================================================================== */
@@ -825,7 +837,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let analyticsLoaded = false;
 
   /* ------------------------------------------------------------------------
-     GOOGLE CONSENT MODE
+     GOOGLE TAG / CONSENT MODE
      ------------------------------------------------------------------------ */
 
   window.dataLayer = window.dataLayer || [];
@@ -838,11 +850,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /*
    * IMPORTANT:
-   * This must happen before Google Analytics is loaded.
    *
-   * All storage starts denied.
+   * This MUST execute before gtag.js is loaded.
+   *
+   * The default state is denied.
    */
-
   window.gtag("consent", "default", {
     analytics_storage: "denied",
     ad_storage: "denied",
@@ -850,8 +862,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ad_personalization: "denied",
 
     /*
-     * Gives the consent banner time to initialise before Google processes
-     * the consent state.
+     * Give the page a short amount of time to restore a previously
+     * saved consent decision.
      */
     wait_for_update: 500,
   });
@@ -877,7 +889,38 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------------------------------------
-     LOAD GOOGLE ANALYTICS
+     CONSENT STATE
+     ------------------------------------------------------------------------ */
+
+  function grantAnalyticsConsent() {
+    window.gtag("consent", "update", {
+      analytics_storage: "granted",
+
+      /*
+       * We don't use advertising features.
+       */
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    console.log("Analytics consent granted.");
+  }
+
+  function denyAnalyticsConsent() {
+    window.gtag("consent", "update", {
+      analytics_storage: "denied",
+
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    console.log("Analytics consent denied.");
+  }
+
+  /* ------------------------------------------------------------------------
+     LOAD GOOGLE TAG
      ------------------------------------------------------------------------ */
 
   function loadGoogleAnalytics() {
@@ -893,12 +936,9 @@ document.addEventListener("DOMContentLoaded", () => {
     analyticsLoaded = true;
 
     /*
-     * Keep analytics disabled until the saved consent state is checked.
-     */
-    window["ga-disable-" + GA_MEASUREMENT_ID] = true;
-
-    /*
      * Initialise the Google tag.
+     *
+     * The consent state is already "denied" at this point.
      */
     window.gtag("js", new Date());
 
@@ -907,7 +947,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /*
-     * Load Google's script.
+     * Load Google's gtag.js.
      */
     const script = document.createElement("script");
 
@@ -927,56 +967,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     document.head.appendChild(script);
-  }
-
-  /* ------------------------------------------------------------------------
-     ACCEPT ANALYTICS
-     ------------------------------------------------------------------------ */
-
-  function acceptAnalytics() {
-    saveConsent("accepted");
-
-    /*
-     * Allow Google Analytics storage.
-     *
-     * Advertising-related storage remains denied.
-     */
-
-    window["ga-disable-" + GA_MEASUREMENT_ID] = false;
-
-    window.gtag("consent", "update", {
-      analytics_storage: "granted",
-
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-    });
-
-    console.log("Analytics consent granted.");
-
-    hideBanner();
-  }
-
-  /* ------------------------------------------------------------------------
-     REJECT ANALYTICS
-     ------------------------------------------------------------------------ */
-
-  function rejectAnalytics() {
-    saveConsent("rejected");
-
-    window["ga-disable-" + GA_MEASUREMENT_ID] = true;
-
-    window.gtag("consent", "update", {
-      analytics_storage: "denied",
-
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-    });
-
-    console.log("Analytics consent denied.");
-
-    hideBanner();
   }
 
   /* ------------------------------------------------------------------------
@@ -1012,6 +1002,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------------------------------------
+     ACCEPT
+     ------------------------------------------------------------------------ */
+
+  function acceptAnalytics() {
+    saveConsent("accepted");
+
+    grantAnalyticsConsent();
+
+    hideBanner();
+  }
+
+  /* ------------------------------------------------------------------------
+     REJECT
+     ------------------------------------------------------------------------ */
+
+  function rejectAnalytics() {
+    saveConsent("rejected");
+
+    denyAnalyticsConsent();
+
+    hideBanner();
+  }
+
+  /* ------------------------------------------------------------------------
      RESET CONSENT
      ------------------------------------------------------------------------ */
 
@@ -1023,19 +1037,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /*
-     * Immediately revoke analytics consent.
+     * Revoke analytics consent immediately.
      */
+    denyAnalyticsConsent();
 
-    window["ga-disable-" + GA_MEASUREMENT_ID] = true;
-
-    window.gtag("consent", "update", {
-      analytics_storage: "denied",
-
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-    });
-
+    /*
+     * Show the banner again so the visitor can make a new choice.
+     */
     showBanner();
   }
 
@@ -1055,37 +1063,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const acceptButton = document.getElementById("cookie-accept");
     const rejectButton = document.getElementById("cookie-reject");
     const settingsButton = document.getElementById("cookie-settings");
+
     const privacySettingsButton = document.getElementById(
       "privacy-cookie-settings",
     );
+
     const footerCookieSettingsButton = document.getElementById(
       "footer-cookie-settings",
     );
 
     /*
-     * Load the Google tag immediately.
-     *
-     * Consent is STILL DENIED at this point.
+     * Read the saved decision BEFORE loading Google's script.
      */
-
-    loadGoogleAnalytics();
-
     const savedConsent = getConsent();
+
+    /*
+     * Google tag loads regardless of consent.
+     *
+     * Consent is currently DENIED because of the default state declared
+     * at the top of this script.
+     */
+    loadGoogleAnalytics();
 
     /* --------------------------------------------------------------
        PREVIOUS ACCEPTANCE
        -------------------------------------------------------------- */
 
     if (savedConsent === "accepted") {
-      window["ga-disable-" + GA_MEASUREMENT_ID] = false;
-
-      window.gtag("consent", "update", {
-        analytics_storage: "granted",
-
-        ad_storage: "denied",
-        ad_user_data: "denied",
-        ad_personalization: "denied",
-      });
+      grantAnalyticsConsent();
     }
 
     /* --------------------------------------------------------------
@@ -1093,15 +1098,7 @@ document.addEventListener("DOMContentLoaded", () => {
        -------------------------------------------------------------- */
 
     if (savedConsent === "rejected") {
-      window["ga-disable-" + GA_MEASUREMENT_ID] = true;
-
-      window.gtag("consent", "update", {
-        analytics_storage: "denied",
-
-        ad_storage: "denied",
-        ad_user_data: "denied",
-        ad_personalization: "denied",
-      });
+      denyAnalyticsConsent();
     }
 
     /* --------------------------------------------------------------
