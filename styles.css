@@ -27,7 +27,7 @@
   --magenta: #ff2ec4;
   --green: #39ff88;
   --violet: #a855f7;
-  --rain: rgba(196, 232, 255, 0.95);
+  --rain: rgba(150, 210, 255, 0.55);
   --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
   --glow-cyan: 0 0 14px rgba(34, 232, 255, 0.55);
   --glow-green: 0 0 14px rgba(57, 255, 136, 0.45);
@@ -48,7 +48,7 @@
   --magenta: #b30074;
   --green: #0f8a4b;
   --violet: #7c3aed;
-  --rain: rgba(32, 46, 50, 0.6);
+  --rain: rgba(0, 90, 100, 0.25);
   --shadow: 0 20px 44px -26px rgba(10, 30, 20, 0.28);
   --glow-cyan: 0 0 0 rgba(0, 0, 0, 0);
   --glow-green: 0 0 0 rgba(0, 0, 0, 0);
@@ -242,7 +242,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   background:
     radial-gradient(900px 500px at 82% -10%, color-mix(in srgb, var(--magenta) 20%, transparent), transparent 60%),
     radial-gradient(700px 500px at -10% 90%, color-mix(in srgb, var(--green) 16%, transparent), transparent 60%),
-    color-mix(in srgb, var(--bg) 62%, transparent);
+    var(--bg);
   color: var(--ink);
   position: relative;
   overflow: hidden;
@@ -254,12 +254,29 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 }
 @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } }
 
+/* rain canvas layer */
+.rain { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.rain .drop {
+  position: absolute; top: -10%; width: 1px; background: linear-gradient(to bottom, transparent, var(--rain));
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  to { transform: translateY(120vh); }
+}
+[data-theme="light"] .rain { opacity: 0.6; }
+
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background: radial-gradient(600px circle at var(--spot-x, 50%) var(--spot-y, 25%), color-mix(in srgb, var(--cyan) 14%, transparent), transparent 60%);
   opacity: 0; transition: opacity 0.4s ease;
 }
 .hero.spot-active::before { opacity: 1; }
+
+/* leaf silhouettes */
+.leaf { position: absolute; z-index: 0; pointer-events: none; opacity: 0.5; }
+.leaf svg { display: block; }
+.leaf-a { top: -40px; left: -60px; width: 220px; transform: rotate(-12deg); }
+.leaf-b { bottom: -60px; right: -40px; width: 260px; transform: rotate(8deg) scaleX(-1); }
 
 .hero-eyebrow { margin-bottom: 1.1rem; }
 .hero h1 {
@@ -319,7 +336,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 /* =========================================================================
    ABOUT
    ========================================================================= */
-.about { background: color-mix(in srgb, var(--bg) 95%, transparent); }
+.about { background: var(--bg); }
 .about .wrap { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(2.5rem, 6vw, 4.5rem); }
 @media (max-width: 860px) { .about .wrap { grid-template-columns: 1fr; } }
 .about-copy p { font-size: 1.05rem; color: var(--ink-soft); margin-bottom: 1.1rem; }
@@ -338,7 +355,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 /* =========================================================================
    EXPERIENCE
    ========================================================================= */
-.experience { background: color-mix(in srgb, var(--bg-2) 95%, transparent); }
+.experience { background: var(--bg-2); }
 .timeline { position: relative; }
 .timeline::before { content: ""; position: absolute; left: 9px; top: 0.6rem; bottom: 0.6rem; width: 2px; background: var(--line); }
 @media (max-width: 700px) { .timeline::before { left: 5px; } }
@@ -386,7 +403,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 /* =========================================================================
    SKILLS
    ========================================================================= */
-.skills { background: color-mix(in srgb, var(--bg) 95%, transparent); }
+.skills { background: var(--bg); }
 .skill-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
 .skill-group { border: 1px solid var(--line); border-radius: var(--radius-m); padding: 1.4rem 1.5rem; background: var(--card); }
 .skill-group h3 { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); margin-bottom: 0.85rem; }
@@ -395,7 +412,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 /* =========================================================================
    EDUCATION / LANGUAGES
    ========================================================================= */
-.edu { background: color-mix(in srgb, var(--bg-2) 95%, transparent); }
+.edu { background: var(--bg-2); }
 .edu .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 3rem); }
 @media (max-width: 720px) { .edu .wrap { grid-template-columns: 1fr; } }
 .edu-block h3 { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); margin-bottom: 1rem; }
@@ -462,6 +479,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   .hero::before { display: none; }
   .avatar-slot { transition: none; transform: none !important; }
   .hero-role .caret { display: none; }
+  .rain { display: none; }
   .js-anim .job, .js-anim .skill-group, .js-anim .earlier-item { opacity: 1; transform: none; transition: none; }
 }
 @media (hover: none) { .hero::before { display: none; } }
@@ -473,7 +491,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 
 /* ---------- print ---------- */
 @media print {
-  .nav, .hero-cta, .contact, .icon-row, .ambient-layer { display: none !important; }
+  .nav, .hero-cta, .contact, .icon-row, .rain, .leaf { display: none !important; }
   body { background: #fff; color: #000; }
   body::before { display: none; }
 }
@@ -482,28 +500,24 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 
 /* =========================================================================
    GLOBAL AMBIENT ATMOSPHERE
-   One persistent jungle / rain layer for the entire page. Rain, leaves,
-   glow and lightning each have their own intensity so the atmosphere can
-   be strong at #top, subtle through the middle, and strong again at
-   #contact -- driven continuously by scroll position, not per-section
-   on/off switches. All values below are written by scripts.js every
-   animation frame; the defaults here are just the safe no-JS/first-paint
-   state.
+   One persistent jungle / rain layer for the entire page.
    ========================================================================= */
 
+/*
+  These values are controlled by JavaScript.
+
+  --ambient-opacity   overall atmosphere visibility
+  --rain-speed        animation speed multiplier
+  --ambient-blur      atmospheric depth
+  --leaf-density      how many generated leaves are visible
+*/
 :root {
-  --rain-intensity: 1;     /* 0-1, how visible the rain is right now */
-  --rain-speed: 1;         /* animation-duration multiplier */
-  --leaf-density: 1;       /* 0-1, how visible the foliage is right now */
-  --ambient-blur: 0px;     /* extra atmospheric depth blur in the fixed layer */
-  --glow-x: 22%;
-  --glow-y: 20%;
-  --lightning-x: 10%;
-  --lightning-y: 0%;
-  --lightning-opacity: 0;
-  --hero-progress: 0;      /* 0 = at rest, 1 = fully scrolled past #top */
-  --contact-progress: 1;   /* 0 = far below, 1 = fully arrived at #contact */
+  --ambient-opacity: 1;
+  --rain-speed: 1;
+  --ambient-blur: 0px;
+  --leaf-density: 1;
 }
+
 
 /* -------------------------------------------------------------------------
    FIXED AMBIENT LAYER
@@ -513,11 +527,34 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   position: fixed;
   inset: 0;
   z-index: 1;
+
   overflow: hidden;
   pointer-events: none;
+
+  opacity: var(--ambient-opacity);
+
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
+
+  will-change: opacity, filter;
+
   filter: blur(var(--ambient-blur));
-  will-change: filter;
 }
+
+/*
+  Existing page content already mostly uses z-index: 2.
+  Keep the atmosphere behind content but above the background.
+*/
+.nav {
+  z-index: 60;
+}
+
+section,
+.wrap {
+  position: relative;
+}
+
 
 /* -------------------------------------------------------------------------
    RAIN
@@ -526,71 +563,209 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 .ambient-rain {
   position: absolute;
   inset: 0;
-  opacity: var(--rain-intensity);
-  transition: opacity 0.5s ease;
+
+  opacity: 0.85;
+
+  transition:
+    opacity 0.4s ease;
 }
 
 .ambient-drop {
   position: absolute;
+
   top: -20vh;
-  left: var(--drop-x, 50%);
+
   width: 1px;
   height: var(--drop-height, 90px);
-  background: linear-gradient(to bottom,
+
+  left: var(--drop-x, 50%);
+
+  background: linear-gradient(
+    to bottom,
     transparent,
-    color-mix(in srgb, var(--rain) 70%, white 10%) 55%,
-    var(--rain) 100%);
+    var(--rain)
+  );
+
   opacity: var(--drop-opacity, 0.5);
+
   transform: translate3d(0, 0, 0);
-  animation: ambient-fall calc(var(--drop-duration, 1.4s) / var(--rain-speed)) linear infinite;
-  animation-delay: var(--drop-delay, 0s);
+
+  animation:
+    ambient-fall
+    calc(var(--drop-duration, 1.4s) / var(--rain-speed))
+    linear
+    infinite;
+
+  animation-delay:
+    var(--drop-delay, 0s);
+
   will-change: transform;
 }
 
-/* Depth only changes brightness/blur, never the drop's width or length. */
-.ambient-drop[data-depth="back"] { filter: blur(0.6px); opacity: calc(var(--drop-opacity, 0.5) * 0.55); }
-.ambient-drop[data-depth="front"] { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--cyan) 35%, transparent)); }
-[data-theme="light"] .ambient-drop[data-depth="front"] { filter: none; }
-
 @keyframes ambient-fall {
-  from { transform: translate3d(var(--drift-x, 0px), -15vh, 0); }
-  to   { transform: translate3d(calc(var(--drift-x, 0px) + var(--drift-end, 20px)), 120vh, 0); }
+  from {
+    transform:
+      translate3d(
+        var(--drift-x, 0px),
+        -15vh,
+        0
+      );
+  }
+
+  to {
+    transform:
+      translate3d(
+        calc(var(--drift-x, 0px) + var(--drift-end, 20px)),
+        120vh,
+        0
+      );
+  }
 }
 
+
 /* -------------------------------------------------------------------------
-   LEAVES -- minimalist botanical line art (fern / banana leaf / palm frond),
-   injected as inline SVG by scripts.js. This wrapper only handles position,
-   depth and gentle sway.
+   LEAVES
    ------------------------------------------------------------------------- */
 
 .ambient-leaves {
   position: absolute;
   inset: 0;
+
   overflow: hidden;
 }
 
+/*
+  Individual leaves are generated in JS.
+
+  Leaves use simple CSS shapes rather than requiring
+  duplicate SVG markup throughout the document.
+*/
 .ambient-leaf {
   position: absolute;
+
+  width: var(--leaf-size, 180px);
+  height: calc(var(--leaf-size, 180px) * 1.45);
+
   left: var(--leaf-x, 50%);
   top: var(--leaf-y, 50%);
-  width: var(--leaf-size, 140px);
-  height: calc(var(--leaf-size, 140px) * 1.35);
-  color: var(--leaf-tint, var(--green));
-  opacity: calc(var(--leaf-opacity, 0.3) * var(--leaf-density));
-  transform:
-    translate3d(var(--leaf-shift-x, 0px), var(--leaf-shift-y, 0px), 0)
-    rotate(var(--leaf-rotation, 0deg))
-    scale(var(--leaf-scale, 1))
-    scaleX(var(--leaf-flip, 1));
-  transform-origin: center;
-  transition: opacity 0.6s ease;
-  will-change: transform, opacity;
-}
-.ambient-leaf svg { display: block; width: 100%; height: 100%; overflow: visible; }
 
-.ambient-leaf[data-depth="back"]  { filter: blur(2.5px); }
-.ambient-leaf[data-depth="mid"]   { filter: blur(1px); }
-.ambient-leaf[data-depth="front"] { filter: blur(0); }
+  opacity:
+    calc(
+      var(--leaf-opacity, 0.35)
+      * var(--leaf-density)
+    );
+
+  transform:
+    translate3d(
+      var(--leaf-shift-x, 0px),
+      var(--leaf-shift-y, 0px),
+      0
+    )
+    rotate(var(--leaf-rotation, 0deg))
+    scale(var(--leaf-scale, 1));
+
+  transform-origin: center;
+
+  transition:
+    opacity 0.5s ease;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+
+/*
+  Organic neon-jungle leaf silhouette.
+*/
+.ambient-leaf::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius:
+    100% 0
+    100% 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(
+        in srgb,
+        var(--green) 28%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        var(--cyan) 12%,
+        transparent
+      )
+    );
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--green) 30%,
+      transparent
+    );
+
+  filter:
+    drop-shadow(
+      0 0 14px
+      color-mix(
+        in srgb,
+        var(--green) 18%,
+        transparent
+      )
+    );
+}
+
+
+/*
+  Leaf vein.
+*/
+.ambient-leaf::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 5%;
+
+  width: 1px;
+  height: 90%;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--green) 35%,
+      transparent
+    );
+
+  transform:
+    rotate(-40deg);
+
+  transform-origin: top;
+}
+
+
+/*
+  Depth levels.
+*/
+.ambient-leaf[data-depth="back"] {
+  filter: blur(3px);
+}
+
+.ambient-leaf[data-depth="mid"] {
+  filter: blur(1px);
+}
+
+.ambient-leaf[data-depth="front"] {
+  filter: blur(0);
+}
+
 
 /* -------------------------------------------------------------------------
    ATMOSPHERIC GLOW
@@ -599,126 +774,249 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
 .ambient-glow {
   position: absolute;
   inset: 0;
+
   background:
-    radial-gradient(600px 450px at var(--glow-x, 20%) var(--glow-y, 20%),
-      color-mix(in srgb, var(--cyan) 12%, transparent), transparent 70%),
-    radial-gradient(700px 500px at 80% 80%,
-      color-mix(in srgb, var(--green) 10%, transparent), transparent 70%);
+    radial-gradient(
+      600px 450px
+      at var(--glow-x, 20%)
+      var(--glow-y, 20%),
+      color-mix(
+        in srgb,
+        var(--cyan) 12%,
+        transparent
+      ),
+      transparent 70%
+    ),
+
+    radial-gradient(
+      700px 500px
+      at 80% 80%,
+      color-mix(
+        in srgb,
+        var(--green) 10%,
+        transparent
+      ),
+      transparent 70%
+    );
+
   opacity: 0.8;
-  transition: background-position 0.3s linear;
+
+  transition:
+    opacity 0.5s ease,
+    background-position 0.3s linear;
 }
 
-/* -------------------------------------------------------------------------
-   LIGHTNING -- occasional, randomly-positioned distant flash. Scheduled
-   and toggled from scripts.js; never a fixed point, never a full flash.
-   ------------------------------------------------------------------------- */
-
-.ambient-lightning {
-  position: absolute;
-  inset: 0;
-  opacity: var(--lightning-opacity, 0);
-  mix-blend-mode: screen;
-  transition: opacity 90ms ease-out;
-  background:
-    radial-gradient(1100px 750px at var(--lightning-x, 10%) var(--lightning-y, 0%),
-      color-mix(in srgb, var(--cyan) 55%, white 25%), transparent 70%);
-}
-[data-theme="light"] .ambient-lightning {
-  mix-blend-mode: multiply;
-  background:
-    radial-gradient(1100px 750px at var(--lightning-x, 10%) var(--lightning-y, 0%),
-      color-mix(in srgb, var(--ink) 25%, transparent), transparent 70%);
-}
 
 /* =========================================================================
-   TOP / HERO CINEMATIC TRANSITION
-   #top fades as a whole (uniform opacity, no scale -- scaling a full-bleed
-   section would reveal its edges against the page background). The scale,
-   lift and blur instead live on the transparent inner .wrap, so there is
-   never a visible box edge.
+   TOP SECTION CINEMATIC HANDOFF
    ========================================================================= */
 
 #top {
+  --takeover-progress: 0;
+
   position: relative;
+
   z-index: 3;
-  opacity: calc(1 - (var(--hero-progress, 0) * 0.92));
-  will-change: opacity;
+
+  transform-origin:
+    center top;
+
+  opacity:
+    calc(
+      1 -
+      (var(--takeover-progress) * 0.85)
+    );
+
+  transform:
+    translate3d(
+      0,
+      calc(
+        var(--takeover-progress)
+        * -90px
+      ),
+      0
+    )
+
+    scale(
+      calc(
+        1 -
+        (var(--takeover-progress) * 0.045)
+      )
+    );
+
+  will-change:
+    opacity,
+    transform;
 }
 
+
+/*
+  Hero content has its own slower movement.
+*/
 #top > .wrap {
   transform:
-    translate3d(0, calc(var(--hero-progress, 0) * -60px), 0)
-    scale(calc(1 - (var(--hero-progress, 0) * 0.08)));
-  filter: blur(calc(var(--hero-progress, 0) * var(--hero-progress, 0) * 10px));
-  transform-origin: center top;
-  will-change: transform, filter;
+    translate3d(
+      0,
+      var(--hero-parallax, 0px),
+      0
+    );
+
+  will-change:
+    transform;
 }
 
-/* The next section physically rises into the scene. */
+
+/*
+  The next section physically rises into the scene.
+*/
 #top + section {
   position: relative;
+
   z-index: 4;
-  margin-top: clamp(-4rem, -9vw, -9rem);
-  border-radius: var(--radius-l) var(--radius-l) 0 0;
-  box-shadow: 0 -30px 70px -45px rgba(0, 0, 0, 0.8);
+
+  margin-top:
+    clamp(
+      -4rem,
+      -9vw,
+      -9rem
+    );
+
+  border-radius:
+    var(--radius-l)
+    var(--radius-l)
+    0
+    0;
+
+  box-shadow:
+    0 -30px 70px -45px
+    rgba(0, 0, 0, 0.8);
 }
 
+
+/*
+  Atmospheric transition edge.
+*/
 #top + section::before {
   content: "";
+
   position: absolute;
-  left: 0; right: 0; top: -100px;
+
+  left: 0;
+  right: 0;
+  top: -100px;
+
   height: 110px;
+
   pointer-events: none;
-  background: linear-gradient(to bottom, transparent, var(--bg));
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      var(--bg)
+    );
+
   z-index: -1;
 }
 
+
 /* =========================================================================
-   CONTACT -- its own atmospheric entrance, mirroring the hero. As
-   --contact-progress goes 0 -> 1 the section settles into place: it never
-   drops below 0.82 opacity, so the section is fully usable with JS off.
+   CONTACT
+   The atmosphere remains visible behind this section.
    ========================================================================= */
 
 #contact {
   position: relative;
+
   overflow: hidden;
+
   z-index: 3;
 }
 
+
+/*
+  Slightly transparent contact background allows
+  the persistent atmosphere to feel continuous.
+*/
 #contact.contact {
   background:
-    radial-gradient(700px 400px at 15% 10%, color-mix(in srgb, var(--green) 14%, transparent), transparent 60%),
-    radial-gradient(700px 400px at 85% 90%, color-mix(in srgb, var(--magenta) 14%, transparent), transparent 60%),
-    color-mix(in srgb, var(--bg-2) 62%, transparent);
-  backdrop-filter: blur(2px);
+    radial-gradient(
+      700px 400px
+      at 15% 10%,
+      color-mix(
+        in srgb,
+        var(--green) 14%,
+        transparent
+      ),
+      transparent 60%
+    ),
+
+    radial-gradient(
+      700px 400px
+      at 85% 90%,
+      color-mix(
+        in srgb,
+        var(--magenta) 14%,
+        transparent
+      ),
+      transparent 60%
+    ),
+
+    color-mix(
+      in srgb,
+      var(--bg-2) 82%,
+      transparent
+    );
+
+  backdrop-filter:
+    blur(2px);
 }
 
-#contact > .wrap {
-  transform: translate3d(0, calc((1 - var(--contact-progress, 1)) * 26px), 0);
-  opacity: calc(0.82 + (var(--contact-progress, 1) * 0.18));
-  filter: blur(calc((1 - var(--contact-progress, 1)) * 2px));
-  will-change: transform, opacity, filter;
-}
 
 /* =========================================================================
    MOBILE / REDUCED MOTION
    ========================================================================= */
 
 @media (max-width: 700px) {
+
   .ambient-leaf {
-    opacity: calc(var(--leaf-opacity, 0.22) * var(--leaf-density) * 0.7);
+    opacity:
+      calc(
+        var(--leaf-opacity, 0.2)
+        * var(--leaf-density)
+        * 0.65
+      );
   }
-  #top + section { margin-top: -3rem; }
+
+  #top + section {
+    margin-top: -3rem;
+  }
+
 }
 
+
 @media (prefers-reduced-motion: reduce) {
-  .ambient-layer { filter: none !important; }
-  .ambient-rain, .ambient-lightning { display: none; }
-  .ambient-leaf { transition: none; }
 
-  #top { opacity: 1 !important; }
-  #top > .wrap { transform: none !important; filter: none !important; }
-  #top + section { margin-top: 0; }
+  .ambient-layer {
+    filter: none !important;
+  }
 
-  #contact > .wrap { transform: none !important; filter: none !important; opacity: 1 !important; }
+  .ambient-rain {
+    display: none;
+  }
+
+  #top {
+    opacity: 1 !important;
+
+    transform: none !important;
+  }
+
+  #top > .wrap {
+    transform: none !important;
+  }
+
+  #top + section {
+    margin-top: 0;
+  }
+
 }
