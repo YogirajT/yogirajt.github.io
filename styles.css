@@ -495,3 +495,528 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
   body { background: #fff; color: #000; }
   body::before { display: none; }
 }
+
+
+
+/* =========================================================================
+   GLOBAL AMBIENT ATMOSPHERE
+   One persistent jungle / rain layer for the entire page.
+   ========================================================================= */
+
+/*
+  These values are controlled by JavaScript.
+
+  --ambient-opacity   overall atmosphere visibility
+  --rain-speed        animation speed multiplier
+  --ambient-blur      atmospheric depth
+  --leaf-density      how many generated leaves are visible
+*/
+:root {
+  --ambient-opacity: 1;
+  --rain-speed: 1;
+  --ambient-blur: 0px;
+  --leaf-density: 1;
+}
+
+
+/* -------------------------------------------------------------------------
+   FIXED AMBIENT LAYER
+   ------------------------------------------------------------------------- */
+
+.ambient-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+
+  overflow: hidden;
+  pointer-events: none;
+
+  opacity: var(--ambient-opacity);
+
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
+
+  will-change: opacity, filter;
+
+  filter: blur(var(--ambient-blur));
+}
+
+/*
+  Existing page content already mostly uses z-index: 2.
+  Keep the atmosphere behind content but above the background.
+*/
+.nav {
+  z-index: 60;
+}
+
+section,
+.wrap {
+  position: relative;
+}
+
+
+/* -------------------------------------------------------------------------
+   RAIN
+   ------------------------------------------------------------------------- */
+
+.ambient-rain {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.85;
+
+  transition:
+    opacity 0.4s ease;
+}
+
+.ambient-drop {
+  position: absolute;
+
+  top: -20vh;
+
+  width: 1px;
+  height: var(--drop-height, 90px);
+
+  left: var(--drop-x, 50%);
+
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--rain)
+  );
+
+  opacity: var(--drop-opacity, 0.5);
+
+  transform: translate3d(0, 0, 0);
+
+  animation:
+    ambient-fall
+    calc(var(--drop-duration, 1.4s) / var(--rain-speed))
+    linear
+    infinite;
+
+  animation-delay:
+    var(--drop-delay, 0s);
+
+  will-change: transform;
+}
+
+@keyframes ambient-fall {
+  from {
+    transform:
+      translate3d(
+        var(--drift-x, 0px),
+        -15vh,
+        0
+      );
+  }
+
+  to {
+    transform:
+      translate3d(
+        calc(var(--drift-x, 0px) + var(--drift-end, 20px)),
+        120vh,
+        0
+      );
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   LEAVES
+   ------------------------------------------------------------------------- */
+
+.ambient-leaves {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+}
+
+/*
+  Individual leaves are generated in JS.
+
+  Leaves use simple CSS shapes rather than requiring
+  duplicate SVG markup throughout the document.
+*/
+.ambient-leaf {
+  position: absolute;
+
+  width: var(--leaf-size, 180px);
+  height: calc(var(--leaf-size, 180px) * 1.45);
+
+  left: var(--leaf-x, 50%);
+  top: var(--leaf-y, 50%);
+
+  opacity:
+    calc(
+      var(--leaf-opacity, 0.35)
+      * var(--leaf-density)
+    );
+
+  transform:
+    translate3d(
+      var(--leaf-shift-x, 0px),
+      var(--leaf-shift-y, 0px),
+      0
+    )
+    rotate(var(--leaf-rotation, 0deg))
+    scale(var(--leaf-scale, 1));
+
+  transform-origin: center;
+
+  transition:
+    opacity 0.5s ease;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+
+/*
+  Organic neon-jungle leaf silhouette.
+*/
+.ambient-leaf::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius:
+    100% 0
+    100% 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(
+        in srgb,
+        var(--green) 28%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        var(--cyan) 12%,
+        transparent
+      )
+    );
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--green) 30%,
+      transparent
+    );
+
+  filter:
+    drop-shadow(
+      0 0 14px
+      color-mix(
+        in srgb,
+        var(--green) 18%,
+        transparent
+      )
+    );
+}
+
+
+/*
+  Leaf vein.
+*/
+.ambient-leaf::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 5%;
+
+  width: 1px;
+  height: 90%;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--green) 35%,
+      transparent
+    );
+
+  transform:
+    rotate(-40deg);
+
+  transform-origin: top;
+}
+
+
+/*
+  Depth levels.
+*/
+.ambient-leaf[data-depth="back"] {
+  filter: blur(3px);
+}
+
+.ambient-leaf[data-depth="mid"] {
+  filter: blur(1px);
+}
+
+.ambient-leaf[data-depth="front"] {
+  filter: blur(0);
+}
+
+
+/* -------------------------------------------------------------------------
+   ATMOSPHERIC GLOW
+   ------------------------------------------------------------------------- */
+
+.ambient-glow {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      600px 450px
+      at var(--glow-x, 20%)
+      var(--glow-y, 20%),
+      color-mix(
+        in srgb,
+        var(--cyan) 12%,
+        transparent
+      ),
+      transparent 70%
+    ),
+
+    radial-gradient(
+      700px 500px
+      at 80% 80%,
+      color-mix(
+        in srgb,
+        var(--green) 10%,
+        transparent
+      ),
+      transparent 70%
+    );
+
+  opacity: 0.8;
+
+  transition:
+    opacity 0.5s ease,
+    background-position 0.3s linear;
+}
+
+
+/* =========================================================================
+   TOP SECTION CINEMATIC HANDOFF
+   ========================================================================= */
+
+#top {
+  --takeover-progress: 0;
+
+  position: relative;
+
+  z-index: 3;
+
+  transform-origin:
+    center top;
+
+  opacity:
+    calc(
+      1 -
+      (var(--takeover-progress) * 0.85)
+    );
+
+  transform:
+    translate3d(
+      0,
+      calc(
+        var(--takeover-progress)
+        * -90px
+      ),
+      0
+    )
+
+    scale(
+      calc(
+        1 -
+        (var(--takeover-progress) * 0.045)
+      )
+    );
+
+  will-change:
+    opacity,
+    transform;
+}
+
+
+/*
+  Hero content has its own slower movement.
+*/
+#top > .wrap {
+  transform:
+    translate3d(
+      0,
+      var(--hero-parallax, 0px),
+      0
+    );
+
+  will-change:
+    transform;
+}
+
+
+/*
+  The next section physically rises into the scene.
+*/
+#top + section {
+  position: relative;
+
+  z-index: 4;
+
+  margin-top:
+    clamp(
+      -4rem,
+      -9vw,
+      -9rem
+    );
+
+  border-radius:
+    var(--radius-l)
+    var(--radius-l)
+    0
+    0;
+
+  box-shadow:
+    0 -30px 70px -45px
+    rgba(0, 0, 0, 0.8);
+}
+
+
+/*
+  Atmospheric transition edge.
+*/
+#top + section::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: -100px;
+
+  height: 110px;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      var(--bg)
+    );
+
+  z-index: -1;
+}
+
+
+/* =========================================================================
+   CONTACT
+   The atmosphere remains visible behind this section.
+   ========================================================================= */
+
+#contact {
+  position: relative;
+
+  overflow: hidden;
+
+  z-index: 3;
+}
+
+
+/*
+  Slightly transparent contact background allows
+  the persistent atmosphere to feel continuous.
+*/
+#contact.contact {
+  background:
+    radial-gradient(
+      700px 400px
+      at 15% 10%,
+      color-mix(
+        in srgb,
+        var(--green) 14%,
+        transparent
+      ),
+      transparent 60%
+    ),
+
+    radial-gradient(
+      700px 400px
+      at 85% 90%,
+      color-mix(
+        in srgb,
+        var(--magenta) 14%,
+        transparent
+      ),
+      transparent 60%
+    ),
+
+    color-mix(
+      in srgb,
+      var(--bg-2) 82%,
+      transparent
+    );
+
+  backdrop-filter:
+    blur(2px);
+}
+
+
+/* =========================================================================
+   MOBILE / REDUCED MOTION
+   ========================================================================= */
+
+@media (max-width: 700px) {
+
+  .ambient-leaf {
+    opacity:
+      calc(
+        var(--leaf-opacity, 0.2)
+        * var(--leaf-density)
+        * 0.65
+      );
+  }
+
+  #top + section {
+    margin-top: -3rem;
+  }
+
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ambient-layer {
+    filter: none !important;
+  }
+
+  .ambient-rain {
+    display: none;
+  }
+
+  #top {
+    opacity: 1 !important;
+
+    transform: none !important;
+  }
+
+  #top > .wrap {
+    transform: none !important;
+  }
+
+  #top + section {
+    margin-top: 0;
+  }
+
+}

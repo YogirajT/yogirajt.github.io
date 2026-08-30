@@ -98,7 +98,11 @@
       }
     })();
   </script>
-
+  <div class="ambient-layer" aria-hidden="true">
+    <div class="ambient-rain"></div>
+    <div class="ambient-leaves"></div>
+    <div class="ambient-glow"></div>
+  </div>
   <a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:0;background:#1b2c45;color:#fff;padding:0.75rem 1rem;z-index:999;">Skip to content</a>
 
   <!-- ============ NAV ============ -->
@@ -145,21 +149,6 @@
   <main id="main">
     <!-- ============ HERO ============ -->
     <section class="hero" id="top">
-      <div class="rain" id="rain" aria-hidden="true"></div>
-      <div class="leaf leaf-a" aria-hidden="true">
-        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 10C40 40 15 100 30 160C45 210 90 215 100 210C110 215 155 210 170 160C185 100 160 40 100 10Z" stroke="#39ff88" stroke-width="1.5" opacity="0.5"/>
-          <path d="M100 15V208" stroke="#39ff88" stroke-width="1" opacity="0.4"/>
-          <path d="M100 60C80 70 65 85 55 100M100 60C120 70 135 85 145 100M100 110C78 122 62 138 50 155M100 110C122 122 138 138 150 155M100 160C85 168 72 180 62 192M100 160C115 168 128 180 138 192" stroke="#39ff88" stroke-width="1" opacity="0.35"/>
-        </svg>
-      </div>
-      <div class="leaf leaf-b" aria-hidden="true">
-        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 10C40 40 15 100 30 160C45 210 90 215 100 210C110 215 155 210 170 160C185 100 160 40 100 10Z" stroke="#ff2ec4" stroke-width="1.5" opacity="0.4"/>
-          <path d="M100 15V208" stroke="#ff2ec4" stroke-width="1" opacity="0.32"/>
-          <path d="M100 60C80 70 65 85 55 100M100 60C120 70 135 85 145 100M100 110C78 122 62 138 50 155M100 110C122 122 138 138 150 155" stroke="#ff2ec4" stroke-width="1" opacity="0.28"/>
-        </svg>
-      </div>
       <div class="wrap">
         <div class="hero-text">
           <p class="eyebrow hero-eyebrow">Senior Backend Engineer &middot; Berlin, DE</p>
