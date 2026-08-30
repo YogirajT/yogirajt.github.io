@@ -864,10 +864,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     analyticsLoaded = true;
 
+    console.log("Google Analytics: loading", GA_MEASUREMENT_ID);
+
     /*
-     * Initialise Google's dataLayer and gtag BEFORE
-     * loading the Google Analytics script.
-     */
+
+* Enable Google Analytics.
+  */
+    window["ga-disable-" + GA_MEASUREMENT_ID] = false;
+
+    /*
+
+* Create the dataLayer and gtag BEFORE loading Google's script.
+  */
     window.dataLayer = window.dataLayer || [];
 
     window.gtag =
@@ -877,9 +885,9 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
     /*
-     * Tell Google that analytics consent has been granted.
-     * Advertising storage remains denied.
-     */
+
+* Set the consent state before configuring GA.
+  */
     window.gtag("consent", "default", {
       analytics_storage: "granted",
       ad_storage: "denied",
@@ -887,31 +895,34 @@ document.addEventListener("DOMContentLoaded", () => {
       ad_personalization: "denied",
     });
 
+    /*
+
+* Initialise Google Analytics.
+  */
     window.gtag("js", new Date());
 
-    /*
-     * Configure GA4.
-     */
     window.gtag("config", GA_MEASUREMENT_ID, {
       anonymize_ip: true,
     });
 
     /*
-     * Load Google's gtag library.
-     */
+
+* Load Google's gtag.js.
+  */
     const script = document.createElement("script");
 
     script.async = true;
+
     script.src =
       "https://www.googletagmanager.com/gtag/js?id=" +
       encodeURIComponent(GA_MEASUREMENT_ID);
 
     script.onload = function () {
-      console.log("Google Analytics loaded:", GA_MEASUREMENT_ID);
+      console.log("Google Analytics script loaded.");
     };
 
     script.onerror = function () {
-      console.error("Google Analytics failed to load.");
+      console.error("Google Analytics script failed to load.");
       analyticsLoaded = false;
     };
 
