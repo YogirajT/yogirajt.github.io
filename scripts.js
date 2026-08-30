@@ -25,10 +25,39 @@
       if (label) label.textContent = t === "light" ? "LIGHT" : "DARK";
     });
   }
+  let themeTransitionTimer;
   function setTheme(t) {
+    const oldTheme = currentTheme();
+
+    if (oldTheme === t) return;
+
+    const directionClass =
+      t === "light"
+        ? "theme-shifting-to-light"
+        : "theme-shifting-to-dark";
+
+    root.classList.remove(
+      "theme-shifting-to-light",
+      "theme-shifting-to-dark"
+    );
+
+    // Trigger cinematic overlay
+    root.classList.add(directionClass);
+
+    // Change the actual theme
     root.setAttribute("data-theme", t);
-    try { localStorage.setItem("theme", t); } catch (e) {}
+
+    try {
+      localStorage.setItem("theme", t);
+    } catch (e) { }
+
     syncToggleLabels();
+
+    clearTimeout(themeTransitionTimer);
+
+    themeTransitionTimer = setTimeout(() => {
+      root.classList.remove(directionClass);
+    }, 1900);
   }
   themeButtons.forEach(function (btn) {
     btn.addEventListener("click", function () {
@@ -402,12 +431,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const rotation = -8 + Math.random() * 16; // subtle sway tilt only, mass shape does the rest
 
       const size = depth === "front" ? 230 + Math.random() * 150
-                 : depth === "mid"   ? 160 + Math.random() * 100
-                 :                     110 + Math.random() * 70;
+        : depth === "mid" ? 160 + Math.random() * 100
+          : 110 + Math.random() * 70;
 
       const baseOpacity = depth === "front" ? 0.5 + Math.random() * 0.22
-                         : depth === "mid"   ? 0.34 + Math.random() * 0.18
-                         :                     0.22 + Math.random() * 0.12;
+        : depth === "mid" ? 0.34 + Math.random() * 0.18
+          : 0.22 + Math.random() * 0.12;
 
       const swayRange = depth === "front" ? 14 : depth === "mid" ? 8 : 4;
       const tint = LEAF_TINTS[Math.floor(Math.random() * LEAF_TINTS.length)];
@@ -500,7 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `<path class="bolt-core" d="${mainD}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
       (showBranch
         ? `<path class="bolt-glow" d="${branchD}" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
-          `<path class="bolt-core" d="${branchD}" fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>`
+        `<path class="bolt-core" d="${branchD}" fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>`
         : "");
   }
 
@@ -508,8 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!lightningEl) return;
     const edge = Math.floor(Math.random() * 3); // 0 left, 1 right, 2 top
     const xPct = edge === 0 ? -5 + Math.random() * 10
-               : edge === 1 ? 95 + Math.random() * 10
-               : Math.random() * 100;
+      : edge === 1 ? 95 + Math.random() * 10
+        : Math.random() * 100;
     const yPct = edge === 2 ? -5 + Math.random() * 10 : Math.random() * 60;
 
     root.style.setProperty("--lightning-x", `${xPct}%`);
