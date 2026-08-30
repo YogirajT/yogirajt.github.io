@@ -323,70 +323,62 @@ document.addEventListener("DOMContentLoaded", () => {
       : 18;
 
 
-  /* =====================================================================
-     CREATE RAIN
-     ===================================================================== */
+/* ============================================================
+   AMBIENT RAIN
+   ============================================================ */
 
-  function createRain() {
+const ambientRain = document.querySelector(".ambient-rain");
 
-    rainContainer.innerHTML = "";
+if (ambientRain) {
+  const rainCount = 110;
 
-    if (reducedMotion.matches) {
-      return;
-    }
+  for (let i = 0; i < rainCount; i++) {
+    const drop = document.createElement("span");
 
-    const fragment =
-      document.createDocumentFragment();
+    drop.className = "drop";
 
+    const left = Math.random() * 100;
+    const duration = 0.7 + Math.random() * 1.1;
+    const delay = Math.random() * -2;
+    const height = 30 + Math.random() * 80;
+    const width = Math.random() > 0.8 ? 2 : 1;
+    const opacity = 0.3 + Math.random() * 0.7;
+    const drift = -30 + Math.random() * 30;
 
-    for (let i = 0; i < RAIN_COUNT; i++) {
-      const drop = document.createElement("span");
-
-      drop.className = "drop";
-
-      drop.style.left = `${Math.random() * 100}%`;
-
-      drop.style.setProperty(
-        "--rain-duration",
-        `${0.9 + Math.random() * 1.8}s`
-      );
-
-      drop.style.setProperty(
-        "--rain-delay",
-        `${Math.random() * -3}s`
-      );
-
-      drop.style.animationDelay =
-        `${Math.random() * -3}s`;
-
-      drop.style.setProperty(
-        "--rain-length",
-        `${35 + Math.random() * 85}px`
-      );
-
-      drop.style.setProperty(
-        "--rain-width",
-        `${1 + Math.random() * 1.4}px`
-      );
-
-      drop.style.setProperty(
-        "--rain-opacity",
-        `${0.35 + Math.random() * 0.65}`
-      );
-
-      drop.style.setProperty(
-        "--rain-drift",
-        `${-60 + Math.random() * 40}px`
-      );
-
-      rainContainer.appendChild(drop);
-    }
-
-
-    rainContainer.appendChild(
-      fragment
+    drop.style.left = `${left}%`;
+    drop.style.setProperty(
+      "--drop-duration",
+      `${duration}s`
     );
+
+    drop.style.setProperty(
+      "--drop-delay",
+      `${delay}s`
+    );
+
+    drop.style.setProperty(
+      "--drop-height",
+      `${height}px`
+    );
+
+    drop.style.setProperty(
+      "--drop-width",
+      `${width}px`
+    );
+
+    drop.style.setProperty(
+      "--drop-opacity",
+      opacity
+    );
+
+    drop.style.setProperty(
+      "--drop-drift",
+      `${drift}px`
+    );
+
+    ambientRain.appendChild(drop);
   }
+}
 
 
   /* =====================================================================

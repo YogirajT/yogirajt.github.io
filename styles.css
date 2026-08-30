@@ -98,7 +98,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
@@ -512,45 +512,308 @@ section { padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; z-index
    ========================================================================= */
 
 
-/* =========================================================================
-   GLOBAL AMBIENT LAYER
-   ========================================================================= */
+/* ============================================================
+   GLOBAL AMBIENT ATMOSPHERE
+   ============================================================ */
 
 .ambient-layer {
   position: fixed;
   inset: 0;
-  z-index: 0;
-  overflow: hidden;
+  z-index: 1;
   pointer-events: none;
-
-  /*
-    Controlled by JS.
-
-    --ambient-opacity
-    --rain-opacity
-    --leaf-opacity
-    --ambient-blur
-    --rain-speed
-    --leaf-speed
-  */
+  overflow: hidden;
 
   opacity: var(--ambient-opacity, 1);
   filter: blur(var(--ambient-blur, 0px));
 
   transition:
-    opacity 0.4s ease,
-    filter 0.4s ease;
+    opacity 0.35s ease,
+    filter 0.35s ease;
 }
 
-
-/* Keep actual website content above atmosphere */
+/* keep real page content above atmosphere */
 .nav,
-.hero,
+main,
 section,
-.site-footer,
-.toast {
+footer,
+.site-footer {
   position: relative;
   z-index: 2;
+}
+
+/* ---------------- RAIN ---------------- */
+
+.ambient-rain {
+  position: absolute;
+  inset: -20vh 0 0;
+  overflow: hidden;
+  opacity: var(--rain-opacity, 1);
+}
+
+.ambient-rain .drop {
+  position: absolute;
+  top: -20vh;
+
+  width: var(--drop-width, 2px);
+  height: var(--drop-height, 80px);
+
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--rain) 35%,
+    color-mix(in srgb, var(--cyan) 70%, white) 100%
+  );
+
+  opacity: var(--drop-opacity, 0.8);
+
+  border-radius: 999px;
+
+  box-shadow:
+    0 0 5px rgba(34, 232, 255, 0.3);
+
+  animation:
+    ambient-fall var(--drop-duration, 1.2s)
+    linear
+    infinite;
+
+  animation-delay: var(--drop-delay, 0s);
+}
+
+@keyframes ambient-fall {
+  from {
+    transform: translate3d(
+      var(--drop-drift, 0px),
+      -10vh,
+      0
+    );
+  }
+
+  to {
+    transform: translate3d(
+      calc(var(--drop-drift, 0px) + 80px),
+      130vh,
+      0
+    );
+  }
+}
+
+/* stronger dark rain */
+
+[data-theme="dark"] .ambient-rain {
+  opacity: 1;
+}
+
+[data-theme="dark"] .ambient-rain .drop {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(130, 220, 255, 0.35),
+    rgba(180, 245, 255, 0.95)
+  );
+
+  box-shadow:
+    0 0 5px rgba(34, 232, 255, 0.5),
+    0 0 12px rgba(34, 232, 255, 0.18);
+}
+
+/* much more visible light rain */
+
+[data-theme="light"] .ambient-rain {
+  opacity: 0.9;
+}
+
+[data-theme="light"] .ambient-rain .drop {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 100, 110, 0.25),
+    rgba(0, 100, 110, 0.7)
+  );
+
+  box-shadow:
+    0 0 3px rgba(0, 100, 110, 0.15);
+}
+
+/* ---------------- LEAVES ---------------- */
+
+.ambient-leaves {
+  position: absolute;
+  inset: 0;
+
+  opacity: var(--leaf-opacity, 1);
+
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+
+.ambient-leaf {
+  position: absolute;
+
+  color: var(--green);
+
+  opacity: 0.7;
+
+  filter:
+    drop-shadow(0 0 12px rgba(57, 255, 136, 0.2));
+
+  will-change: transform;
+
+  animation:
+    leaf-sway 8s ease-in-out infinite alternate;
+}
+
+.ambient-leaf svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* DARK MODE */
+
+[data-theme="dark"] .ambient-leaf {
+  color: rgba(57, 255, 136, 0.8);
+
+  filter:
+    drop-shadow(0 0 10px rgba(57, 255, 136, 0.25))
+    drop-shadow(0 0 30px rgba(34, 232, 255, 0.08));
+}
+
+/* LIGHT MODE */
+
+[data-theme="light"] .ambient-leaf {
+  color: rgba(15, 138, 75, 0.65);
+
+  filter:
+    drop-shadow(0 8px 12px rgba(0, 50, 25, 0.1));
+}
+
+/* ---------------- JUNGLE LEAVES ---------------- */
+
+.leaf-top-left {
+  width: clamp(200px, 24vw, 420px);
+
+  top: -100px;
+  left: -80px;
+
+  transform:
+    rotate(-25deg)
+    translateY(var(--leaf-shift, 0px));
+}
+
+.leaf-top-right {
+  width: clamp(180px, 22vw, 380px);
+
+  top: -90px;
+  right: -80px;
+
+  transform:
+    rotate(28deg)
+    scaleX(-1)
+    translateY(var(--leaf-shift, 0px));
+
+  animation-delay: -3s;
+}
+
+/* ---------------- PALMS ---------------- */
+
+.palm-left {
+  width: clamp(220px, 30vw, 520px);
+
+  left: -170px;
+  top: 28%;
+
+  opacity: 0.55;
+
+  transform:
+    rotate(-18deg)
+    translateX(var(--palm-shift, 0px));
+
+  animation-duration: 11s;
+}
+
+.palm-right {
+  width: clamp(220px, 30vw, 520px);
+
+  right: -180px;
+  bottom: 15%;
+
+  opacity: 0.55;
+
+  transform:
+    rotate(22deg)
+    scaleX(-1)
+    translateX(var(--palm-shift, 0px));
+
+  animation-duration: 12s;
+  animation-delay: -5s;
+}
+
+.palm-top {
+  width: clamp(180px, 22vw, 380px);
+
+  left: 50%;
+  top: -180px;
+
+  opacity: 0.48;
+
+  transform:
+    translateX(-50%)
+    rotate(180deg);
+
+  animation-duration: 13s;
+  animation-delay: -2s;
+}
+
+/* ---------------- LEAF MOTION ---------------- */
+
+@keyframes leaf-sway {
+  from {
+    margin-top: 0;
+  }
+
+  to {
+    margin-top: 18px;
+  }
+}
+
+/* ---------------- MOBILE ---------------- */
+
+@media (max-width: 700px) {
+
+  .leaf-top-left {
+    width: 220px;
+    left: -100px;
+  }
+
+  .leaf-top-right {
+    width: 190px;
+    right: -100px;
+  }
+
+  .palm-left,
+  .palm-right {
+    width: 280px;
+    opacity: 0.4;
+  }
+
+  .palm-top {
+    width: 220px;
+  }
+}
+
+/* accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ambient-rain {
+    display: none;
+  }
+
+  .ambient-leaf {
+    animation: none;
+  }
+
 }
 
 
