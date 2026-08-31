@@ -17,37 +17,82 @@
     ================================================================ -->
     <header class="nav">
       <div class="wrap">
-        <a class="nav-brand" href="index.html" aria-label="Back to homepage">
-          <span class="dot"></span>
-          Yogiraj Tawde
-        </a>
-        <div class="nav-desktop">
+        <a class="nav-brand" href="#top"
+          ><span class="dot" aria-hidden="true"></span>Yogiraj Tawde</a
+        >
+
+        <nav class="nav-desktop" aria-label="Primary">
           <ul class="nav-links">
-            <li>
-              <a href="index.html#top">Home</a>
-            </li>
-            <li>
-              <a href="index.html#about">About</a>
-            </li>
-            <li>
-              <a href="index.html#experience">Experience</a>
-            </li>
-            <li>
-              <a href="index.html#contact">Contact</a>
-            </li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#contact">Contact</a></li>
           </ul>
-          <!-- Your existing theme toggle -->
-          <button
-            class="theme-toggle"
-            type="button"
-            id="theme-toggle"
-            aria-label="Toggle color theme"
+          <a
+            class="btn btn-primary"
+            href="assets/cv.pdf"
+            target="_blank"
+            rel="noopener"
+            >Resume</a
           >
-            <span class="track">
-              <span class="knob"></span>
-            </span>
+          <button
+            type="button"
+            class="theme-toggle"
+            id="theme-toggle-desktop"
+            aria-pressed="false"
+            aria-label="Toggle light and dark theme"
+          >
+            <span class="track"><span class="knob"></span></span>
             <span class="tt-label">DARK</span>
           </button>
+        </nav>
+
+        <div class="nav-toggle-wrap">
+          <details class="nav-toggle">
+            <summary aria-label="Open menu">
+              <svg
+                class="icon-burger"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+              <svg
+                class="icon-close"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <line x1="4" y1="4" x2="20" y2="20" />
+                <line x1="20" y1="4" x2="4" y2="20" />
+              </svg>
+            </summary>
+            <div class="nav-toggle-panel">
+              <a href="/#top">Home</a>
+              <a href="/#experience">Experience</a>
+              <a href="/#skills">Skills</a>
+              <a href="/#contact">Contact</a>
+              <!-- <a class="btn btn-primary" href="assets/cv.pdf" target="_blank" rel="noopener">Download Resume</a> -->
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle-mobile"
+                aria-pressed="false"
+                aria-label="Toggle light and dark theme"
+                style="align-self: flex-start"
+              >
+                <span class="track"><span class="knob"></span></span>
+                <span class="tt-label">DARK</span>
+              </button>
+            </div>
+          </details>
         </div>
       </div>
     </header>
@@ -55,7 +100,6 @@
         PRIVACY CONTENT
     ================================================================ -->
     <main class="privacy-page">
-      ```
       <section class="privacy-hero">
         <div class="wrap">
           <div class="privacy-content">
@@ -287,8 +331,29 @@
           </div>
         </div>
       </section>
-      ```
+
+      <!-- ============ CONTACT ============ -->
+      <section class="contact reveal" id="contact">
+        <div class="wrap">
+          <div class="wrap site-footer" style="padding-inline: 0">
+            <span>&copy; <span id="year">2026</span> Yogiraj Tawde</span>
+            <span
+              ><a href="mailto:ld.yogiraj@gmail.com">ld.yogiraj@gmail.com</a>
+              &middot; Berlin, DE</span
+            >
+            <a href="privacy.html"> Privacy Policy </a>
+            <button
+              class="footer-cookie-settings"
+              id="footer-cookie-settings"
+              type="button"
+            >
+              Cookie settings
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
+
     <!-- ================================================================
         COOKIE BANNER
     ================================================================ -->
