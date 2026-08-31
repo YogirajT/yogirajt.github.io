@@ -12,29 +12,36 @@
   </head>
 
   <body>
+    <script>
+      // Set theme before first paint to avoid a flash of the wrong theme.
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var theme =
+            saved ||
+            (window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark");
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+    <div class="theme-transition-overlay"></div>
     <!-- ================================================================
         NAV
     ================================================================ -->
     <header class="nav">
       <div class="wrap">
-        <a class="nav-brand" href="#top"
+        <a class="nav-brand" href="/#top"
           ><span class="dot" aria-hidden="true"></span>Yogiraj Tawde</a
         >
 
         <nav class="nav-desktop" aria-label="Primary">
           <ul class="nav-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="/#top">Home</a></li>
           </ul>
-          <a
-            class="btn btn-primary"
-            href="assets/cv.pdf"
-            target="_blank"
-            rel="noopener"
-            >Resume</a
-          >
           <button
             type="button"
             class="theme-toggle"
@@ -76,9 +83,6 @@
             </summary>
             <div class="nav-toggle-panel">
               <a href="/#top">Home</a>
-              <a href="/#experience">Experience</a>
-              <a href="/#skills">Skills</a>
-              <a href="/#contact">Contact</a>
               <!-- <a class="btn btn-primary" href="assets/cv.pdf" target="_blank" rel="noopener">Download Resume</a> -->
               <button
                 type="button"
