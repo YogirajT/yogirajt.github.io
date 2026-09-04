@@ -339,7 +339,8 @@ section {
   color: var(--ink-soft);
 }
 .theme-toggle .tt-label {
-  min-width: 2.6em;
+  display: inline-block;
+  width: calc(5ch + 0.4em);
   text-align: left;
 }
 .theme-toggle:hover {
