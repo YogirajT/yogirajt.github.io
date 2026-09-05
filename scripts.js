@@ -290,75 +290,6 @@
   }
 })();
 
-// ---------------------------------------------------------------------
-// Magnetic scroll -- About / Experience / Skills / Contact.
-// CSS scroll-snap turned out too subtle to notice, so this drives it
-// directly: once scrolling has actually stopped, if that landed within a
-// fairly small distance of a panel's top, it eases the rest of the way
-// there. Scrolling through a tall section's own content is well outside
-// that distance, so it's never interrupted -- this only ever fires right
-// near a boundary you've basically already arrived at.
-// ---------------------------------------------------------------------
-(() => {
-  "use strict";
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  var targets = ["about", "experience", "skills", "contact"]
-    .map(function (id) {
-      return document.getElementById(id);
-    })
-    .filter(Boolean);
-  if (!targets.length) return;
-
-  var navEl = document.querySelector(".nav");
-  var THRESHOLD = 120; // px -- how close a stopped scroll has to land to pull
-  var SETTLE_DELAY = 130; // ms of no scroll before checking
-  var RELEASE_DELAY = 600; // ms to let our own smooth-scroll finish
-
-  var settleTimer = null;
-  var releaseTimer = null;
-  var isSnapping = false;
-
-  function navOffset() {
-    return (navEl ? navEl.offsetHeight : 0) + 12;
-  }
-
-  function nearestTargetTop() {
-    var y = window.scrollY;
-    var offset = navOffset();
-    var bestTop = null;
-    var bestDist = Infinity;
-    targets.forEach(function (el) {
-      var top = el.getBoundingClientRect().top + y - offset;
-      var dist = Math.abs(y - top);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestTop = top;
-      }
-    });
-    return { top: bestTop, dist: bestDist };
-  }
-
-  function onScroll() {
-    if (isSnapping) return;
-    window.clearTimeout(settleTimer);
-    settleTimer = window.setTimeout(function () {
-      var nearest = nearestTargetTop();
-      if (nearest.dist > 6 && nearest.dist < THRESHOLD) {
-        isSnapping = true;
-        window.scrollTo({ top: nearest.top, behavior: "smooth" });
-        window.clearTimeout(releaseTimer);
-        releaseTimer = window.setTimeout(function () {
-          isSnapping = false;
-        }, RELEASE_DELAY);
-      }
-    }, SETTLE_DELAY);
-  }
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-})();
-
 document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================================
      ELEMENTS
@@ -375,15 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const topSection = document.querySelector("#top");
   const contactSection = document.querySelector("#contact");
   const heroWrap = topSection ? topSection.querySelector(".wrap") : null;
-
-  // Panels that get the scroll-driven parallax drift (--px). Magnetic
-  // snapping itself is plain CSS scroll-snap, so it needs no JS at all.
-  const parallaxSections = ["about", "experience", "skills", "contact"]
-    .map(function (id) {
-      return document.getElementById(id);
-    })
-    .filter(Boolean);
-  const PARALLAX_STRENGTH = 70; // px of drift at full swing -- noticeable, not chaotic
 
   const reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
@@ -779,32 +701,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================================================================
-     PANEL PARALLAX
-     Each panel's drift is measured against its own center relative to the
-     viewport center -- not total page scroll -- so it works the same way
-     regardless of how tall the section is or where it sits on the page.
-     Roughly -1 while still arriving from below, 0 dead-center, +1 as it
-     exits past the top; scaled to px and written straight onto the
-     element so the CSS can read it as --px.
-     ===================================================================== */
-
-  function updateParallax() {
-    if (reducedMotionQuery.matches) return;
-    const vh = window.innerHeight || 800;
-
-    parallaxSections.forEach(function (section) {
-      const rect = section.getBoundingClientRect();
-      const center = rect.top + rect.height / 2;
-      const raw = (vh / 2 - center) / vh;
-      const clamped = Math.max(-1, Math.min(1, raw));
-      section.style.setProperty(
-        "--px",
-        (clamped * PARALLAX_STRENGTH).toFixed(2),
-      );
-    });
-  }
-
-  /* =====================================================================
      APPLY ATMOSPHERE -- one function, one set of custom properties.
      ===================================================================== */
 
@@ -867,7 +763,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateHeroTransition(heroProgress);
     updateContactTransition(contactProgress);
     updateLeaves(window.scrollY, now);
-    updateParallax();
 
     rafId = window.requestAnimationFrame(frame);
   }

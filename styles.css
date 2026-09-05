@@ -1166,74 +1166,6 @@ section {
   color: var(--ink);
 }
 
-/* =========================================================================
-   SECTION GAP + PARALLAX  (magnetic scroll lives in scripts.js)
-   About / Experience / Skills / Contact float as separate panels with a
-   generous gap between them (the ambient jungle/rain layer shows through),
-   and drift gently as a whole while they cross the viewport for a sense of
-   depth. Deliberately one simple motion per panel -- no per-card splits --
-   since those fought the entrance-reveal animation on .job/.skill-group
-   and made individual cards appear to jump on their own.
-   ========================================================================= */
-
-.panel-gap {
-  border-radius: var(--radius-l);
-  box-shadow: var(--shadow);
-  margin-block: clamp(3rem, 9vw, 7rem);
-}
-
-/* Education bridges Skills and Contact. It gets the same floating-panel
-   look for visual consistency, but isn't a magnetic stop of its own --
-   it's a short beat between two, not a destination. */
-#education {
-  border-radius: var(--radius-l);
-  box-shadow: var(--shadow);
-  margin-block: clamp(3rem, 9vw, 7rem);
-}
-
-/* ---------- Parallax drift ---------- */
-/* --px is written every animation frame in scripts.js: a signed number
-   tracking each panel's position through the viewport -- negative while
-   it's still arriving from below, 0 near dead-center, positive as it
-   exits past the top. Applied once, to the whole panel's content. */
-#about .wrap,
-#experience .wrap,
-#skills .wrap {
-  transform: translate3d(0, calc(var(--px, 0) * 1px), 0);
-  will-change: transform;
-}
-
-/* Contact already animates its .wrap in on arrival via --contact-progress;
-   the scroll-parallax term is folded into the same translateY so the two
-   effects combine instead of one clobbering the other. */
-#contact > .wrap {
-  transform: translate3d(
-    0,
-    calc((1 - var(--contact-progress, 1)) * 26px + var(--px, 0) * 1px),
-    0
-  );
-}
-
-@media (max-width: 700px) {
-  /* Same effect, calmer swing -- a large drift reads as a much bigger
-     share of a small screen than of a desktop viewport. */
-  #about .wrap,
-  #experience .wrap,
-  #skills .wrap {
-    transform: translate3d(0, calc(var(--px, 0) * 0.4px), 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #about .wrap,
-  #experience .wrap,
-  #skills .wrap {
-    transform: none !important;
-  }
-  /* #contact > .wrap already gets transform: none !important from the
-     existing hero/contact reduced-motion block above. */
-}
-
 /* ---------- reveal / stagger ---------- */
 .reveal {
   opacity: 1;
@@ -1599,15 +1531,12 @@ section {
   will-change: transform, filter;
 }
 
-/* The next section physically rises into the scene. It still overlaps the
-   hero at the top (unchanged seam), but now gets full corner rounding and
-   a bottom gap too, so it reads as a floating panel like the ones after it. */
+/* The next section physically rises into the scene. */
 #top + section {
   position: relative;
   z-index: 4;
   margin-top: clamp(-4rem, -9vw, -9rem);
-  margin-bottom: clamp(3rem, 9vw, 7rem);
-  border-radius: var(--radius-l);
+  border-radius: var(--radius-l) var(--radius-l) 0 0;
   box-shadow: 0 -30px 70px -45px rgba(0, 0, 0, 0.8);
 }
 
@@ -2037,7 +1966,6 @@ html.theme-shifting-to-dark .ambient-glow {
 @media (prefers-reduced-motion: reduce) {
   .cookie-banner {
     transition: none;
-
     transform: none;
   }
 }
