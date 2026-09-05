@@ -307,6 +307,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const contactSection = document.querySelector("#contact");
   const heroWrap = topSection ? topSection.querySelector(".wrap") : null;
 
+  // Panels that get the scroll-driven parallax drift (--px). Magnetic
+  // snapping itself is plain CSS scroll-snap, so it needs no JS at all.
+  const parallaxSections = ["about", "experience", "skills", "contact"]
+    .map(function (id) {
+      return document.getElementById(id);
+    })
+    .filter(Boolean);
+  const PARALLAX_STRENGTH = 120; // px of drift at full swing -- strong, still readable
+
   const reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   );
@@ -701,6 +710,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================================================================
+     PANEL PARALLAX
+     Each panel's drift is measured against its own center relative to the
+     viewport center -- not total page scroll -- so it works the same way
+     regardless of how tall the section is or where it sits on the page.
+     Roughly -1 while still arriving from below, 0 dead-center, +1 as it
+     exits past the top; scaled to px and written straight onto the
+     element so the CSS can read it as --px.
+     ===================================================================== */
+
+  function updateParallax() {
+    if (reducedMotionQuery.matches) return;
+    const vh = window.innerHeight || 800;
+
+    parallaxSections.forEach(function (section) {
+      const rect = section.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const raw = (vh / 2 - center) / vh;
+      const clamped = Math.max(-1, Math.min(1, raw));
+      section.style.setProperty(
+        "--px",
+        (clamped * PARALLAX_STRENGTH).toFixed(2),
+      );
+    });
+  }
+
+  /* =====================================================================
      APPLY ATMOSPHERE -- one function, one set of custom properties.
      ===================================================================== */
 
@@ -763,6 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateHeroTransition(heroProgress);
     updateContactTransition(contactProgress);
     updateLeaves(window.scrollY, now);
+    updateParallax();
 
     rafId = window.requestAnimationFrame(frame);
   }
