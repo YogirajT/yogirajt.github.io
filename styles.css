@@ -111,11 +111,6 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 12px);
   color-scheme: dark;
-  /* Magnetic scroll: gently pulls to a panel's top when a scroll comes to
-     rest nearby. "proximity" (not "mandatory") never fights a scroll that's
-     still moving through a tall section's content -- it only nudges once
-     things have basically stopped, and a fast fling can skip past it. */
-  scroll-snap-type: y proximity;
 }
 [data-theme="light"] {
   color-scheme: light;
@@ -1172,20 +1167,19 @@ section {
 }
 
 /* =========================================================================
-   SECTION GAP + MAGNETIC SNAP + PARALLAX
+   SECTION GAP + PARALLAX  (magnetic scroll lives in scripts.js)
    About / Experience / Skills / Contact float as separate panels with a
-   visible gap between them (the ambient jungle/rain layer shows through),
-   pull gently into place when a scroll comes to rest near one, and drift
-   at different rates internally as you scroll past -- a real sense of
-   depth rather than the whole page moving as one flat sheet.
+   generous gap between them (the ambient jungle/rain layer shows through),
+   and drift gently as a whole while they cross the viewport for a sense of
+   depth. Deliberately one simple motion per panel -- no per-card splits --
+   since those fought the entrance-reveal animation on .job/.skill-group
+   and made individual cards appear to jump on their own.
    ========================================================================= */
 
 .panel-gap {
   border-radius: var(--radius-l);
   box-shadow: var(--shadow);
-  margin-block: clamp(1.75rem, 5vw, 4rem);
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
+  margin-block: clamp(3rem, 9vw, 7rem);
 }
 
 /* Education bridges Skills and Contact. It gets the same floating-panel
@@ -1194,38 +1188,18 @@ section {
 #education {
   border-radius: var(--radius-l);
   box-shadow: var(--shadow);
-  margin-block: clamp(1.75rem, 5vw, 4rem);
+  margin-block: clamp(3rem, 9vw, 7rem);
 }
 
 /* ---------- Parallax drift ---------- */
 /* --px is written every animation frame in scripts.js: a signed number
-   (roughly -120..120) tracking each panel's position through the viewport
-   -- negative while it's still arriving from below, 0 near dead-center,
-   positive as it exits past the top. Elements inside a panel read the same
-   value at different strengths so they visibly separate in depth, rather
-   than the panel just nudging up and down as one flat block. */
+   tracking each panel's position through the viewport -- negative while
+   it's still arriving from below, 0 near dead-center, positive as it
+   exits past the top. Applied once, to the whole panel's content. */
 #about .wrap,
 #experience .wrap,
 #skills .wrap {
   transform: translate3d(0, calc(var(--px, 0) * 1px), 0);
-  will-change: transform;
-}
-
-#about .about-copy {
-  transform: translate3d(0, calc(var(--px, 0) * 0.35px), 0);
-  will-change: transform;
-}
-#about .facts {
-  transform: translate3d(0, calc(var(--px, 0) * -0.85px), 0);
-  will-change: transform;
-}
-
-#skills .skill-group:nth-child(odd) {
-  transform: translate3d(0, calc(var(--px, 0) * 0.4px), 0);
-  will-change: transform;
-}
-#skills .skill-group:nth-child(even) {
-  transform: translate3d(0, calc(var(--px, 0) * -0.4px), 0);
   will-change: transform;
 }
 
@@ -1241,30 +1215,19 @@ section {
 }
 
 @media (max-width: 700px) {
-  /* Same effect, calmer swing -- a 120px drift reads as much bigger share
-     of a small screen than of a desktop viewport. */
+  /* Same effect, calmer swing -- a large drift reads as a much bigger
+     share of a small screen than of a desktop viewport. */
   #about .wrap,
   #experience .wrap,
-  #skills .wrap,
-  #about .about-copy,
-  #about .facts,
-  #skills .skill-group:nth-child(odd),
-  #skills .skill-group:nth-child(even) {
+  #skills .wrap {
     transform: translate3d(0, calc(var(--px, 0) * 0.4px), 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-snap-type: none;
-  }
   #about .wrap,
   #experience .wrap,
-  #skills .wrap,
-  #about .about-copy,
-  #about .facts,
-  #skills .skill-group:nth-child(odd),
-  #skills .skill-group:nth-child(even) {
+  #skills .wrap {
     transform: none !important;
   }
   /* #contact > .wrap already gets transform: none !important from the
@@ -1643,11 +1606,9 @@ section {
   position: relative;
   z-index: 4;
   margin-top: clamp(-4rem, -9vw, -9rem);
-  margin-bottom: clamp(1.75rem, 5vw, 4rem);
+  margin-bottom: clamp(3rem, 9vw, 7rem);
   border-radius: var(--radius-l);
   box-shadow: 0 -30px 70px -45px rgba(0, 0, 0, 0.8);
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
 }
 
 #top + section::before {

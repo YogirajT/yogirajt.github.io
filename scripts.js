@@ -290,6 +290,75 @@
   }
 })();
 
+// ---------------------------------------------------------------------
+// Magnetic scroll -- About / Experience / Skills / Contact.
+// CSS scroll-snap turned out too subtle to notice, so this drives it
+// directly: once scrolling has actually stopped, if that landed within a
+// fairly small distance of a panel's top, it eases the rest of the way
+// there. Scrolling through a tall section's own content is well outside
+// that distance, so it's never interrupted -- this only ever fires right
+// near a boundary you've basically already arrived at.
+// ---------------------------------------------------------------------
+(() => {
+  "use strict";
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var targets = ["about", "experience", "skills", "contact"]
+    .map(function (id) {
+      return document.getElementById(id);
+    })
+    .filter(Boolean);
+  if (!targets.length) return;
+
+  var navEl = document.querySelector(".nav");
+  var THRESHOLD = 120; // px -- how close a stopped scroll has to land to pull
+  var SETTLE_DELAY = 130; // ms of no scroll before checking
+  var RELEASE_DELAY = 600; // ms to let our own smooth-scroll finish
+
+  var settleTimer = null;
+  var releaseTimer = null;
+  var isSnapping = false;
+
+  function navOffset() {
+    return (navEl ? navEl.offsetHeight : 0) + 12;
+  }
+
+  function nearestTargetTop() {
+    var y = window.scrollY;
+    var offset = navOffset();
+    var bestTop = null;
+    var bestDist = Infinity;
+    targets.forEach(function (el) {
+      var top = el.getBoundingClientRect().top + y - offset;
+      var dist = Math.abs(y - top);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestTop = top;
+      }
+    });
+    return { top: bestTop, dist: bestDist };
+  }
+
+  function onScroll() {
+    if (isSnapping) return;
+    window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(function () {
+      var nearest = nearestTargetTop();
+      if (nearest.dist > 6 && nearest.dist < THRESHOLD) {
+        isSnapping = true;
+        window.scrollTo({ top: nearest.top, behavior: "smooth" });
+        window.clearTimeout(releaseTimer);
+        releaseTimer = window.setTimeout(function () {
+          isSnapping = false;
+        }, RELEASE_DELAY);
+      }
+    }, SETTLE_DELAY);
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================================
      ELEMENTS
@@ -314,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return document.getElementById(id);
     })
     .filter(Boolean);
-  const PARALLAX_STRENGTH = 120; // px of drift at full swing -- strong, still readable
+  const PARALLAX_STRENGTH = 70; // px of drift at full swing -- noticeable, not chaotic
 
   const reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
