@@ -73,6 +73,97 @@
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   // ---------------------------------------------------------------------
+  // Hero visual: cycling backend-architecture-paradigm diagrams
+  // ---------------------------------------------------------------------
+  var archCycler = document.querySelector("[data-arch-cycler]");
+  if (archCycler) {
+    var archInfo = {
+      layered: {
+        name: "Layered Architecture",
+        desc: "Requests flow top-down through clean, replaceable layers — each one only knows the layer beneath it.",
+      },
+      hexagonal: {
+        name: "Hexagonal Architecture",
+        desc: "Ports & adapters keep the domain core framework-agnostic — driving adapters call in, driven adapters get called.",
+      },
+      "event-driven": {
+        name: "Event-Driven Architecture",
+        desc: "Services publish events to a bus instead of calling each other directly, so producers and consumers stay decoupled.",
+      },
+      microservices: {
+        name: "Microservices",
+        desc: "Independently deployable services, each owning its own data, talking over the network through a gateway.",
+      },
+    };
+    var archOrder = ["layered", "hexagonal", "event-driven", "microservices"];
+    var archNameEl = archCycler.querySelector("[data-arch-name]");
+    var archDescEl = archCycler.querySelector("[data-arch-desc]");
+    var archHeadEl = archCycler.querySelector(".arch-head");
+    var archPanels = archCycler.querySelectorAll("[data-arch-panel]");
+    var archDots = archCycler.querySelectorAll("[data-arch-target]");
+    var archIndex = 0;
+    var archTimer = null;
+    var archSwitchTimer = null;
+
+    function setArch(key, restartTimer) {
+      var info = archInfo[key];
+      if (!info) return;
+      archIndex = archOrder.indexOf(key);
+
+      archPanels.forEach(function (panel) {
+        panel.classList.toggle(
+          "is-active",
+          panel.getAttribute("data-arch-panel") === key,
+        );
+      });
+      archDots.forEach(function (dot) {
+        var isActive = dot.getAttribute("data-arch-target") === key;
+        dot.classList.toggle("is-active", isActive);
+        dot.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      if (archHeadEl) archHeadEl.classList.add("is-switching");
+      clearTimeout(archSwitchTimer);
+      archSwitchTimer = setTimeout(function () {
+        if (archNameEl) archNameEl.textContent = info.name;
+        if (archDescEl) archDescEl.textContent = info.desc;
+        if (archHeadEl) archHeadEl.classList.remove("is-switching");
+      }, reduceMotion ? 0 : 220);
+
+      if (restartTimer) startArchTimer();
+    }
+
+    function startArchTimer() {
+      clearInterval(archTimer);
+      if (reduceMotion) return;
+      archTimer = setInterval(function () {
+        setArch(archOrder[(archIndex + 1) % archOrder.length], false);
+      }, 5000);
+    }
+
+    archDots.forEach(function (dot) {
+      dot.addEventListener("click", function () {
+        setArch(dot.getAttribute("data-arch-target"), true);
+      });
+    });
+
+    archCycler.addEventListener("pointerenter", function () {
+      clearInterval(archTimer);
+    });
+    archCycler.addEventListener("pointerleave", function () {
+      startArchTimer();
+    });
+    archCycler.addEventListener("focusin", function () {
+      clearInterval(archTimer);
+    });
+    archCycler.addEventListener("focusout", function () {
+      startArchTimer();
+    });
+
+    startArchTimer();
+  }
+
+  // ---------------------------------------------------------------------
   // Close the mobile <details> nav after a link is tapped
   // ---------------------------------------------------------------------
   var navToggle = document.querySelector(".nav-toggle");

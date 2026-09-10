@@ -217,33 +217,206 @@
               </svg>
             </div>
           </div> -->
-          <div class="pipeline" aria-hidden="true">
-            <svg viewBox="-35 0 660 140" preserveAspectRatio="xMidYMid meet">
-              <path class="flow-line"
-                d="M10,70 C60,20 110,120 160,70 C210,20 260,120 310,70 C360,20 410,120 460,70 C500,40 550,70 590,70" />
-              <circle class="pulse" r="4" cx="0" cy="0" />
-              <circle class="pulse p2" r="4" cx="0" cy="0" />
-              <g>
-                <circle class="node-circle" cx="10" cy="70" r="9" />
-                <text class="node-label" x="10" y="98" text-anchor="middle">Client</text>
-              </g>
-              <g>
-                <circle class="node-circle" cx="160" cy="70" r="9" />
-                <text class="node-label" x="160" y="98" text-anchor="middle">API</text>
-              </g>
-              <g>
-                <circle class="node-circle" cx="310" cy="70" r="11" />
-                <text class="node-label" x="310" y="102" text-anchor="middle">Queue</text>
-              </g>
-              <g>
-                <circle class="node-circle" cx="460" cy="70" r="9" />
-                <text class="node-label" x="460" y="98" text-anchor="middle">Service</text>
-              </g>
-              <g>
-                <circle class="node-circle" cx="590" cy="70" r="9" />
-                <text class="node-label" x="590" y="98" text-anchor="middle">Database</text>
-              </g>
-            </svg>
+          <div class="arch-cycler" data-arch-cycler>
+            <div class="arch-head">
+              <p class="arch-eyebrow">// backend architecture paradigms</p>
+              <p class="arch-name" data-arch-name>Layered Architecture</p>
+              <p class="arch-desc" data-arch-desc>
+                Requests flow top-down through clean, replaceable layers —
+                each one only knows the layer beneath it.
+              </p>
+            </div>
+
+            <div class="arch-stage">
+              <!-- ============ LAYERED ============ -->
+              <svg class="arch-diagram is-active" data-arch-panel="layered" viewBox="0 0 600 260"
+                preserveAspectRatio="xMidYMid meet">
+                <path class="arch-line-solid arch-c-cyan" d="M532,33 L532,207" />
+                <circle class="arch-pulse pulse-layered-down" r="4" />
+                <path class="arch-line-dash arch-c-violet" d="M110,207 L110,149" />
+                <circle class="arch-pulse pulse-layered-up" r="4" />
+                <path class="arch-chevron-up arch-c-violet" d="M102,155 l8,-10 l8,10" />
+
+                <g class="arch-band">
+                  <rect class="arch-band-box arch-c-cyan" x="50" y="10" width="500" height="46" rx="8" />
+                  <text class="arch-band-title" x="72" y="30">PRESENTATION</text>
+                  <text class="arch-band-sub" x="72" y="46">REST API · GraphQL · Web UI</text>
+                </g>
+                <g class="arch-band">
+                  <rect class="arch-band-box arch-c-green" x="50" y="68" width="500" height="46" rx="8" />
+                  <text class="arch-band-title" x="72" y="88">APPLICATION</text>
+                  <text class="arch-band-sub" x="72" y="104">Use Cases · Orchestration</text>
+                </g>
+                <g class="arch-band">
+                  <rect class="arch-band-box arch-c-violet" x="50" y="126" width="500" height="46" rx="8" />
+                  <text class="arch-band-title" x="72" y="146">DOMAIN</text>
+                  <text class="arch-band-sub" x="72" y="162">Entities · Business Rules</text>
+                </g>
+                <g class="arch-band">
+                  <rect class="arch-band-box arch-c-magenta" x="50" y="184" width="500" height="46" rx="8" />
+                  <text class="arch-band-title" x="72" y="204">INFRASTRUCTURE</text>
+                  <text class="arch-band-sub" x="72" y="220">DB · Queue · External APIs</text>
+                </g>
+
+                <path class="arch-chevron arch-c-cyan" d="M540,58 l8,8 l8,-8" />
+                <path class="arch-chevron arch-c-cyan" d="M540,116 l8,8 l8,-8" />
+                <path class="arch-chevron arch-c-cyan" d="M540,174 l8,8 l8,-8" />
+              </svg>
+
+              <!-- ============ HEXAGONAL ============ -->
+              <svg class="arch-diagram" data-arch-panel="hexagonal" viewBox="0 0 600 260"
+                preserveAspectRatio="xMidYMid meet">
+                <path class="arch-line-solid arch-c-cyan" d="M300,16 L300,80" />
+                <path class="arch-line-solid arch-c-cyan" d="M203,72 L258,104" />
+                <path class="arch-line-solid arch-c-cyan" d="M203,184 L258,152" />
+                <circle class="arch-pulse pulse-hex-in-1" r="4" />
+                <circle class="arch-pulse pulse-hex-in-2" r="4" />
+                <circle class="arch-pulse pulse-hex-in-3" r="4" />
+
+                <path class="arch-line-solid arch-c-magenta" d="M397,72 L342,104" />
+                <path class="arch-line-solid arch-c-magenta" d="M397,184 L342,152" />
+                <path class="arch-line-solid arch-c-magenta" d="M300,240 L300,176" />
+                <circle class="arch-pulse pulse-hex-out-1" r="4" />
+                <circle class="arch-pulse pulse-hex-out-2" r="4" />
+                <circle class="arch-pulse pulse-hex-out-3" r="4" />
+
+                <polygon class="arch-hex-core"
+                  points="300,80 341.6,104 341.6,152 300,176 258.4,152 258.4,104" />
+                <text class="arch-band-title" x="300" y="124" text-anchor="middle">DOMAIN</text>
+                <text class="arch-band-title" x="300" y="140" text-anchor="middle">CORE</text>
+
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-cyan" cx="300" cy="16" r="16" />
+                  <text class="arch-band-sub" x="300" y="-2" text-anchor="middle">REST API</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-cyan" cx="203" cy="72" r="16" />
+                  <text class="arch-band-sub" x="203" y="50" text-anchor="middle">EXTERNAL API</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-cyan" cx="203" cy="184" r="16" />
+                  <text class="arch-band-sub" x="203" y="230" text-anchor="middle">CLI</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-magenta" cx="397" cy="72" r="16" />
+                  <text class="arch-band-sub" x="397" y="50" text-anchor="middle">MESSAGE QUEUE</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-magenta" cx="397" cy="184" r="16" />
+                  <text class="arch-band-sub" x="397" y="230" text-anchor="middle">CACHE</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-magenta" cx="300" cy="240" r="16" />
+                  <text class="arch-band-sub" x="300" y="258" text-anchor="middle">DATABASE</text>
+                </g>
+              </svg>
+
+              <!-- ============ EVENT-DRIVEN ============ -->
+              <svg class="arch-diagram" data-arch-panel="event-driven" viewBox="0 0 600 260"
+                preserveAspectRatio="xMidYMid meet">
+                <path class="arch-line-solid arch-c-green" d="M90,90 C150,90 170,100 230,102" />
+                <path class="arch-line-solid arch-c-green" d="M90,190 C150,190 170,160 230,158" />
+                <circle class="arch-pulse pulse-evt-in-1" r="4" />
+                <circle class="arch-pulse pulse-evt-in-2" r="4" />
+
+                <path class="arch-line-solid arch-c-magenta" d="M370,100 C440,100 460,50 520,50" />
+                <path class="arch-line-solid arch-c-magenta" d="M370,130 L520,130" />
+                <path class="arch-line-solid arch-c-magenta" d="M370,160 C440,160 460,210 520,210" />
+                <circle class="arch-pulse pulse-evt-out-1" r="4" />
+                <circle class="arch-pulse pulse-evt-out-2" r="4" />
+                <circle class="arch-pulse pulse-evt-out-3" r="4" />
+
+                <circle class="arch-ping" cx="300" cy="130" r="20" />
+                <rect class="arch-bus-box" x="230" y="80" width="140" height="100" rx="10" />
+                <line class="arch-bus-div" x1="260" y1="90" x2="260" y2="170" />
+                <line class="arch-bus-div" x1="300" y1="90" x2="300" y2="170" />
+                <line class="arch-bus-div" x1="340" y1="90" x2="340" y2="170" />
+                <text class="arch-band-title" x="300" y="200" text-anchor="middle">EVENT BUS</text>
+
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-green" cx="70" cy="90" r="18" />
+                  <text class="arch-band-sub" x="70" y="68" text-anchor="middle">ORDER SVC</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-green" cx="70" cy="190" r="18" />
+                  <text class="arch-band-sub" x="70" y="234" text-anchor="middle">PAYMENT SVC</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-magenta" cx="540" cy="50" r="18" />
+                  <text class="arch-band-sub" x="540" y="28" text-anchor="middle">EMAIL SVC</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-magenta" cx="540" cy="130" r="18" />
+                  <text class="arch-band-sub" x="540" y="108" text-anchor="middle">ANALYTICS</text>
+                </g>
+                <g class="arch-port">
+                  <circle class="arch-node-circle arch-c-magenta" cx="540" cy="210" r="18" />
+                  <text class="arch-band-sub" x="540" y="234" text-anchor="middle">INVENTORY</text>
+                </g>
+              </svg>
+
+              <!-- ============ MICROSERVICES ============ -->
+              <svg class="arch-diagram" data-arch-panel="microservices" viewBox="0 0 600 260"
+                preserveAspectRatio="xMidYMid meet">
+                <path class="arch-line-dash arch-c-cyan" d="M300,60 L90,110" />
+                <path class="arch-line-dash arch-c-cyan" d="M300,60 L230,110" />
+                <path class="arch-line-dash arch-c-cyan" d="M300,60 L370,110" />
+                <path class="arch-line-dash arch-c-cyan" d="M300,60 L510,110" />
+                <circle class="arch-pulse pulse-ms-1" r="4" />
+                <circle class="arch-pulse pulse-ms-2" r="4" />
+                <circle class="arch-pulse pulse-ms-3" r="4" />
+                <circle class="arch-pulse pulse-ms-4" r="4" />
+
+                <path class="arch-line-dash arch-c-magenta" d="M285,133 L315,133" />
+                <path class="arch-line-dash arch-c-magenta" d="M230,156 Q370,210 510,156" />
+                <circle class="arch-pulse pulse-ms-mesh-1" r="4" />
+                <circle class="arch-pulse pulse-ms-mesh-2" r="4" />
+
+                <line class="arch-line-solid" x1="90" y1="156" x2="90" y2="192" />
+                <line class="arch-line-solid" x1="230" y1="156" x2="230" y2="192" />
+                <line class="arch-line-solid" x1="370" y1="156" x2="370" y2="192" />
+                <line class="arch-line-solid" x1="510" y1="156" x2="510" y2="192" />
+                <g class="arch-db">
+                  <ellipse class="arch-db-cyl" cx="90" cy="196" rx="26" ry="9" />
+                  <path class="arch-db-cyl-body" d="M64,196 L64,214 A26,9 0 0 0 116,214 L116,196" />
+                </g>
+                <g class="arch-db">
+                  <ellipse class="arch-db-cyl" cx="230" cy="196" rx="26" ry="9" />
+                  <path class="arch-db-cyl-body" d="M204,196 L204,214 A26,9 0 0 0 256,214 L256,196" />
+                </g>
+                <g class="arch-db">
+                  <ellipse class="arch-db-cyl" cx="370" cy="196" rx="26" ry="9" />
+                  <path class="arch-db-cyl-body" d="M344,196 L344,214 A26,9 0 0 0 396,214 L396,196" />
+                </g>
+                <g class="arch-db">
+                  <ellipse class="arch-db-cyl" cx="510" cy="196" rx="26" ry="9" />
+                  <path class="arch-db-cyl-body" d="M484,196 L484,214 A26,9 0 0 0 536,214 L536,196" />
+                </g>
+
+                <rect class="arch-band-box arch-c-violet" x="250" y="20" width="100" height="40" rx="8" />
+                <text class="arch-band-title" x="300" y="45" text-anchor="middle">GATEWAY</text>
+
+                <rect class="arch-band-box arch-c-cyan" x="35" y="110" width="110" height="46" rx="8" />
+                <text class="arch-band-title" x="90" y="138" text-anchor="middle">USER SVC</text>
+                <rect class="arch-band-box arch-c-green" x="175" y="110" width="110" height="46" rx="8" />
+                <text class="arch-band-title" x="230" y="138" text-anchor="middle">ORDER SVC</text>
+                <rect class="arch-band-box arch-c-green" x="315" y="110" width="110" height="46" rx="8" />
+                <text class="arch-band-title" x="370" y="138" text-anchor="middle">INVENTORY</text>
+                <rect class="arch-band-box arch-c-cyan" x="455" y="110" width="110" height="46" rx="8" />
+                <text class="arch-band-title" x="510" y="138" text-anchor="middle">PAYMENT SVC</text>
+              </svg>
+            </div>
+
+            <div class="arch-dots" role="tablist" aria-label="Choose an architecture paradigm" data-arch-dots>
+              <button type="button" class="arch-dot is-active" role="tab" aria-selected="true"
+                data-arch-target="layered">Layered</button>
+              <button type="button" class="arch-dot" role="tab" aria-selected="false"
+                data-arch-target="hexagonal">Hexagonal</button>
+              <button type="button" class="arch-dot" role="tab" aria-selected="false"
+                data-arch-target="event-driven">Event-driven</button>
+              <button type="button" class="arch-dot" role="tab" aria-selected="false"
+                data-arch-target="microservices">Microservices</button>
+            </div>
           </div>
         </div>
       </div>

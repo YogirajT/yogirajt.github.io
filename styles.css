@@ -667,53 +667,218 @@ section {
   box-shadow: 0 0 26px color-mix(in srgb, var(--cyan) 55%, transparent);
 }
 
-/* --- signature element: neon vine / data-flow --- */
-.pipeline {
+/* --- signature element: backend architecture paradigm cycler --- */
+.arch-cycler {
   width: 100%;
+  padding: 1.1rem 1.2rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  box-shadow: var(--shadow);
 }
-.pipeline svg {
-  width: 100%;
-  height: auto;
-  overflow: visible;
+.arch-head {
+  transition: opacity 0.25s ease;
 }
-.pipeline .node-circle {
-  fill: var(--bg-3);
-  stroke: var(--green);
-  stroke-width: 2;
+.arch-head.is-switching {
+  opacity: 0;
 }
-.pipeline .node-label {
+.arch-eyebrow {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.75;
+  margin: 0 0 0.45rem;
+}
+.arch-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: var(--ink);
+  margin: 0 0 0.35rem;
+}
+.arch-desc {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 34rem;
+  min-height: 2.7em;
+}
+
+.arch-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 600 / 260;
+  margin-top: 0.9rem;
+}
+.arch-diagram {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+}
+.arch-diagram.is-active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
+}
+
+/* color helpers: set --c, consumed by the structural rules below */
+.arch-c-cyan {
+  --c: var(--cyan);
+}
+.arch-c-green {
+  --c: var(--green);
+}
+.arch-c-magenta {
+  --c: var(--magenta);
+}
+.arch-c-violet {
+  --c: var(--violet);
+}
+
+.arch-line-solid {
+  fill: none;
+  stroke: var(--c, var(--line));
+  stroke-width: 2;
+  opacity: 0.8;
+}
+.arch-line-dash {
+  fill: none;
+  stroke: var(--c, var(--line));
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  opacity: 0.75;
+  animation: arch-dash-flow 1.4s linear infinite;
+}
+@keyframes arch-dash-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.arch-band-box {
+  fill: color-mix(in srgb, var(--c, var(--green)) 12%, var(--bg-3));
+  stroke: var(--c, var(--green));
+  stroke-width: 2;
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--c, var(--green)) 45%, transparent)
+  );
+}
+.arch-node-circle {
+  fill: var(--bg-3);
+  stroke: var(--c, var(--cyan));
+  stroke-width: 2.5;
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--c, var(--cyan)) 55%, transparent)
+  );
+}
+.arch-hex-core {
+  fill: color-mix(in srgb, var(--violet) 16%, var(--bg-3));
+  stroke: var(--violet);
+  stroke-width: 2.5;
+  filter: drop-shadow(
+    0 0 10px color-mix(in srgb, var(--violet) 45%, transparent)
+  );
+}
+.arch-bus-box {
+  fill: color-mix(in srgb, var(--magenta) 10%, var(--bg-3));
+  stroke: var(--magenta);
+  stroke-width: 2;
+  filter: drop-shadow(
+    0 0 10px color-mix(in srgb, var(--magenta) 40%, transparent)
+  );
+}
+.arch-bus-div {
+  stroke: var(--magenta);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+.arch-db-cyl,
+.arch-db-cyl-body {
+  fill: var(--bg-3);
+  stroke: var(--ink-soft);
+  stroke-width: 1.6;
+  opacity: 0.8;
+}
+
+.arch-band-title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  fill: var(--ink);
+}
+.arch-band-sub {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
   fill: var(--ink-soft);
   text-transform: uppercase;
 }
-.pipeline .flow-line {
-  stroke: var(--line);
-  stroke-width: 2;
+.arch-chevron,
+.arch-chevron-up {
   fill: none;
+  stroke: var(--c, var(--green));
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
 }
-.pipeline .pulse {
-  fill: var(--cyan);
-  filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path(
-    "M10,70 C60,20 110,120 160,70 C210,20 260,120 310,70 C360,20 410,120 460,70 C500,40 550,70 590,70"
-  );
-  animation: travel 4s linear infinite;
+
+.arch-ping {
+  fill: none;
+  stroke: var(--magenta);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: arch-ping 2.6s ease-out infinite;
 }
-.pipeline .pulse.p2 {
-  animation-delay: 2s;
-  opacity: 0.6;
+@keyframes arch-ping {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
 }
-@keyframes travel {
+
+/* pulses travel along a fixed motion path; each variant just points to its
+   own path + color, timing is staggered per instance for a fan-out feel */
+.arch-pulse {
+  opacity: 0;
+  animation: arch-travel linear infinite;
+  animation-play-state: paused;
+}
+.arch-diagram.is-active .arch-pulse,
+.arch-diagram.is-active .arch-ping,
+.arch-diagram.is-active .arch-line-dash {
+  animation-play-state: running;
+}
+.arch-diagram:not(.is-active) .arch-line-dash {
+  animation-play-state: paused;
+}
+@keyframes arch-travel {
   0% {
     offset-distance: 0%;
     opacity: 0;
   }
-  6% {
+  8% {
     opacity: 1;
   }
-  92% {
+  90% {
     opacity: 1;
   }
   100% {
@@ -721,9 +886,187 @@ section {
     opacity: 0;
   }
 }
+
+.pulse-layered-down {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M532,33 L532,207");
+  animation-duration: 2.4s;
+}
+.pulse-layered-up {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M110,207 L110,149");
+  animation-duration: 2s;
+  animation-delay: 0.6s;
+}
+.pulse-hex-in-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,16 L300,80");
+  animation-duration: 2.2s;
+}
+.pulse-hex-in-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M203,72 L258,104");
+  animation-duration: 2.2s;
+  animation-delay: 0.5s;
+}
+.pulse-hex-in-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M203,184 L258,152");
+  animation-duration: 2.2s;
+  animation-delay: 1s;
+}
+.pulse-hex-out-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M397,72 L342,104");
+  animation-duration: 2.2s;
+  animation-delay: 0.3s;
+}
+.pulse-hex-out-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M397,184 L342,152");
+  animation-duration: 2.2s;
+  animation-delay: 0.8s;
+}
+.pulse-hex-out-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M300,240 L300,176");
+  animation-duration: 2.2s;
+  animation-delay: 1.3s;
+}
+.pulse-evt-in-1 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M90,90 C150,90 170,100 230,102");
+  animation-duration: 2.6s;
+}
+.pulse-evt-in-2 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M90,190 C150,190 170,160 230,158");
+  animation-duration: 2.6s;
+  animation-delay: 1.3s;
+}
+.pulse-evt-out-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M370,100 C440,100 460,50 520,50");
+  animation-duration: 2.2s;
+  animation-delay: 0.2s;
+}
+.pulse-evt-out-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M370,130 L520,130");
+  animation-duration: 2.2s;
+  animation-delay: 0.5s;
+}
+.pulse-evt-out-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M370,160 C440,160 460,210 520,210");
+  animation-duration: 2.2s;
+  animation-delay: 0.8s;
+}
+.pulse-ms-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L90,110");
+  animation-duration: 2s;
+}
+.pulse-ms-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L230,110");
+  animation-duration: 2s;
+  animation-delay: 0.3s;
+}
+.pulse-ms-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L370,110");
+  animation-duration: 2s;
+  animation-delay: 0.6s;
+}
+.pulse-ms-4 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L510,110");
+  animation-duration: 2s;
+  animation-delay: 0.9s;
+}
+.pulse-ms-mesh-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M285,133 L315,133");
+  animation-duration: 1.4s;
+}
+.pulse-ms-mesh-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M230,156 Q370,210 510,156");
+  animation-duration: 2.6s;
+  animation-delay: 0.7s;
+}
+
+.arch-dots {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.arch-dot {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.arch-dot:hover {
+  color: var(--ink);
+  border-color: var(--cyan);
+  transform: translateY(-1px);
+}
+.arch-dot.is-active {
+  background: var(--cyan);
+  color: #041018;
+  border-color: var(--cyan);
+  box-shadow: var(--glow-cyan);
+}
+.arch-dot:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pipeline .pulse {
-    animation: none;
+  .arch-diagram {
+    transition: none;
+  }
+  .arch-head {
+    transition: none;
+  }
+  .arch-pulse,
+  .arch-ping,
+  .arch-line-dash {
+    animation: none !important;
     opacity: 0;
   }
 }
