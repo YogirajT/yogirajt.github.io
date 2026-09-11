@@ -670,41 +670,6 @@ section {
 /* --- signature element: backend architecture paradigm cycler --- */
 .arch-cycler {
   width: 100%;
-  padding: 1.1rem 1.2rem 1.3rem;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--card) 88%, transparent);
-  box-shadow: var(--shadow);
-}
-.arch-head {
-  transition: opacity 0.25s ease;
-}
-.arch-head.is-switching {
-  opacity: 0;
-}
-.arch-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  opacity: 0.75;
-  margin: 0 0 0.45rem;
-}
-.arch-name {
-  font-family: var(--font-display);
-  font-size: clamp(1.05rem, 2vw, 1.3rem);
-  color: var(--ink);
-  margin: 0 0 0.35rem;
-}
-.arch-desc {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--ink-soft);
-  margin: 0;
-  max-width: 34rem;
-  min-height: 2.7em;
 }
 
 .arch-stage {
@@ -814,6 +779,10 @@ section {
   font-size: 13px;
   letter-spacing: 0.04em;
   fill: var(--ink);
+}
+.arch-band-title-sm {
+  font-size: 10px;
+  letter-spacing: 0.03em;
 }
 .arch-band-sub {
   font-family: var(--font-mono);
@@ -1016,56 +985,370 @@ section {
   animation-delay: 0.7s;
 }
 
-.arch-dots {
-  margin-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
+.pulse-cqrs-cmd-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M72,118 C110,95 130,75 160,62");
+  animation-duration: 2.2s;
 }
-.arch-dot {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.02em;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--ink-soft);
-  border: 1px solid var(--line);
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.15s ease;
+.pulse-cqrs-cmd-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M310,60 L428,60");
+  animation-duration: 1.6s;
+  animation-delay: 0.6s;
 }
-.arch-dot:hover {
-  color: var(--ink);
-  border-color: var(--cyan);
-  transform: translateY(-1px);
+.pulse-cqrs-qry-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M72,142 C110,165 130,185 160,198");
+  animation-duration: 2.2s;
+  animation-delay: 0.3s;
 }
-.arch-dot.is-active {
-  background: var(--cyan);
-  color: #041018;
-  border-color: var(--cyan);
-  box-shadow: var(--glow-cyan);
+.pulse-cqrs-qry-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M310,200 L428,200");
+  animation-duration: 1.6s;
+  animation-delay: 0.9s;
 }
-.arch-dot:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 2px;
+.pulse-cqrs-proj {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M452,74 C452,130 320,148 238,176");
+  animation-duration: 3s;
+  animation-delay: 0.4s;
+}
+
+.pulse-pf-through {
+  fill: var(--ink);
+  filter: drop-shadow(0 0 8px var(--cyan));
+  offset-path: path("M15,135 L555,135");
+  animation-duration: 4.6s;
+}
+.pulse-pf-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M115,135 L142,135");
+  animation-duration: 1.2s;
+}
+.pulse-pf-2 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M232,135 L259,135");
+  animation-duration: 1.2s;
+  animation-delay: 0.5s;
+}
+.pulse-pf-3 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M349,135 L376,135");
+  animation-duration: 1.2s;
+  animation-delay: 1s;
+}
+.pulse-pf-4 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M466,135 L500,135");
+  animation-duration: 1.2s;
+  animation-delay: 1.5s;
+}
+
+.pulse-mesh-cp-1 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,51 L160,110");
+  animation-duration: 3.2s;
+}
+.pulse-mesh-cp-2 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,51 L350,110");
+  animation-duration: 3.2s;
+  animation-delay: 1s;
+}
+.pulse-mesh-cp-3 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,51 L540,110");
+  animation-duration: 3.2s;
+  animation-delay: 2s;
+}
+.pulse-mesh-ab {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M160,110 L350,110");
+  animation-duration: 1.6s;
+}
+.pulse-mesh-bc {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M350,110 L540,110");
+  animation-duration: 1.6s;
+  animation-delay: 0.5s;
+}
+
+.arch-c-muted {
+  --c: var(--line);
+}
+
+.pulse-actor-ab {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M115,65 C185,65 225,95 300,130");
+  animation-duration: 2.4s;
+}
+.pulse-actor-cb {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M115,195 C185,195 225,160 300,130");
+  animation-duration: 2.4s;
+  animation-delay: 0.8s;
+}
+.pulse-actor-bd {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M300,130 L485,130");
+  animation-duration: 1.6s;
+  animation-delay: 1.6s;
+}
+
+.pulse-p2p-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,37 L390.4,102.6");
+  animation-duration: 1.8s;
+}
+.pulse-p2p-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M355.8,208.9 L244.2,208.9");
+  animation-duration: 1.8s;
+  animation-delay: 0.6s;
+}
+.pulse-p2p-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M300,37 L355.8,208.9");
+  animation-duration: 2.6s;
+  animation-delay: 0.3s;
+}
+.pulse-p2p-4 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M390.4,102.6 L244.2,208.9");
+  animation-duration: 2.6s;
+  animation-delay: 1.4s;
+}
+
+.pulse-saga-fwd-1 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M140,98 L180,98");
+  animation-duration: 1.2s;
+}
+.pulse-saga-fwd-2 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M280,98 L320,98");
+  animation-duration: 1.2s;
+  animation-delay: 0.4s;
+}
+.pulse-saga-fwd-3 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M420,98 L460,98");
+  animation-duration: 1.2s;
+  animation-delay: 0.8s;
+}
+.pulse-saga-rev-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M180,128 L140,128");
+  animation-duration: 1.2s;
+  animation-delay: 2.4s;
+}
+.pulse-saga-rev-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M320,128 L280,128");
+  animation-duration: 1.2s;
+  animation-delay: 2s;
+}
+.pulse-saga-rev-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M460,128 L420,128");
+  animation-duration: 1.2s;
+  animation-delay: 1.6s;
+}
+
+.pulse-mw-out-1 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L90,140");
+  animation-duration: 1.8s;
+}
+.pulse-mw-out-2 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L230,140");
+  animation-duration: 1.8s;
+  animation-delay: 0.3s;
+}
+.pulse-mw-out-3 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L370,140");
+  animation-duration: 1.8s;
+  animation-delay: 0.6s;
+}
+.pulse-mw-out-4 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L510,140");
+  animation-duration: 1.8s;
+  animation-delay: 0.9s;
+}
+.pulse-mw-in-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M90,140 Q150,100 260,60");
+  animation-duration: 1.8s;
+  animation-delay: 0.9s;
+}
+.pulse-mw-in-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M230,140 Q250,100 280,60");
+  animation-duration: 1.8s;
+  animation-delay: 1.2s;
+}
+.pulse-mw-in-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M370,140 Q350,100 320,60");
+  animation-duration: 1.8s;
+  animation-delay: 1.5s;
+}
+.pulse-mw-in-4 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M510,140 Q430,100 340,60");
+  animation-duration: 1.8s;
+  animation-delay: 1.8s;
+}
+
+.arch-fn-box {
+  fill: color-mix(in srgb, var(--cyan) 10%, var(--bg-3));
+  stroke: var(--cyan);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.15;
+  animation: arch-fn-spawn 3.9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+text.arch-fn-1,
+text.arch-fn-2,
+text.arch-fn-3 {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.15;
+  animation: arch-fn-spawn 3.9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.arch-diagram.is-active .arch-fn-box,
+.arch-diagram.is-active text.arch-fn-1,
+.arch-diagram.is-active text.arch-fn-2,
+.arch-diagram.is-active text.arch-fn-3 {
+  animation-play-state: running;
+}
+.arch-fn-1 {
+  animation-delay: 0s;
+}
+.arch-fn-2 {
+  animation-delay: 1.3s;
+}
+.arch-fn-3 {
+  animation-delay: 2.6s;
+}
+@keyframes arch-fn-spawn {
+  0% {
+    opacity: 0.15;
+    transform: scale(0.92);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.15;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(0.92);
+  }
+}
+
+.pulse-fn-trigger-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M92,130 L250,130");
+  animation-duration: 1.6s;
+}
+.pulse-fn-trigger-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M92,130 L370,130");
+  animation-duration: 2s;
+  animation-delay: 1.3s;
+}
+.pulse-fn-trigger-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M92,130 L490,130");
+  animation-duration: 2.4s;
+  animation-delay: 2.6s;
+}
+
+.pulse-ap-traffic-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,50 L150,110");
+  animation-duration: 1.6s;
+}
+.pulse-ap-traffic-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,50 L150,110");
+  animation-duration: 1.6s;
+  animation-delay: 0.8s;
+}
+.pulse-ap-sync {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M240,145 L360,145");
+  animation-duration: 2.4s;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .arch-diagram {
     transition: none;
   }
-  .arch-head {
-    transition: none;
-  }
   .arch-pulse,
   .arch-ping,
-  .arch-line-dash {
+  .arch-line-dash,
+  .arch-fn-box,
+  text.arch-fn-1,
+  text.arch-fn-2,
+  text.arch-fn-3 {
     animation: none !important;
     opacity: 0;
   }
