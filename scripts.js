@@ -93,6 +93,7 @@
       "active-passive",
     ];
     var archPanels = archCycler.querySelectorAll("[data-arch-panel]");
+    var archDots = archCycler.querySelectorAll("[data-arch-target]");
     var archIndex = 0;
     var archTimer = null;
 
@@ -104,6 +105,11 @@
           panel.getAttribute("data-arch-panel") === key,
         );
       });
+      archDots.forEach(function (dot) {
+        var isActive = dot.getAttribute("data-arch-target") === key;
+        dot.classList.toggle("is-active", isActive);
+        dot.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
     }
 
     function startArchTimer() {
@@ -111,13 +117,26 @@
       if (reduceMotion) return;
       archTimer = setInterval(function () {
         setArch(archOrder[(archIndex + 1) % archOrder.length]);
-      }, 4500);
+      }, 5200);
     }
+
+    archDots.forEach(function (dot) {
+      dot.addEventListener("click", function () {
+        setArch(dot.getAttribute("data-arch-target"));
+        startArchTimer();
+      });
+    });
 
     archCycler.addEventListener("pointerenter", function () {
       clearInterval(archTimer);
     });
     archCycler.addEventListener("pointerleave", function () {
+      startArchTimer();
+    });
+    archCycler.addEventListener("focusin", function () {
+      clearInterval(archTimer);
+    });
+    archCycler.addEventListener("focusout", function () {
       startArchTimer();
     });
 

@@ -671,6 +671,53 @@ section {
 .arch-cycler {
   width: 100%;
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.arch-dots {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+}
+.arch-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  border: none;
+  opacity: 0.35;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.arch-dot:hover {
+  opacity: 0.7;
+}
+.arch-dot.is-active {
+  background: var(--cyan);
+  opacity: 1;
+  transform: scale(1.35);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--cyan) 70%, transparent);
+}
+.arch-dot:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
 
 .arch-stage {
   position: relative;
@@ -685,12 +732,15 @@ section {
   height: 100%;
   overflow: visible;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.5s ease;
+  transform: scale(0.985);
+  pointer-events: none;
+  transition:
+    opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .arch-diagram.is-active {
   opacity: 1;
-  visibility: visible;
+  transform: scale(1);
   z-index: 2;
 }
 
@@ -767,10 +817,13 @@ section {
 }
 .arch-db-cyl,
 .arch-db-cyl-body {
-  fill: var(--bg-3);
-  stroke: var(--ink-soft);
-  stroke-width: 1.6;
-  opacity: 0.8;
+  fill: color-mix(in srgb, var(--c, var(--ink-soft)) 10%, var(--bg-3));
+  stroke: var(--c, var(--ink-soft));
+  stroke-width: 1.8;
+  opacity: 0.9;
+  filter: drop-shadow(
+    0 0 5px color-mix(in srgb, var(--c, var(--ink-soft)) 40%, transparent)
+  );
 }
 
 .arch-band-title {
