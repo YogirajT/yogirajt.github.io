@@ -684,10 +684,10 @@ section {
 }
 
 .arch-dots {
-  margin-top: 0.9rem;
+  margin-top: 1.5rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 1rem;
   justify-content: center;
 }
 .arch-dot {
@@ -706,11 +706,11 @@ section {
     background-color 0.2s ease,
     box-shadow 0.2s ease;
 }
-/* enlarge the tap/click target well beyond the visible dot */
+
 .arch-dot::before {
   content: "";
   position: absolute;
-  inset: -10px;
+  inset: -8px;
 }
 .arch-dot:hover {
   opacity: 0.75;
@@ -2213,6 +2213,32 @@ text.arch-fn-3 {
   filter: blur(calc(var(--hero-progress, 0) * var(--hero-progress, 0) * 10px));
   transform-origin: center top;
   will-change: transform, filter;
+}
+
+/* Start the blur much later on mobile */
+@media (max-width: 900px) {
+  #top {
+    --hero-progress-effective: max(
+      0,
+      calc((var(--hero-progress, 0) - 0.8) * 5)
+    );
+    opacity: calc(1 - (var(--hero-progress-effective, 0) * 0.92));
+  }
+
+  #top > .wrap {
+    transform: translate3d(
+        0,
+        calc(var(--hero-progress-effective, 0) * -60px),
+        0
+      )
+      scale(calc(1 - (var(--hero-progress-effective, 0) * 0.08)));
+    filter: blur(
+      calc(
+        var(--hero-progress-effective, 0) * var(--hero-progress-effective, 0) *
+          10px
+      )
+    );
+  }
 }
 
 /* The next section physically rises into the scene. */
