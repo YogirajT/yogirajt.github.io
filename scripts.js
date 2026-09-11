@@ -96,6 +96,8 @@
     var archDots = archCycler.querySelectorAll("[data-arch-target]");
     var archIndex = 0;
     var archTimer = null;
+    var archHovered = false;
+    var archInView = true;
 
     function setArch(key) {
       archIndex = archOrder.indexOf(key);
@@ -112,35 +114,54 @@
       });
     }
 
-    function startArchTimer() {
+    function refreshArchTimer() {
       clearInterval(archTimer);
-      if (reduceMotion) return;
+      if (reduceMotion || archHovered || !archInView) return;
+      // give mobile viewers (who glance at it mid-scroll) more time per diagram
+      var delay = window.innerWidth <= 700 ? 7500 : 5200;
       archTimer = setInterval(function () {
         setArch(archOrder[(archIndex + 1) % archOrder.length]);
-      }, 5200);
+      }, delay);
     }
 
     archDots.forEach(function (dot) {
       dot.addEventListener("click", function () {
         setArch(dot.getAttribute("data-arch-target"));
-        startArchTimer();
+        refreshArchTimer();
       });
     });
 
     archCycler.addEventListener("pointerenter", function () {
-      clearInterval(archTimer);
+      archHovered = true;
+      refreshArchTimer();
     });
     archCycler.addEventListener("pointerleave", function () {
-      startArchTimer();
+      archHovered = false;
+      refreshArchTimer();
     });
     archCycler.addEventListener("focusin", function () {
-      clearInterval(archTimer);
+      archHovered = true;
+      refreshArchTimer();
     });
     archCycler.addEventListener("focusout", function () {
-      startArchTimer();
+      archHovered = false;
+      refreshArchTimer();
     });
 
-    startArchTimer();
+    // pause entirely while scrolled out of view, so mobile viewers always
+    // see a fresh diagram (not a mid-fade one) when it scrolls back on screen
+    if ("IntersectionObserver" in window) {
+      var archObserver = new IntersectionObserver(
+        function (entries) {
+          archInView = entries[0].isIntersecting;
+          refreshArchTimer();
+        },
+        { threshold: 0.2 },
+      );
+      archObserver.observe(archCycler);
+    }
+
+    refreshArchTimer();
   }
 
   // ---------------------------------------------------------------------

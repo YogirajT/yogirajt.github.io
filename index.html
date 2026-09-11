@@ -222,11 +222,24 @@
               <!-- ============ LAYERED ============ -->
               <svg class="arch-diagram is-active" data-arch-panel="layered" viewBox="0 0 600 260"
                 preserveAspectRatio="xMidYMid meet">
-                <path class="arch-line-solid arch-c-cyan" d="M576,33 L576,207" />
+                <defs>
+                  <marker id="arch-arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6"
+                    markerHeight="6" orient="auto-start-reverse">
+                    <path class="arch-marker-cyan" d="M0,0 L10,5 L0,10 Z" />
+                  </marker>
+                  <marker id="arch-arrow-violet" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6"
+                    markerHeight="6" orient="auto-start-reverse">
+                    <path class="arch-marker-violet" d="M0,0 L10,5 L0,10 Z" />
+                  </marker>
+                </defs>
+
+                <text class="arch-band-sub" x="576" y="19" text-anchor="middle">CALLS</text>
+                <path class="arch-line-solid arch-c-cyan" d="M576,30 L576,207" marker-end="url(#arch-arrow-cyan)" />
                 <circle class="arch-pulse pulse-layered-down" r="4" />
-                <path class="arch-line-dash arch-c-violet" d="M24,207 L24,149" />
+
+                <text class="arch-band-sub" x="24" y="228" text-anchor="middle">IMPLEMENTS</text>
+                <path class="arch-line-dash arch-c-violet" d="M24,210 L24,152" marker-end="url(#arch-arrow-violet)" />
                 <circle class="arch-pulse pulse-layered-up" r="4" />
-                <path class="arch-chevron-up arch-c-violet" d="M16,155 l8,-10 l8,10" />
 
                 <g class="arch-band">
                   <rect class="arch-band-box arch-c-cyan" x="50" y="10" width="500" height="46" rx="8" />
@@ -248,10 +261,6 @@
                   <text class="arch-band-title" x="72" y="204">INFRASTRUCTURE</text>
                   <text class="arch-band-sub" x="72" y="220">DB · Queue · External APIs</text>
                 </g>
-
-                <path class="arch-chevron arch-c-cyan" d="M568,58 l8,8 l8,-8" />
-                <path class="arch-chevron arch-c-cyan" d="M568,116 l8,8 l8,-8" />
-                <path class="arch-chevron arch-c-cyan" d="M568,174 l8,8 l8,-8" />
               </svg>
 
               <!-- ============ HEXAGONAL ============ -->
@@ -410,7 +419,7 @@
                 <path class="arch-line-solid arch-c-magenta" d="M310,200 L428,200" />
                 <circle class="arch-pulse pulse-cqrs-qry-2" r="4" />
 
-                <path class="arch-line-dash arch-c-violet" d="M452,74 C452,130 320,148 238,176" />
+                <path class="arch-line-dash arch-c-violet" d="M428,72 C390,95 330,135 238,176" />
                 <circle class="arch-pulse pulse-cqrs-proj" r="4" />
 
                 <circle class="arch-node-circle" cx="50" cy="130" r="22" />

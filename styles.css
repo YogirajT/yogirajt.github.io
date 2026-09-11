@@ -687,17 +687,18 @@ section {
   margin-top: 0.9rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 10px;
   justify-content: center;
 }
 .arch-dot {
-  width: 7px;
-  height: 7px;
+  position: relative;
+  width: 11px;
+  height: 11px;
   padding: 0;
   border-radius: 50%;
   background: var(--ink-soft);
   border: none;
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: pointer;
   transition:
     opacity 0.2s ease,
@@ -705,14 +706,21 @@ section {
     background-color 0.2s ease,
     box-shadow 0.2s ease;
 }
+/* enlarge the tap/click target well beyond the visible dot */
+.arch-dot::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
 .arch-dot:hover {
-  opacity: 0.7;
+  opacity: 0.75;
+  transform: scale(1.15);
 }
 .arch-dot.is-active {
   background: var(--cyan);
   opacity: 1;
-  transform: scale(1.35);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--cyan) 70%, transparent);
+  transform: scale(1.6);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--cyan) 75%, transparent);
 }
 .arch-dot:focus-visible {
   outline: 2px solid var(--cyan);
@@ -844,15 +852,6 @@ section {
   fill: var(--ink-soft);
   text-transform: uppercase;
 }
-.arch-chevron,
-.arch-chevron-up {
-  fill: none;
-  stroke: var(--c, var(--green));
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.85;
-}
 
 .arch-ping {
   fill: none;
@@ -911,16 +910,22 @@ section {
 
 .pulse-layered-down {
   fill: var(--cyan);
-  filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path("M532,33 L532,207");
+  filter: drop-shadow(0 0 10px var(--cyan));
+  offset-path: path("M576,30 L576,207");
   animation-duration: 2.4s;
 }
 .pulse-layered-up {
   fill: var(--violet);
-  filter: drop-shadow(0 0 6px var(--violet));
-  offset-path: path("M110,207 L110,149");
+  filter: drop-shadow(0 0 10px var(--violet));
+  offset-path: path("M24,210 L24,152");
   animation-duration: 2s;
   animation-delay: 0.6s;
+}
+.arch-marker-cyan {
+  fill: var(--cyan);
+}
+.arch-marker-violet {
+  fill: var(--violet);
 }
 .pulse-hex-in-1 {
   fill: var(--cyan);
@@ -966,34 +971,34 @@ section {
 .pulse-evt-in-1 {
   fill: var(--green);
   filter: drop-shadow(0 0 6px var(--green));
-  offset-path: path("M90,90 C150,90 170,100 230,102");
+  offset-path: path("M70,90 C140,90 170,100 230,102");
   animation-duration: 2.6s;
 }
 .pulse-evt-in-2 {
   fill: var(--green);
   filter: drop-shadow(0 0 6px var(--green));
-  offset-path: path("M90,190 C150,190 170,160 230,158");
+  offset-path: path("M70,190 C140,190 170,160 230,158");
   animation-duration: 2.6s;
   animation-delay: 1.3s;
 }
 .pulse-evt-out-1 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M370,100 C440,100 460,50 520,50");
+  offset-path: path("M370,100 C450,100 470,50 540,50");
   animation-duration: 2.2s;
   animation-delay: 0.2s;
 }
 .pulse-evt-out-2 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M370,130 L520,130");
+  offset-path: path("M370,130 L540,130");
   animation-duration: 2.2s;
   animation-delay: 0.5s;
 }
 .pulse-evt-out-3 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M370,160 C440,160 460,210 520,210");
+  offset-path: path("M370,160 C450,160 470,210 540,210");
   animation-duration: 2.2s;
   animation-delay: 0.8s;
 }
@@ -1041,7 +1046,7 @@ section {
 .pulse-cqrs-cmd-1 {
   fill: var(--cyan);
   filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path("M72,118 C110,95 130,75 160,62");
+  offset-path: path("M50,130 C90,105 125,80 160,62");
   animation-duration: 2.2s;
 }
 .pulse-cqrs-cmd-2 {
@@ -1054,7 +1059,7 @@ section {
 .pulse-cqrs-qry-1 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M72,142 C110,165 130,185 160,198");
+  offset-path: path("M50,130 C90,155 125,180 160,198");
   animation-duration: 2.2s;
   animation-delay: 0.3s;
 }
@@ -1068,7 +1073,7 @@ section {
 .pulse-cqrs-proj {
   fill: var(--violet);
   filter: drop-shadow(0 0 6px var(--violet));
-  offset-path: path("M452,74 C452,130 320,148 238,176");
+  offset-path: path("M428,72 C390,95 330,135 238,176");
   animation-duration: 3s;
   animation-delay: 0.4s;
 }
