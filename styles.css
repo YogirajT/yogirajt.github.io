@@ -684,10 +684,10 @@ section {
 }
 
 .arch-dots {
-  margin-top: 1.5rem;
+  margin-top: 0.9rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 10px;
   justify-content: center;
 }
 .arch-dot {
@@ -706,11 +706,11 @@ section {
     background-color 0.2s ease,
     box-shadow 0.2s ease;
 }
-
+/* enlarge the tap/click target well beyond the visible dot */
 .arch-dot::before {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: -10px;
 }
 .arch-dot:hover {
   opacity: 0.75;
@@ -930,41 +930,41 @@ section {
 .pulse-hex-in-1 {
   fill: var(--cyan);
   filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path("M300,16 L300,80");
+  offset-path: path("M300,46 L300,82");
   animation-duration: 2.2s;
 }
 .pulse-hex-in-2 {
   fill: var(--cyan);
   filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path("M203,72 L258,104");
+  offset-path: path("M227.3,88 L258.4,106");
   animation-duration: 2.2s;
   animation-delay: 0.5s;
 }
 .pulse-hex-in-3 {
   fill: var(--cyan);
   filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path("M203,184 L258,152");
+  offset-path: path("M227.3,172 L258.4,154");
   animation-duration: 2.2s;
   animation-delay: 1s;
 }
 .pulse-hex-out-1 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M397,72 L342,104");
+  offset-path: path("M372.7,88 L341.6,106");
   animation-duration: 2.2s;
   animation-delay: 0.3s;
 }
 .pulse-hex-out-2 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M397,184 L342,152");
+  offset-path: path("M372.7,172 L341.6,154");
   animation-duration: 2.2s;
   animation-delay: 0.8s;
 }
 .pulse-hex-out-3 {
   fill: var(--magenta);
   filter: drop-shadow(0 0 6px var(--magenta));
-  offset-path: path("M300,240 L300,176");
+  offset-path: path("M300,214 L300,178");
   animation-duration: 2.2s;
   animation-delay: 1.3s;
 }
@@ -2215,7 +2215,12 @@ text.arch-fn-3 {
   will-change: transform, filter;
 }
 
-/* Start the blur much later on mobile */
+/* On mobile #top is much taller (hero-visual stacks below the hero copy,
+   with the diagram cycler at the very bottom of it), so raw --hero-progress
+   reaches high values while the diagrams are still scrolling into view.
+   Remap it here so only the last 20% of that scroll range (once the
+   section is actually leaving) drives the fade/lift/blur; the first 80%
+   is a no-op. Matches the single-column breakpoint above. */
 @media (max-width: 900px) {
   #top {
     --hero-progress-effective: max(
