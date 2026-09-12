@@ -667,53 +667,239 @@ section {
   box-shadow: 0 0 26px color-mix(in srgb, var(--cyan) 55%, transparent);
 }
 
-/* --- signature element: neon vine / data-flow --- */
-.pipeline {
+/* --- signature element: backend architecture paradigm cycler --- */
+.arch-cycler {
   width: 100%;
 }
-.pipeline svg {
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.arch-dots {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.arch-dot {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  border: none;
+  opacity: 0.4;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+/* enlarge the tap/click target well beyond the visible dot */
+.arch-dot::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
+.arch-dot:hover {
+  opacity: 0.75;
+  transform: scale(1.15);
+}
+.arch-dot.is-active {
+  background: var(--cyan);
+  opacity: 1;
+  transform: scale(1.6);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--cyan) 75%, transparent);
+}
+.arch-dot:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.arch-stage {
+  position: relative;
   width: 100%;
-  height: auto;
+  aspect-ratio: 600 / 260;
+  margin-top: 0.9rem;
+}
+.arch-diagram {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
+  opacity: 0;
+  transform: scale(0.985);
+  pointer-events: none;
+  transition:
+    opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.pipeline .node-circle {
-  fill: var(--bg-3);
-  stroke: var(--green);
+.arch-diagram.is-active {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 2;
+}
+
+/* color helpers: set --c, consumed by the structural rules below */
+.arch-c-cyan {
+  --c: var(--cyan);
+}
+.arch-c-green {
+  --c: var(--green);
+}
+.arch-c-magenta {
+  --c: var(--magenta);
+}
+.arch-c-violet {
+  --c: var(--violet);
+}
+
+.arch-line-solid {
+  fill: none;
+  stroke: var(--c, var(--line));
   stroke-width: 2;
+  opacity: 0.8;
 }
-.pipeline .node-label {
+.arch-line-dash {
+  fill: none;
+  stroke: var(--c, var(--line));
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  opacity: 0.75;
+  animation: arch-dash-flow 1.4s linear infinite;
+}
+@keyframes arch-dash-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.arch-band-box {
+  fill: color-mix(in srgb, var(--c, var(--green)) 12%, var(--bg-3));
+  stroke: var(--c, var(--green));
+  stroke-width: 2;
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--c, var(--green)) 45%, transparent)
+  );
+}
+.arch-node-circle {
+  fill: var(--bg-3);
+  stroke: var(--c, var(--cyan));
+  stroke-width: 2.5;
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--c, var(--cyan)) 55%, transparent)
+  );
+}
+.arch-hex-core {
+  fill: color-mix(in srgb, var(--violet) 16%, var(--bg-3));
+  stroke: var(--violet);
+  stroke-width: 2.5;
+  filter: drop-shadow(
+    0 0 10px color-mix(in srgb, var(--violet) 45%, transparent)
+  );
+}
+.arch-bus-box {
+  fill: color-mix(in srgb, var(--magenta) 10%, var(--bg-3));
+  stroke: var(--magenta);
+  stroke-width: 2;
+  filter: drop-shadow(
+    0 0 10px color-mix(in srgb, var(--magenta) 40%, transparent)
+  );
+}
+.arch-bus-div {
+  stroke: var(--magenta);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+.arch-db-cyl,
+.arch-db-cyl-body {
+  fill: color-mix(in srgb, var(--c, var(--ink-soft)) 10%, var(--bg-3));
+  stroke: var(--c, var(--ink-soft));
+  stroke-width: 1.8;
+  opacity: 0.9;
+  filter: drop-shadow(
+    0 0 5px color-mix(in srgb, var(--c, var(--ink-soft)) 40%, transparent)
+  );
+}
+
+.arch-band-title {
   font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  fill: var(--ink);
+}
+.arch-band-title-sm {
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
+}
+.arch-band-sub {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
   fill: var(--ink-soft);
   text-transform: uppercase;
 }
-.pipeline .flow-line {
-  stroke: var(--line);
-  stroke-width: 2;
+
+.arch-ping {
   fill: none;
+  stroke: var(--magenta);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: arch-ping 2.6s ease-out infinite;
 }
-.pipeline .pulse {
-  fill: var(--cyan);
-  filter: drop-shadow(0 0 6px var(--cyan));
-  offset-path: path(
-    "M10,70 C60,20 110,120 160,70 C210,20 260,120 310,70 C360,20 410,120 460,70 C500,40 550,70 590,70"
-  );
-  animation: travel 4s linear infinite;
+@keyframes arch-ping {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
 }
-.pipeline .pulse.p2 {
-  animation-delay: 2s;
-  opacity: 0.6;
+
+/* pulses travel along a fixed motion path; each variant just points to its
+   own path + color, timing is staggered per instance for a fan-out feel */
+.arch-pulse {
+  opacity: 0;
+  animation: arch-travel linear infinite;
+  animation-play-state: paused;
 }
-@keyframes travel {
+.arch-diagram.is-active .arch-pulse,
+.arch-diagram.is-active .arch-ping,
+.arch-diagram.is-active .arch-line-dash {
+  animation-play-state: running;
+}
+.arch-diagram:not(.is-active) .arch-line-dash {
+  animation-play-state: paused;
+}
+@keyframes arch-travel {
   0% {
     offset-distance: 0%;
     opacity: 0;
   }
-  6% {
+  8% {
     opacity: 1;
   }
-  92% {
+  90% {
     opacity: 1;
   }
   100% {
@@ -721,9 +907,507 @@ section {
     opacity: 0;
   }
 }
+
+.pulse-layered-down {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 10px var(--cyan));
+  offset-path: path("M576,30 L576,207");
+  animation-duration: 2.4s;
+}
+.pulse-layered-up {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 10px var(--violet));
+  offset-path: path("M24,210 L24,152");
+  animation-duration: 2s;
+  animation-delay: 0.6s;
+}
+.arch-marker-cyan {
+  fill: var(--cyan);
+}
+.arch-marker-violet {
+  fill: var(--violet);
+}
+.pulse-hex-in-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,46 L300,82");
+  animation-duration: 2.2s;
+}
+.pulse-hex-in-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M227.3,88 L258.4,106");
+  animation-duration: 2.2s;
+  animation-delay: 0.5s;
+}
+.pulse-hex-in-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M227.3,172 L258.4,154");
+  animation-duration: 2.2s;
+  animation-delay: 1s;
+}
+.pulse-hex-out-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M372.7,88 L341.6,106");
+  animation-duration: 2.2s;
+  animation-delay: 0.3s;
+}
+.pulse-hex-out-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M372.7,172 L341.6,154");
+  animation-duration: 2.2s;
+  animation-delay: 0.8s;
+}
+.pulse-hex-out-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M300,214 L300,178");
+  animation-duration: 2.2s;
+  animation-delay: 1.3s;
+}
+.pulse-evt-in-1 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M70,90 C140,90 170,100 230,102");
+  animation-duration: 2.6s;
+}
+.pulse-evt-in-2 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M70,190 C140,190 170,160 230,158");
+  animation-duration: 2.6s;
+  animation-delay: 1.3s;
+}
+.pulse-evt-out-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M370,100 C450,100 470,50 540,50");
+  animation-duration: 2.2s;
+  animation-delay: 0.2s;
+}
+.pulse-evt-out-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M370,130 L540,130");
+  animation-duration: 2.2s;
+  animation-delay: 0.5s;
+}
+.pulse-evt-out-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M370,160 C450,160 470,210 540,210");
+  animation-duration: 2.2s;
+  animation-delay: 0.8s;
+}
+.pulse-ms-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L90,110");
+  animation-duration: 2s;
+}
+.pulse-ms-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L230,110");
+  animation-duration: 2s;
+  animation-delay: 0.3s;
+}
+.pulse-ms-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L370,110");
+  animation-duration: 2s;
+  animation-delay: 0.6s;
+}
+.pulse-ms-4 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,60 L510,110");
+  animation-duration: 2s;
+  animation-delay: 0.9s;
+}
+.pulse-ms-mesh-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M285,133 L315,133");
+  animation-duration: 1.4s;
+}
+.pulse-ms-mesh-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M230,156 Q370,210 510,156");
+  animation-duration: 2.6s;
+  animation-delay: 0.7s;
+}
+
+.pulse-cqrs-cmd-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M50,130 C90,105 125,80 160,62");
+  animation-duration: 2.2s;
+}
+.pulse-cqrs-cmd-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M310,60 L428,60");
+  animation-duration: 1.6s;
+  animation-delay: 0.6s;
+}
+.pulse-cqrs-qry-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M50,130 C90,155 125,180 160,198");
+  animation-duration: 2.2s;
+  animation-delay: 0.3s;
+}
+.pulse-cqrs-qry-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M310,200 L428,200");
+  animation-duration: 1.6s;
+  animation-delay: 0.9s;
+}
+.pulse-cqrs-proj {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M428,72 C390,95 330,135 238,176");
+  animation-duration: 3s;
+  animation-delay: 0.4s;
+}
+
+.pulse-pf-through {
+  fill: var(--ink);
+  filter: drop-shadow(0 0 8px var(--cyan));
+  offset-path: path("M15,135 L555,135");
+  animation-duration: 4.6s;
+}
+.pulse-pf-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M115,135 L142,135");
+  animation-duration: 1.2s;
+}
+.pulse-pf-2 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M232,135 L259,135");
+  animation-duration: 1.2s;
+  animation-delay: 0.5s;
+}
+.pulse-pf-3 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M349,135 L376,135");
+  animation-duration: 1.2s;
+  animation-delay: 1s;
+}
+.pulse-pf-4 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M466,135 L500,135");
+  animation-duration: 1.2s;
+  animation-delay: 1.5s;
+}
+
+.pulse-mesh-cp-1 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,51 L160,110");
+  animation-duration: 3.2s;
+}
+.pulse-mesh-cp-2 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,51 L350,110");
+  animation-duration: 3.2s;
+  animation-delay: 1s;
+}
+.pulse-mesh-cp-3 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,51 L540,110");
+  animation-duration: 3.2s;
+  animation-delay: 2s;
+}
+.pulse-mesh-ab {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M160,110 L350,110");
+  animation-duration: 1.6s;
+}
+.pulse-mesh-bc {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M350,110 L540,110");
+  animation-duration: 1.6s;
+  animation-delay: 0.5s;
+}
+
+.arch-c-muted {
+  --c: var(--line);
+}
+
+.pulse-actor-ab {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M115,65 C185,65 225,95 300,130");
+  animation-duration: 2.4s;
+}
+.pulse-actor-cb {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M115,195 C185,195 225,160 300,130");
+  animation-duration: 2.4s;
+  animation-delay: 0.8s;
+}
+.pulse-actor-bd {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M300,130 L485,130");
+  animation-duration: 1.6s;
+  animation-delay: 1.6s;
+}
+
+.pulse-p2p-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,37 L390.4,102.6");
+  animation-duration: 1.8s;
+}
+.pulse-p2p-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M355.8,208.9 L244.2,208.9");
+  animation-duration: 1.8s;
+  animation-delay: 0.6s;
+}
+.pulse-p2p-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M300,37 L355.8,208.9");
+  animation-duration: 2.6s;
+  animation-delay: 0.3s;
+}
+.pulse-p2p-4 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M390.4,102.6 L244.2,208.9");
+  animation-duration: 2.6s;
+  animation-delay: 1.4s;
+}
+
+.pulse-saga-fwd-1 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M140,98 L180,98");
+  animation-duration: 1.2s;
+}
+.pulse-saga-fwd-2 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M280,98 L320,98");
+  animation-duration: 1.2s;
+  animation-delay: 0.4s;
+}
+.pulse-saga-fwd-3 {
+  fill: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+  offset-path: path("M420,98 L460,98");
+  animation-duration: 1.2s;
+  animation-delay: 0.8s;
+}
+.pulse-saga-rev-1 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M180,128 L140,128");
+  animation-duration: 1.2s;
+  animation-delay: 2.4s;
+}
+.pulse-saga-rev-2 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M320,128 L280,128");
+  animation-duration: 1.2s;
+  animation-delay: 2s;
+}
+.pulse-saga-rev-3 {
+  fill: var(--magenta);
+  filter: drop-shadow(0 0 6px var(--magenta));
+  offset-path: path("M460,128 L420,128");
+  animation-duration: 1.2s;
+  animation-delay: 1.6s;
+}
+
+.pulse-mw-out-1 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L90,140");
+  animation-duration: 1.8s;
+}
+.pulse-mw-out-2 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L230,140");
+  animation-duration: 1.8s;
+  animation-delay: 0.3s;
+}
+.pulse-mw-out-3 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L370,140");
+  animation-duration: 1.8s;
+  animation-delay: 0.6s;
+}
+.pulse-mw-out-4 {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M300,60 L510,140");
+  animation-duration: 1.8s;
+  animation-delay: 0.9s;
+}
+.pulse-mw-in-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M90,140 Q150,100 260,60");
+  animation-duration: 1.8s;
+  animation-delay: 0.9s;
+}
+.pulse-mw-in-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M230,140 Q250,100 280,60");
+  animation-duration: 1.8s;
+  animation-delay: 1.2s;
+}
+.pulse-mw-in-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M370,140 Q350,100 320,60");
+  animation-duration: 1.8s;
+  animation-delay: 1.5s;
+}
+.pulse-mw-in-4 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M510,140 Q430,100 340,60");
+  animation-duration: 1.8s;
+  animation-delay: 1.8s;
+}
+
+.arch-fn-box {
+  fill: color-mix(in srgb, var(--cyan) 10%, var(--bg-3));
+  stroke: var(--cyan);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.15;
+  animation: arch-fn-spawn 3.9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+text.arch-fn-1,
+text.arch-fn-2,
+text.arch-fn-3 {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.15;
+  animation: arch-fn-spawn 3.9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.arch-diagram.is-active .arch-fn-box,
+.arch-diagram.is-active text.arch-fn-1,
+.arch-diagram.is-active text.arch-fn-2,
+.arch-diagram.is-active text.arch-fn-3 {
+  animation-play-state: running;
+}
+.arch-fn-1 {
+  animation-delay: 0s;
+}
+.arch-fn-2 {
+  animation-delay: 1.3s;
+}
+.arch-fn-3 {
+  animation-delay: 2.6s;
+}
+@keyframes arch-fn-spawn {
+  0% {
+    opacity: 0.15;
+    transform: scale(0.92);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.15;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(0.92);
+  }
+}
+
+.pulse-fn-trigger-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M92,130 L250,130");
+  animation-duration: 1.6s;
+}
+.pulse-fn-trigger-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M92,130 L370,130");
+  animation-duration: 2s;
+  animation-delay: 1.3s;
+}
+.pulse-fn-trigger-3 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M92,130 L490,130");
+  animation-duration: 2.4s;
+  animation-delay: 2.6s;
+}
+
+.pulse-ap-traffic-1 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,50 L150,110");
+  animation-duration: 1.6s;
+}
+.pulse-ap-traffic-2 {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  offset-path: path("M300,50 L150,110");
+  animation-duration: 1.6s;
+  animation-delay: 0.8s;
+}
+.pulse-ap-sync {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px var(--violet));
+  offset-path: path("M240,145 L360,145");
+  animation-duration: 2.4s;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pipeline .pulse {
-    animation: none;
+  .arch-diagram {
+    transition: none;
+  }
+  .arch-pulse,
+  .arch-ping,
+  .arch-line-dash,
+  .arch-fn-box,
+  text.arch-fn-1,
+  text.arch-fn-2,
+  text.arch-fn-3 {
+    animation: none !important;
     opacity: 0;
   }
 }
@@ -1529,6 +2213,37 @@ section {
   filter: blur(calc(var(--hero-progress, 0) * var(--hero-progress, 0) * 10px));
   transform-origin: center top;
   will-change: transform, filter;
+}
+
+/* On mobile #top is much taller (hero-visual stacks below the hero copy,
+   with the diagram cycler at the very bottom of it), so raw --hero-progress
+   reaches high values while the diagrams are still scrolling into view.
+   Remap it here so only the last 20% of that scroll range (once the
+   section is actually leaving) drives the fade/lift/blur; the first 80%
+   is a no-op. Matches the single-column breakpoint above. */
+@media (max-width: 900px) {
+  #top {
+    --hero-progress-effective: max(
+      0,
+      calc((var(--hero-progress, 0) - 0.8) * 5)
+    );
+    opacity: calc(1 - (var(--hero-progress-effective, 0) * 0.92));
+  }
+
+  #top > .wrap {
+    transform: translate3d(
+        0,
+        calc(var(--hero-progress-effective, 0) * -60px),
+        0
+      )
+      scale(calc(1 - (var(--hero-progress-effective, 0) * 0.08)));
+    filter: blur(
+      calc(
+        var(--hero-progress-effective, 0) * var(--hero-progress-effective, 0) *
+          10px
+      )
+    );
+  }
 }
 
 /* The next section physically rises into the scene. */

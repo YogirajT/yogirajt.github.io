@@ -73,6 +73,98 @@
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   // ---------------------------------------------------------------------
+  // Hero visual: cycling backend-architecture-paradigm diagrams
+  // ---------------------------------------------------------------------
+  var archCycler = document.querySelector("[data-arch-cycler]");
+  if (archCycler) {
+    var archOrder = [
+      "layered",
+      "hexagonal",
+      "event-driven",
+      "microservices",
+      "cqrs",
+      "pipeline",
+      "service-mesh",
+      "actor-model",
+      "peer-to-peer",
+      "saga",
+      "master-worker",
+      "serverless",
+      "active-passive",
+    ];
+    var archPanels = archCycler.querySelectorAll("[data-arch-panel]");
+    var archDots = archCycler.querySelectorAll("[data-arch-target]");
+    var archIndex = 0;
+    var archTimer = null;
+    var archHovered = false;
+    var archInView = true;
+
+    function setArch(key) {
+      archIndex = archOrder.indexOf(key);
+      archPanels.forEach(function (panel) {
+        panel.classList.toggle(
+          "is-active",
+          panel.getAttribute("data-arch-panel") === key,
+        );
+      });
+      archDots.forEach(function (dot) {
+        var isActive = dot.getAttribute("data-arch-target") === key;
+        dot.classList.toggle("is-active", isActive);
+        dot.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+    }
+
+    function refreshArchTimer() {
+      clearInterval(archTimer);
+      if (reduceMotion || archHovered || !archInView) return;
+      // give mobile viewers (who glance at it mid-scroll) more time per diagram
+      var delay = window.innerWidth <= 700 ? 7500 : 5200;
+      archTimer = setInterval(function () {
+        setArch(archOrder[(archIndex + 1) % archOrder.length]);
+      }, delay);
+    }
+
+    archDots.forEach(function (dot) {
+      dot.addEventListener("click", function () {
+        setArch(dot.getAttribute("data-arch-target"));
+        refreshArchTimer();
+      });
+    });
+
+    archCycler.addEventListener("pointerenter", function () {
+      archHovered = true;
+      refreshArchTimer();
+    });
+    archCycler.addEventListener("pointerleave", function () {
+      archHovered = false;
+      refreshArchTimer();
+    });
+    archCycler.addEventListener("focusin", function () {
+      archHovered = true;
+      refreshArchTimer();
+    });
+    archCycler.addEventListener("focusout", function () {
+      archHovered = false;
+      refreshArchTimer();
+    });
+
+    // pause entirely while scrolled out of view, so mobile viewers always
+    // see a fresh diagram (not a mid-fade one) when it scrolls back on screen
+    if ("IntersectionObserver" in window) {
+      var archObserver = new IntersectionObserver(
+        function (entries) {
+          archInView = entries[0].isIntersecting;
+          refreshArchTimer();
+        },
+        { threshold: 0.2 },
+      );
+      archObserver.observe(archCycler);
+    }
+
+    refreshArchTimer();
+  }
+
+  // ---------------------------------------------------------------------
   // Close the mobile <details> nav after a link is tapped
   // ---------------------------------------------------------------------
   var navToggle = document.querySelector(".nav-toggle");
