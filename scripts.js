@@ -148,6 +148,45 @@
       refreshArchTimer();
     });
 
+    // swipe left/right on the diagram stage to navigate (mobile)
+    var archStage = archCycler.querySelector(".arch-stage");
+    if (archStage) {
+      var archTouchStartX = 0;
+      var archTouchStartY = 0;
+      var archTouchActive = false;
+
+      archStage.addEventListener(
+        "touchstart",
+        function (e) {
+          if (e.touches.length !== 1) return;
+          archTouchStartX = e.touches[0].clientX;
+          archTouchStartY = e.touches[0].clientY;
+          archTouchActive = true;
+        },
+        { passive: true },
+      );
+
+      archStage.addEventListener(
+        "touchend",
+        function (e) {
+          if (!archTouchActive) return;
+          archTouchActive = false;
+          var touch = e.changedTouches[0];
+          var dx = touch.clientX - archTouchStartX;
+          var dy = touch.clientY - archTouchStartY;
+          // require a deliberate, mostly-horizontal swipe
+          if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+          var nextKey =
+            dx < 0
+              ? archOrder[(archIndex + 1) % archOrder.length]
+              : archOrder[(archIndex - 1 + archOrder.length) % archOrder.length];
+          setArch(nextKey);
+          refreshArchTimer();
+        },
+        { passive: true },
+      );
+    }
+
     // pause entirely while scrolled out of view, so mobile viewers always
     // see a fresh diagram (not a mid-fade one) when it scrolls back on screen
     if ("IntersectionObserver" in window) {
