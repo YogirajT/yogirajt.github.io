@@ -732,6 +732,7 @@ section {
   width: 100%;
   aspect-ratio: 600 / 260;
   margin-top: 0.9rem;
+  touch-action: pan-y;
 }
 .arch-diagram {
   position: absolute;
@@ -750,6 +751,21 @@ section {
   opacity: 1;
   transform: scale(1);
   z-index: 2;
+}
+
+/* directional slide + fade used for swipe navigation on mobile */
+.arch-diagram.arch-swipe {
+  transition:
+    opacity 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.arch-diagram.arch-swipe-left {
+  opacity: 0;
+  transform: translateX(-28px) scale(0.985);
+}
+.arch-diagram.arch-swipe-right {
+  opacity: 0;
+  transform: translateX(28px) scale(0.985);
 }
 
 /* color helpers: set --c, consumed by the structural rules below */

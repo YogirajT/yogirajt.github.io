@@ -114,6 +114,51 @@
       });
     }
 
+    // like setArch, but slides the outgoing/incoming diagrams past each other
+    // (with a fade) in the given direction, for swipe gestures
+    function swipeArch(key, direction) {
+      var toPanel = archCycler.querySelector('[data-arch-panel="' + key + '"]');
+      var fromPanel = archCycler.querySelector(".arch-diagram.is-active");
+      if (!toPanel || toPanel === fromPanel) return;
+
+      if (reduceMotion) {
+        setArch(key);
+        return;
+      }
+
+      // "left" swipe advances (next comes in from the right, current exits left)
+      var startClass = direction === "left" ? "arch-swipe-right" : "arch-swipe-left";
+      var endClass = direction === "left" ? "arch-swipe-left" : "arch-swipe-right";
+
+      toPanel.classList.add("arch-swipe", startClass);
+      toPanel.style.zIndex = 3;
+      void toPanel.offsetWidth; // force reflow so the start position registers
+
+      requestAnimationFrame(function () {
+        if (fromPanel) {
+          fromPanel.classList.add("arch-swipe", endClass);
+          fromPanel.classList.remove("is-active");
+        }
+        toPanel.classList.remove(startClass);
+        toPanel.classList.add("is-active");
+      });
+
+      var cleanup = function () {
+        toPanel.classList.remove("arch-swipe");
+        toPanel.style.zIndex = "";
+        if (fromPanel) fromPanel.classList.remove("arch-swipe", endClass);
+        toPanel.removeEventListener("transitionend", cleanup);
+      };
+      toPanel.addEventListener("transitionend", cleanup);
+
+      archIndex = archOrder.indexOf(key);
+      archDots.forEach(function (dot) {
+        var isActive = dot.getAttribute("data-arch-target") === key;
+        dot.classList.toggle("is-active", isActive);
+        dot.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+    }
+
     function refreshArchTimer() {
       clearInterval(archTimer);
       if (reduceMotion || archHovered || !archInView) return;
@@ -147,6 +192,46 @@
       archHovered = false;
       refreshArchTimer();
     });
+
+    // swipe left/right on the diagram stage to navigate (mobile)
+    var archStage = archCycler.querySelector(".arch-stage");
+    if (archStage) {
+      var archTouchStartX = 0;
+      var archTouchStartY = 0;
+      var archTouchActive = false;
+
+      archStage.addEventListener(
+        "touchstart",
+        function (e) {
+          if (e.touches.length !== 1) return;
+          archTouchStartX = e.touches[0].clientX;
+          archTouchStartY = e.touches[0].clientY;
+          archTouchActive = true;
+        },
+        { passive: true },
+      );
+
+      archStage.addEventListener(
+        "touchend",
+        function (e) {
+          if (!archTouchActive) return;
+          archTouchActive = false;
+          var touch = e.changedTouches[0];
+          var dx = touch.clientX - archTouchStartX;
+          var dy = touch.clientY - archTouchStartY;
+          // require a deliberate, mostly-horizontal swipe
+          if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+          var direction = dx < 0 ? "left" : "right";
+          var nextKey =
+            direction === "left"
+              ? archOrder[(archIndex + 1) % archOrder.length]
+              : archOrder[(archIndex - 1 + archOrder.length) % archOrder.length];
+          swipeArch(nextKey, direction);
+          refreshArchTimer();
+        },
+        { passive: true },
+      );
+    }
 
     // pause entirely while scrolled out of view, so mobile viewers always
     // see a fresh diagram (not a mid-fade one) when it scrolls back on screen
