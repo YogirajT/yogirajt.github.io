@@ -687,7 +687,7 @@ section {
   margin-top: 0.9rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 10px;
   justify-content: center;
 }
 .arch-dot {
@@ -710,7 +710,7 @@ section {
 .arch-dot::before {
   content: "";
   position: absolute;
-  inset: -1rem;
+  inset: -10px;
 }
 .arch-dot:hover {
   opacity: 0.75;
@@ -751,6 +751,21 @@ section {
   opacity: 1;
   transform: scale(1);
   z-index: 2;
+}
+
+/* directional slide + fade used for swipe navigation on mobile */
+.arch-diagram.arch-swipe {
+  transition:
+    opacity 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.arch-diagram.arch-swipe-left {
+  opacity: 0;
+  transform: translateX(-28px) scale(0.985);
+}
+.arch-diagram.arch-swipe-right {
+  opacity: 0;
+  transform: translateX(28px) scale(0.985);
 }
 
 /* color helpers: set --c, consumed by the structural rules below */

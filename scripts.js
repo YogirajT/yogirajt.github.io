@@ -114,6 +114,51 @@
       });
     }
 
+    // like setArch, but slides the outgoing/incoming diagrams past each other
+    // (with a fade) in the given direction, for swipe gestures
+    function swipeArch(key, direction) {
+      var toPanel = archCycler.querySelector('[data-arch-panel="' + key + '"]');
+      var fromPanel = archCycler.querySelector(".arch-diagram.is-active");
+      if (!toPanel || toPanel === fromPanel) return;
+
+      if (reduceMotion) {
+        setArch(key);
+        return;
+      }
+
+      // "left" swipe advances (next comes in from the right, current exits left)
+      var startClass = direction === "left" ? "arch-swipe-right" : "arch-swipe-left";
+      var endClass = direction === "left" ? "arch-swipe-left" : "arch-swipe-right";
+
+      toPanel.classList.add("arch-swipe", startClass);
+      toPanel.style.zIndex = 3;
+      void toPanel.offsetWidth; // force reflow so the start position registers
+
+      requestAnimationFrame(function () {
+        if (fromPanel) {
+          fromPanel.classList.add("arch-swipe", endClass);
+          fromPanel.classList.remove("is-active");
+        }
+        toPanel.classList.remove(startClass);
+        toPanel.classList.add("is-active");
+      });
+
+      var cleanup = function () {
+        toPanel.classList.remove("arch-swipe");
+        toPanel.style.zIndex = "";
+        if (fromPanel) fromPanel.classList.remove("arch-swipe", endClass);
+        toPanel.removeEventListener("transitionend", cleanup);
+      };
+      toPanel.addEventListener("transitionend", cleanup);
+
+      archIndex = archOrder.indexOf(key);
+      archDots.forEach(function (dot) {
+        var isActive = dot.getAttribute("data-arch-target") === key;
+        dot.classList.toggle("is-active", isActive);
+        dot.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+    }
+
     function refreshArchTimer() {
       clearInterval(archTimer);
       if (reduceMotion || archHovered || !archInView) return;
@@ -176,11 +221,12 @@
           var dy = touch.clientY - archTouchStartY;
           // require a deliberate, mostly-horizontal swipe
           if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+          var direction = dx < 0 ? "left" : "right";
           var nextKey =
-            dx < 0
+            direction === "left"
               ? archOrder[(archIndex + 1) % archOrder.length]
               : archOrder[(archIndex - 1 + archOrder.length) % archOrder.length];
-          setArch(nextKey);
+          swipeArch(nextKey, direction);
           refreshArchTimer();
         },
         { passive: true },
