@@ -370,47 +370,64 @@
   if (tw) {
     // The full text already lives in the HTML (so it's visible/crawlable
     // with no JS at all). We read it, then "type" it back in on load.
-    var full = tw.textContent;
+    var full = tw.textContent.replace(/\s+/g, " ").trim();
     if (reduceMotion) {
       tw.textContent = full;
     } else {
+      // Keep the *whole* line laid out at all times: the typed part is
+      // visible, the remainder is present but hidden (visibility: hidden).
+      // That reserves the final height and wrapping up front, so the
+      // layout below never shifts when the text reaches a second line.
+      var typed = document.createElement("span");
+      var rest = document.createElement("span");
+      typed.className = "tw-typed";
+      rest.className = "tw-rest";
+      rest.setAttribute("aria-hidden", "true");
       tw.textContent = "";
+      tw.appendChild(typed);
+      tw.appendChild(rest);
+
       var i = 0;
       var speed = 18; // ms per character — quick, not gimmicky
       (function type() {
-        tw.textContent = full.slice(0, i);
+        typed.textContent = full.slice(0, i);
+        rest.textContent = full.slice(i);
         i++;
         if (i <= full.length) {
           window.setTimeout(type, speed);
         } else {
-          var caret = document.querySelector(".hero-role .caret");
-          if (caret)
-            window.setTimeout(function () {
-              caret.style.display = "none";
-            }, 1400);
+          // Let the caret blink a moment, then settle back to plain text.
+          window.setTimeout(function () {
+            tw.textContent = full;
+          }, 1400);
         }
       })();
     }
   }
 
   // ---------------------------------------------------------------------
-  // Cursor spotlight glow on the hero (desktop / fine-pointer only)
+  // Cursor spotlight glow on the hero and contact sections
+  // (desktop / fine-pointer only)
   // ---------------------------------------------------------------------
-  var hero = document.querySelector(".hero");
-  if (hero && finePointer && !reduceMotion) {
-    hero.addEventListener("pointerenter", function () {
-      hero.classList.add("spot-active");
-    });
-    hero.addEventListener("pointerleave", function () {
-      hero.classList.remove("spot-active");
-    });
-    hero.addEventListener("pointermove", function (e) {
-      var rect = hero.getBoundingClientRect();
-      var x = ((e.clientX - rect.left) / rect.width) * 100;
-      var y = ((e.clientY - rect.top) / rect.height) * 100;
-      hero.style.setProperty("--spot-x", x + "%");
-      hero.style.setProperty("--spot-y", y + "%");
-    });
+  if (finePointer && !reduceMotion) {
+    [document.querySelector(".hero"), document.getElementById("contact")].forEach(
+      function (el) {
+        if (!el) return;
+        el.addEventListener("pointerenter", function () {
+          el.classList.add("spot-active");
+        });
+        el.addEventListener("pointerleave", function () {
+          el.classList.remove("spot-active");
+        });
+        el.addEventListener("pointermove", function (e) {
+          var rect = el.getBoundingClientRect();
+          var x = ((e.clientX - rect.left) / rect.width) * 100;
+          var y = ((e.clientY - rect.top) / rect.height) * 100;
+          el.style.setProperty("--spot-x", x + "%");
+          el.style.setProperty("--spot-y", y + "%");
+        });
+      },
+    );
   }
 
   // ---------------------------------------------------------------------
@@ -498,82 +515,97 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const isMobile = window.innerWidth < 700;
   const RAIN_COUNT = isMobile ? 45 : 90;
-  const LEAF_COUNT = isMobile ? 7 : 13;
+  const LEAF_COUNT = isMobile ? 10 : 18;
 
   /* =====================================================================
-     FOLIAGE SILHOUETTES -- dense canopy-mass clusters, not individual leaf
-     icons. Each cluster is a procedurally generated group of overlapping
-     circles (always renders as a clean organic blob -- circles can never
-     come out malformed the way a hand-plotted leaf outline can) plus a
-     few thin tapering frond sprigs poking out of the mass for texture.
-     Three presets bias the generator toward a rounder canopy look, a
-     wispy fern look, or a few long palm-blade sprigs; every instance is
-     still procedurally unique.
+     FOLIAGE SILHOUETTES -- simple leaves on a simple stem. Each cluster is
+     one gently curved stem (a stroked path) with plain pointed-oval leaves
+     attached along it in alternating pairs and one leaf at the tip. The
+     stem always grows inward from the left or right side of the page.
+     Three presets change only the proportions: "canopy" = a few broad
+     leaves, "fern" = many small narrow leaves, "palm" = long slim blades.
+     Every instance is still procedurally unique.
      ===================================================================== */
 
-  function buildCluster(preset, orientation) {
-    const c = 150; // local center, viewBox is 0 0 300 300
-    let circleCount, rMin, rMax, spreadMain, spreadCross, sprigCount, sprigLen;
+  function buildCluster(preset, edge) {
+    let leafCount, leafLen, leafHalfW, leafAngle;
 
     if (preset === "canopy") {
-      circleCount = 9;
-      rMin = 26;
-      rMax = 48;
-      spreadMain = 108;
-      spreadCross = 52;
-      sprigCount = 2;
-      sprigLen = 40;
+      leafCount = 5;
+      leafLen = 66;
+      leafHalfW = 0.27; // half-width as a fraction of leaf length
+      leafAngle = 48; // degrees away from the stem direction
     } else if (preset === "fern") {
-      circleCount = 6;
-      rMin = 14;
-      rMax = 24;
-      spreadMain = 92;
-      spreadCross = 28;
-      sprigCount = 7;
-      sprigLen = 68;
+      leafCount = 10;
+      leafLen = 42;
+      leafHalfW = 0.17;
+      leafAngle = 62;
     } else {
       // palm
-      circleCount = 5;
-      rMin = 20;
-      rMax = 34;
-      spreadMain = 98;
-      spreadCross = 32;
-      sprigCount = 4;
-      sprigLen = 96;
+      leafCount = 6;
+      leafLen = 92;
+      leafHalfW = 0.1;
+      leafAngle = 36;
     }
 
-    let circles = "";
-    for (let i = 0; i < circleCount; i++) {
-      const along = (Math.random() - 0.5) * 2 * spreadMain;
-      const cross = (Math.random() - 0.5) * 2 * spreadCross;
-      const x = orientation === "h" ? c + along : c + cross;
-      const y = orientation === "h" ? c + cross : c + along;
-      const r = rMin + Math.random() * (rMax - rMin);
-      circles += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"/>`;
+    const rad = (deg) => (deg * Math.PI) / 180;
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const f = (n) => n.toFixed(1);
+
+    // The stem starts at the middle of the box's outer side and grows inward:
+    // left clusters grow rightwards, right clusters grow leftwards.
+    // Shorter on phones so the (twice-as-large) leaves don't cover the whole screen.
+    const stemLen = isMobile ? 150 : 240;
+    const by = 150;
+    let bx, dir;
+    if (edge === "left") {
+      bx = 0;
+      dir = rand(-22, 22);
+    } else {
+      bx = 300;
+      dir = 180 + rand(-22, 22);
     }
 
-    let sprigs = "";
-    for (let i = 0; i < sprigCount; i++) {
-      const along = (Math.random() - 0.5) * 2 * spreadMain * 0.9;
-      const crossJ = (Math.random() - 0.5) * spreadCross * 1.3;
-      const baseX = orientation === "h" ? c + along : c + crossJ;
-      const baseY = orientation === "h" ? c + crossJ : c + along;
-      const dirOut = Math.random() > 0.5 ? 1 : -1;
-      const reach = sprigLen * (0.7 + Math.random() * 0.5);
-      const tipX =
-        orientation === "h"
-          ? baseX + (Math.random() - 0.5) * 30
-          : baseX + dirOut * reach;
-      const tipY =
-        orientation === "h"
-          ? baseY + dirOut * reach
-          : baseY + (Math.random() - 0.5) * 30;
-      const midX = (baseX + tipX) / 2 + (Math.random() - 0.5) * 20;
-      const midY = (baseY + tipY) / 2 + (Math.random() - 0.5) * 20;
-      sprigs += `<path d="M ${baseX.toFixed(1)} ${baseY.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${tipX.toFixed(1)} ${tipY.toFixed(1)}" stroke="currentColor" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.8"/>`;
-    }
+    // Stem: a quadratic curve with a slight bend.
+    const ex = bx + Math.cos(rad(dir)) * stemLen;
+    const ey = by + Math.sin(rad(dir)) * stemLen;
+    const bend = (Math.random() > 0.5 ? 1 : -1) * stemLen * rand(0.08, 0.16);
+    const cx = (bx + ex) / 2 + Math.cos(rad(dir + 90)) * bend;
+    const cy = (by + ey) / 2 + Math.sin(rad(dir + 90)) * bend;
 
-    return `<svg viewBox="0 0 300 300" fill="currentColor">${sprigs}${circles}</svg>`;
+    const pointAt = (t) => ({
+      x: (1 - t) * (1 - t) * bx + 2 * (1 - t) * t * cx + t * t * ex,
+      y: (1 - t) * (1 - t) * by + 2 * (1 - t) * t * cy + t * t * ey,
+    });
+    const angleAt = (t) =>
+      (Math.atan2(
+        2 * (1 - t) * (cy - by) + 2 * t * (ey - cy),
+        2 * (1 - t) * (cx - bx) + 2 * t * (ex - cx),
+      ) *
+        180) /
+      Math.PI;
+
+    // A simple leaf: a pointed oval, base at (0,0), tip at (len,0).
+    const leaf = (x, y, angle, len) => {
+      const w = len * leafHalfW * 2; // curve control offset = 2x visible half-width
+      return `<path transform="translate(${f(x)} ${f(y)}) rotate(${f(angle)})" d="M 0 0 Q ${f(len * 0.45)} ${f(-w)} ${f(len)} 0 Q ${f(len * 0.45)} ${f(w)} 0 0 Z"/>`;
+    };
+
+    let leaves = "";
+    for (let i = 0; i < leafCount; i++) {
+      const t = 0.2 + (0.7 * i) / Math.max(1, leafCount - 1);
+      const p = pointAt(t);
+      const side = i % 2 === 0 ? 1 : -1;
+      const angle = angleAt(t) + side * (leafAngle + rand(-6, 6));
+      const len = leafLen * (1 - 0.35 * t) * rand(0.9, 1.1);
+      leaves += leaf(p.x, p.y, angle, len);
+    }
+    // terminal leaf continues along the stem direction
+    leaves += leaf(ex, ey, angleAt(1), leafLen * 0.8);
+
+    const stem = `<path d="M ${f(bx)} ${f(by)} Q ${f(cx)} ${f(cy)} ${f(ex)} ${f(ey)}" stroke="currentColor" stroke-width="3.4" fill="none" stroke-linecap="round" opacity="0.8"/>`;
+
+    return `<svg viewBox="0 0 300 300" fill="currentColor">${stem}${leaves}</svg>`;
   }
 
   const LEAF_TYPES = ["canopy", "fern", "palm"];
@@ -623,57 +655,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =====================================================================
      CREATE FOLIAGE CLUSTERS
-     Every cluster stems from an edge -- left, right, top or bottom --
-     never floats near the center. A cluster's own sprigs already reach
-     inward from that edge (outward-reaching sprigs stay cropped off
-     screen), so no artificial rotation-flip is needed to fake a "hanging"
-     or "growing" look -- it falls out of the geometry naturally.
+     Every cluster grows from the left or right side of the page, never from
+     the top, bottom or middle. Sides alternate, and each side's clusters are
+     spread evenly down the viewport (with jitter) so the foliage reads as a
+     continuous border instead of random patches and gaps.
      ===================================================================== */
 
   const leaves = [];
-  const LEAF_EDGES = ["left", "left", "right", "right", "top", "bottom"];
 
   function createLeaves() {
     leavesContainer.innerHTML = "";
     leaves.length = 0;
+
+    const perSide = Math.ceil(LEAF_COUNT / 2);
 
     for (let i = 0; i < LEAF_COUNT; i++) {
       const type = LEAF_TYPES[Math.floor(Math.random() * LEAF_TYPES.length)];
       const depthOptions = ["front", "front", "mid", "mid", "back"];
       const depth =
         depthOptions[Math.floor(Math.random() * depthOptions.length)];
-      const edge = LEAF_EDGES[Math.floor(Math.random() * LEAF_EDGES.length)];
-      const orientation = edge === "left" || edge === "right" ? "v" : "h";
+      const edge = i % 2 === 0 ? "left" : "right";
 
       const leaf = document.createElement("div");
       leaf.className = "ambient-leaf";
       leaf.dataset.depth = depth;
       leaf.dataset.edge = edge;
-      leaf.innerHTML = buildCluster(type, orientation);
-
-      let x, y;
-      if (edge === "left") {
-        x = -14 + Math.random() * 16;
-        y = Math.random() * 100;
-      } else if (edge === "right") {
-        x = 98 + Math.random() * 16;
-        y = Math.random() * 100;
-      } else if (edge === "top") {
-        x = 6 + Math.random() * 88;
-        y = -16 + Math.random() * 16;
-      } else {
-        x = 6 + Math.random() * 88;
-        y = 96 + Math.random() * 20;
-      }
-
-      const rotation = -8 + Math.random() * 16; // subtle sway tilt only, mass shape does the rest
+      leaf.innerHTML = buildCluster(type, edge);
 
       const size =
         depth === "front"
-          ? 230 + Math.random() * 150
+          ? 460 + Math.random() * 300
           : depth === "mid"
-            ? 160 + Math.random() * 100
-            : 110 + Math.random() * 70;
+            ? 320 + Math.random() * 200
+            : 220 + Math.random() * 140;
+
+      // Vertical position: this side's slot down the viewport, plus jitter.
+      // The stem base sits at the box's vertical middle, so offset by half the box.
+      const slot = Math.floor(i / 2);
+      const slotH = 110 / perSide;
+      const centerY = -5 + (slot + 0.15 + Math.random() * 0.7) * slotH; // % of viewport height
+      const y = `calc(${centerY.toFixed(1)}% - ${(size / 2).toFixed(0)}px)`;
+
+      // Horizontal position: the stem base sits just past the page's edge.
+      const x =
+        edge === "left"
+          ? `${(-size * 0.02).toFixed(0)}px`
+          : `calc(100% - ${(size * 0.98).toFixed(0)}px)`;
+
+      const rotation = -8 + Math.random() * 16; // subtle sway tilt only, mass shape does the rest
 
       const baseOpacity =
         depth === "front"
@@ -686,8 +715,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const tint = LEAF_TINTS[Math.floor(Math.random() * LEAF_TINTS.length)];
 
       leaf.style.setProperty("--leaf-size", `${size}px`);
-      leaf.style.setProperty("--leaf-x", `${x}%`);
-      leaf.style.setProperty("--leaf-y", `${y}%`);
+      leaf.style.setProperty("--leaf-x", x);
+      leaf.style.setProperty("--leaf-y", y);
       leaf.style.setProperty("--leaf-rotation", `${rotation}deg`);
       leaf.style.setProperty("--leaf-opacity", baseOpacity);
       leaf.style.setProperty("--leaf-tint", tint);
