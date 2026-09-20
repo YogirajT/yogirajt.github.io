@@ -8,7 +8,7 @@
  *   1. Shared helpers
  *   2. Page features      theme toggle, footer year, hero diagrams, mobile
  *                         nav, scroll reveal, scroll-spy, typewriter, pointer
- *                         effects, copy-email
+ *                         effects, hero fireflies, copy-email
  *   3. Ambient scene      rain, foliage, lightning, scroll-driven atmosphere
  *   4. Cookie consent     consent-gated Google Analytics
  *   5. Start-up
@@ -62,11 +62,15 @@
      ========================================================================== */
 
   /* --- Theme toggle (light / dark) ------------------------------------------
-     Persisted, and kept in sync across the desktop and mobile buttons. */
+     The bulb switch (checked = dark) drives the theme, which is persisted.
+     The old button-style toggles are still wired up in case another page
+     (e.g. privacy.html) hasn't been switched over to the bulb yet.
+     Every change is announced with a "themechange" event on the document. */
 
   const THEME_SHIFT_MS = 1900; // how long the theme-change overlay class stays
 
   function initThemeToggle() {
+    const bulb = document.getElementById("theme-toggle");
     const buttons = ["theme-toggle-desktop", "theme-toggle-mobile"]
       .map((id) => document.getElementById(id))
       .filter(Boolean);
@@ -74,6 +78,7 @@
 
     const syncLabels = () => {
       const light = isLightTheme();
+      if (bulb) bulb.checked = !light;
       buttons.forEach((button) => {
         button.setAttribute("aria-pressed", String(light));
         const label = button.querySelector(".tt-label");
@@ -103,6 +108,7 @@
       }
 
       syncLabels();
+      document.dispatchEvent(new CustomEvent("themechange", { detail: { theme } }));
 
       clearTimeout(shiftTimer);
       shiftTimer = setTimeout(() => {
@@ -115,7 +121,231 @@
         setTheme(isLightTheme() ? "dark" : "light");
       });
     });
+    if (bulb) {
+      bulb.addEventListener("change", () => {
+        setTheme(bulb.checked ? "dark" : "light");
+        syncLabels();
+      });
+    }
     syncLabels();
+  }
+
+  /* --- Hero fireflies --------------------------------------------------------
+     Dark mode only. Switching the bulb on releases a swarm of fireflies that
+     flies out of the bulb and buzzes around the hero; switching to light mode
+     fades them out one by one. Each firefly is a spring-driven wanderer (smooth
+     curved flight to a nearby random spot, with a tiny fast jitter for the
+     buzz) plus a CSS glow pulse. The loop pauses while the hero is off-screen
+     and nothing runs at all under prefers-reduced-motion. */
+
+  const FIREFLY_MIN = 8;
+  const FIREFLY_MAX = 12;
+  const FIREFLY_AREA_PER_FLY = 80000; // px² of hero per firefly
+  const FIREFLY_FADE_IN_MS = 700;
+  const FIREFLY_FADE_OUT_MS = 1100;
+  const FIREFLY_FADE_OUT_STAGGER_MS = 900;
+
+  function initHeroFireflies() {
+    const hero = document.querySelector(".hero");
+    if (!hero || reduceMotion) return;
+
+    const bulbSwitch = document.getElementById("theme-switch");
+    const layer = document.createElement("div");
+    layer.className = "fireflies";
+    layer.setAttribute("aria-hidden", "true");
+    hero.appendChild(layer);
+
+    let flies = [];
+    let rafId = 0;
+    let lastTime = 0;
+    let inView = true;
+    let cleanupTimer = 0;
+    let width = hero.clientWidth;
+    let height = hero.clientHeight;
+
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+    const measure = () => {
+      width = hero.clientWidth;
+      height = hero.clientHeight;
+    };
+
+    /** Where the lit bulb sits, in hero coordinates (clamped to the hero). */
+    const bulbOrigin = () => {
+      if (!bulbSwitch) return { x: width * 0.9, y: 0 };
+      const heroRect = hero.getBoundingClientRect();
+      const rect = bulbSwitch.getBoundingClientRect();
+      // Lit = bulb rests on the right-hand side of the switch.
+      return {
+        x: clamp(rect.left + rect.width * 0.75 - heroRect.left, 0, width),
+        y: clamp(rect.top + rect.height / 2 - heroRect.top, 0, height),
+      };
+    };
+
+    const chooseTarget = (fly, now, forceFar) => {
+      const margin = 24;
+      if (forceFar || Math.random() < 0.18) {
+        fly.tx = randomBetween(margin, Math.max(margin, width - margin));
+        fly.ty = randomBetween(margin, Math.max(margin, height - margin));
+      } else {
+        const angle = randomBetween(0, Math.PI * 2);
+        const distance = randomBetween(50, 200);
+        fly.tx = clamp(
+          fly.x + Math.cos(angle) * distance,
+          margin,
+          Math.max(margin, width - margin),
+        );
+        fly.ty = clamp(
+          fly.y + Math.sin(angle) * distance,
+          margin,
+          Math.max(margin, height - margin),
+        );
+      }
+      fly.retargetAt = now + randomBetween(1100, 3200);
+    };
+
+    const fadeIn = (fly, delayMs) => {
+      const el = fly.el;
+      el.style.transition = `opacity ${FIREFLY_FADE_IN_MS}ms ease ${delayMs}ms`;
+      el.style.opacity = String(randomBetween(0.75, 1));
+    };
+
+    const createFly = (origin, now, delayMs) => {
+      const el = document.createElement("span");
+      el.className = "firefly";
+      setStyleProps(el, {
+        "--ff-size": `${randomBetween(3, 6.5).toFixed(1)}px`,
+        "--ff-pulse": `${randomBetween(1.6, 3.8).toFixed(2)}s`,
+        "--ff-delay": `${(-randomBetween(0, 3.8)).toFixed(2)}s`,
+      });
+      el.appendChild(document.createElement("i"));
+      el.style.transform = `translate3d(${origin.x}px, ${origin.y}px, 0)`;
+      layer.appendChild(el);
+
+      const fly = {
+        el,
+        x: origin.x,
+        y: origin.y,
+        vx: randomBetween(-30, 30),
+        vy: randomBetween(10, 60),
+        tx: origin.x,
+        ty: origin.y,
+        retargetAt: 0,
+        startAt: now + delayMs,
+        maxSpeed: randomBetween(110, 190),
+        buzz: randomBetween(0.8, 1.8),
+        phase: randomBetween(0, Math.PI * 2),
+      };
+      chooseTarget(fly, now, true);
+      fly.retargetAt = fly.startAt + randomBetween(1500, 3500);
+
+      void el.offsetWidth; // commit opacity: 0 so the fade-in transitions
+      fadeIn(fly, delayMs);
+      return fly;
+    };
+
+    const step = (fly, now, dt) => {
+      if (now < fly.startAt) return;
+      if (now >= fly.retargetAt) chooseTarget(fly, now, false);
+
+      // Damped spring towards the target: smooth, slightly curved flight.
+      fly.vx += ((fly.tx - fly.x) * 3 - fly.vx * 2.8) * dt;
+      fly.vy += ((fly.ty - fly.y) * 3 - fly.vy * 2.8) * dt;
+      const speed = Math.hypot(fly.vx, fly.vy);
+      if (speed > fly.maxSpeed) {
+        fly.vx *= fly.maxSpeed / speed;
+        fly.vy *= fly.maxSpeed / speed;
+      }
+      fly.x += fly.vx * dt;
+      fly.y += fly.vy * dt;
+
+      // The buzz: a tiny, fast wobble that never accumulates.
+      const t = now / 1000;
+      const bx = Math.sin(t * 9 * fly.buzz + fly.phase) * 1.6;
+      const by = Math.cos(t * 11 * fly.buzz + fly.phase * 1.7) * 1.6;
+      fly.el.style.transform = `translate3d(${(fly.x + bx).toFixed(1)}px, ${(fly.y + by).toFixed(1)}px, 0)`;
+    };
+
+    const tick = (time) => {
+      const dt = Math.max(0, Math.min((time - lastTime) / 1000, 0.05));
+      lastTime = time;
+      flies.forEach((fly) => step(fly, time, dt));
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const startLoop = () => {
+      if (rafId || !flies.length || !inView) return;
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const stopLoop = () => {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
+
+    const destroy = () => {
+      stopLoop();
+      flies.forEach((fly) => fly.el.remove());
+      flies = [];
+    };
+
+    const release = () => {
+      clearTimeout(cleanupTimer);
+      if (flies.length) {
+        // Switched back on mid-fade: bring the same swarm back.
+        flies.forEach((fly) => fadeIn(fly, 0));
+        startLoop();
+        return;
+      }
+      measure();
+      const origin = bulbOrigin();
+      const now = performance.now();
+      const count = Math.round(
+        clamp(
+          (width * height) / FIREFLY_AREA_PER_FLY,
+          FIREFLY_MIN,
+          FIREFLY_MAX,
+        ),
+      );
+      // Wait for the bulb to light up, then let them out a few at a time.
+      for (let i = 0; i < count; i += 1) {
+        const delay = 500 + i * 110 + randomBetween(0, 100);
+        flies.push(createFly(origin, now, delay));
+      }
+      startLoop();
+    };
+
+    const fadeAway = () => {
+      flies.forEach((fly) => {
+        // They keep buzzing while they fade, each leaving at its own moment.
+        fly.el.style.transition = `opacity ${FIREFLY_FADE_OUT_MS}ms ease ${randomBetween(0, FIREFLY_FADE_OUT_STAGGER_MS).toFixed(0)}ms`;
+        fly.el.style.opacity = "0";
+      });
+      clearTimeout(cleanupTimer);
+      cleanupTimer = setTimeout(
+        destroy,
+        FIREFLY_FADE_OUT_MS + FIREFLY_FADE_OUT_STAGGER_MS + 150,
+      );
+    };
+
+    document.addEventListener("themechange", (event) => {
+      if (event.detail.theme === "dark") release();
+      else fadeAway();
+    });
+
+    if (hasIntersectionObserver) {
+      new IntersectionObserver((entries) => {
+        inView = entries[entries.length - 1].isIntersecting;
+        if (inView) startLoop();
+        else stopLoop();
+      }).observe(hero);
+    }
+
+    if ("ResizeObserver" in window) new ResizeObserver(measure).observe(hero);
+    else window.addEventListener("resize", measure);
+
+    if (!isLightTheme()) release();
   }
 
   /* --- Footer year ---------------------------------------------------------- */
@@ -1269,6 +1499,7 @@
   initScrollSpy();
   initTypewriter();
   initSpotlight();
+  initHeroFireflies();
   initAvatarTilt();
   initCopyEmail();
 

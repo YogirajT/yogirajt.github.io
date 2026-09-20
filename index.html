@@ -43,7 +43,7 @@
 
   <link rel="preload" as="font" href="assets/fonts/Tektur-Medium.woff" type="font/woff" crossorigin />
   <link rel="preload" as="font" href="assets/fonts/Outfit-Regular.woff" type="font/woff" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260920a" />
+  <link rel="stylesheet" href="styles.css?v=20260920f" />
 
   <!-- Structured data -->
   <script type="application/ld+json">
@@ -82,13 +82,14 @@
 <body>
   <script>
     // Set theme before first paint to avoid a flash of the wrong theme.
+    // Light is the default; a visitor's saved choice wins.
     (function () {
       try {
         var saved = localStorage.getItem("theme");
-        var theme = saved || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        var theme = saved === "dark" || saved === "light" ? saved : "light";
         document.documentElement.setAttribute("data-theme", theme);
       } catch (e) {
-        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-theme", "light");
       }
     })();
   </script>
@@ -117,11 +118,33 @@
           <li><a href="#contact">Contact</a></li>
         </ul>
         <a class="btn btn-primary" href="assets/cv.pdf" target="_blank" rel="noopener">Resume</a>
-        <button type="button" class="theme-toggle" id="theme-toggle-desktop" aria-pressed="false"
-          aria-label="Toggle light and dark theme">
-          <span class="track"><span class="knob"></span></span>
-          <span class="tt-label">DARK</span>
-        </button>
+        <div class="theme-switch" id="theme-switch">
+          <div class="bulb-switch">
+            <input type="checkbox" id="theme-toggle" role="switch" aria-label="Dark mode" />
+            <label for="theme-toggle">
+              <svg class="bulb-icon bulb-icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="4" fill="currentColor" />
+                <path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3L7 7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+              <svg class="bulb-icon bulb-icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" />
+              </svg>
+              <i class="bulb">
+                <span class="bulb-center"></span>
+                <span class="filament-1"></span>
+                <span class="filament-2"></span>
+                <span class="reflections"><span></span></span>
+                <span class="sparks">
+                  <i class="spark1"></i>
+                  <i class="spark2"></i>
+                  <i class="spark3"></i>
+                  <i class="spark4"></i>
+                </span>
+              </i>
+            </label>
+          </div>
+        </div>
       </nav>
 
       <div class="nav-toggle-wrap">
@@ -145,11 +168,6 @@
             <a href="#skills">Skills</a>
             <a href="#contact">Contact</a>
             <!-- <a class="btn btn-primary" href="assets/cv.pdf" target="_blank" rel="noopener">Download Resume</a> -->
-            <button type="button" class="theme-toggle" id="theme-toggle-mobile" aria-pressed="false"
-              aria-label="Toggle light and dark theme" style="align-self:flex-start;">
-              <span class="track"><span class="knob"></span></span>
-              <span class="tt-label">DARK</span>
-            </button>
           </div>
         </details>
       </div>
@@ -1080,7 +1098,7 @@
       </button>
     </div>
   </div>
-  <script src="scripts.js?v=20260920a"></script>
+  <script src="scripts.js?v=20260920d"></script>
 </body>
 
 </html>

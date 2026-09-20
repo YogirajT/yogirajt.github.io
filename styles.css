@@ -373,6 +373,423 @@ section {
   background: var(--magenta);
 }
 
+/* ---------- Bulb switch (theme toggle) ----------
+   Dark mode is the "on" state: the bulb slides right and lights up in the
+   warm amber-yellow glow. Light mode is the "off" state: a pale, unlit bulb
+   on a sage track.
+   The look is driven by [data-theme] on <html> (set before first paint), so
+   the switch is correct from the very first frame; the checkbox just mirrors
+   it for keyboard and screen-reader users. Drawn at 220x110 and scaled down
+   with --bulb-scale; every colour below is a variable so it's easy to tweak. */
+.theme-switch {
+  --bulb-scale: 0.38;
+  position: relative;
+  flex: none;
+  width: calc(220px * var(--bulb-scale));
+  height: calc(110px * var(--bulb-scale));
+}
+.bulb-switch {
+  /* off (light mode) */
+  --bulb-track: #c7d7cf;
+  --bulb-track-shade: rgba(12, 40, 30, 0.2);
+  --bulb-track-ring: rgba(12, 40, 30, 0.18);
+  --bulb-track-glow: rgba(34, 232, 255, 0);
+  --bulb-body: #eaf4f0;
+  --bulb-rim: #eaf4f0;
+  --bulb-body-inner: #cbded6;
+  --bulb-drop: rgba(12, 40, 30, 0.32);
+  --bulb-halo-a: rgba(34, 232, 255, 0);
+  --bulb-halo-b: rgba(255, 46, 196, 0);
+  --bulb-hub: #c2d8d0;
+  --bulb-hub-ring: #afc9bf;
+  --bulb-hub-glow-a: rgba(34, 232, 255, 0);
+  --bulb-hub-glow-b: rgba(255, 46, 196, 0);
+  --bulb-dot: #8fb2a7;
+  --bulb-dot-ring: #a7c4b9;
+  --bulb-filament: #a7c4b9;
+
+  position: relative;
+  width: 220px;
+  height: 110px;
+  transform: scale(var(--bulb-scale));
+  transform-origin: 0 0;
+}
+[data-theme="dark"] .bulb-switch {
+  /* on (dark mode) */
+  --bulb-track: #0c1028;
+  --bulb-track-shade: rgba(0, 0, 0, 0.55);
+  --bulb-track-ring: rgba(34, 232, 255, 0.34);
+  --bulb-track-glow: rgba(34, 232, 255, 0.2);
+  --bulb-body: #a7694a;
+  --bulb-rim: #a56758;
+  --bulb-body-inner: #6b454f;
+  --bulb-drop: rgba(0, 0, 0, 0.4);
+  --bulb-halo-a: rgba(253, 184, 67, 0.1);
+  --bulb-halo-b: rgba(253, 184, 67, 0);
+  --bulb-hub: #feed6b;
+  --bulb-hub-ring: #fdec6a;
+  --bulb-hub-glow-a: #bca83c;
+  --bulb-hub-glow-b: #a1664a;
+  --bulb-dot: #fef401;
+  --bulb-dot-ring: #fdb843;
+  --bulb-filament: #fef4d5;
+}
+.bulb-switch input {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  opacity: 0;
+  z-index: 100;
+  cursor: pointer;
+}
+.bulb-switch input:focus-visible ~ label {
+  outline: 6px solid var(--cyan);
+  outline-offset: 10px;
+}
+.bulb-switch label {
+  position: relative;
+  height: 110px;
+  width: 220px;
+  background-color: var(--bulb-track);
+  border-radius: 100px;
+  display: block;
+  box-shadow:
+    inset 0 0 20px var(--bulb-track-shade),
+    inset 0 0 5px -2px var(--bulb-track-shade),
+    0 0 0 3px var(--bulb-track-ring),
+    0 0 26px var(--bulb-track-glow);
+  transition:
+    background-color 0.7s,
+    box-shadow 0.7s;
+}
+.bulb-switch label .bulb {
+  height: 90px;
+  width: 90px;
+  background-color: var(--bulb-body);
+  border-radius: 50%;
+  position: relative;
+  top: 10px;
+  left: 10px;
+  display: block;
+  transition: 0.7s;
+  box-shadow:
+    inset 0 0 1px 3px var(--bulb-rim),
+    inset 0 0 6px 8px var(--bulb-body-inner),
+    0 20px 30px -10px var(--bulb-drop),
+    0 0 30px 50px var(--bulb-halo-a),
+    0 0 60px 70px var(--bulb-halo-b);
+}
+.bulb-switch label .bulb .bulb-center {
+  position: absolute;
+  display: block;
+  height: 36px;
+  width: 36px;
+  background-color: var(--bulb-hub);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transition: 0.7s;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    inset 0 0 0 4px var(--bulb-hub-ring),
+    0 0 12px 10px var(--bulb-hub-glow-a),
+    0 0 20px 14px var(--bulb-hub-glow-b);
+}
+.bulb-switch label .bulb .bulb-center:after {
+  content: "";
+  display: block;
+  height: 14px;
+  width: 14px;
+  background-color: var(--bulb-dot);
+  border-radius: 50%;
+  position: absolute;
+  transition: 0.7s;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 2px 4px var(--bulb-dot-ring);
+}
+.bulb-switch label .bulb .filament-1,
+.bulb-switch label .bulb .filament-2 {
+  position: absolute;
+  display: block;
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.bulb-switch label .bulb .filament-1:after,
+.bulb-switch label .bulb .filament-2:after,
+.bulb-switch label .bulb .filament-1:before,
+.bulb-switch label .bulb .filament-2:before {
+  content: "";
+  display: block;
+  height: 6px;
+  width: 17px;
+  border-radius: 50%;
+  border: 2px solid var(--bulb-filament);
+  position: absolute;
+  transition: 0.7s;
+  top: -4px;
+  left: -2px;
+  transform: rotate(-10deg);
+}
+.bulb-switch label .bulb .filament-1:before,
+.bulb-switch label .bulb .filament-2:before {
+  left: 15px;
+  transform: rotate(10deg);
+}
+.bulb-switch label .bulb .filament-2 {
+  transform: translate(-50%, -50%) rotate(45deg) !important;
+}
+.bulb-switch .reflections {
+  height: 100%;
+  width: 100%;
+  display: block;
+  border-radius: 50%;
+  overflow: hidden;
+  position: absolute;
+  z-index: 90;
+  perspective: 70px;
+}
+.bulb-switch .reflections span {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  background-image: linear-gradient(
+    -135deg,
+    transparent 10%,
+    rgba(255, 255, 255, 0.3)
+  );
+  position: absolute;
+  left: -40px;
+  bottom: -45px;
+}
+.bulb-switch .reflections span:after {
+  content: "";
+  display: block;
+  height: 35px;
+  width: 20px;
+  position: absolute;
+  top: -36px;
+  right: -40px;
+  border-radius: 50%;
+  box-shadow: 4px -2px 0 -3px rgba(255, 255, 255, 0.4);
+  filter: blur(1px);
+  transform: rotate(-10deg);
+}
+.bulb-switch .reflections:after {
+  content: "";
+  display: block;
+  height: 80px;
+  width: 50px;
+  background-image: linear-gradient(
+    80deg,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(255, 255, 255, 0.5)
+  );
+  border-radius: 10% 20% 50% 30%/30% 60% 30% 40%;
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: rotateX(-25deg) rotate(-35deg) skewx(-15deg) translate(10px, -20px);
+  top: -8px;
+  left: -5px;
+}
+.bulb-switch .reflections:before {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 10px;
+  width: 30px;
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.15)
+  );
+  bottom: 10px;
+  right: 0px;
+  transform: rotate(45deg);
+}
+
+/* dark mode = lit bulb, slid to the right */
+[data-theme="dark"] .bulb-switch label .bulb {
+  left: 120px;
+}
+
+/* Sun / moon hints: each sits where the bulb would be if it were on the other
+   side, so the switch reads as a theme toggle. Dark mode (bulb on the right)
+   shows the sun on the left; light mode (bulb on the left) shows the moon on
+   the right. They turn and fade in as the bulb slides across. */
+.bulb-switch .bulb-icon {
+  position: absolute;
+  top: 32px;
+  width: 46px;
+  height: 46px;
+  opacity: 0;
+  transform: rotate(-70deg) scale(0.55);
+  transition:
+    opacity 0.7s,
+    transform 0.7s;
+  pointer-events: none;
+}
+.bulb-switch .bulb-icon-sun {
+  left: 32px;
+  color: #f5c451;
+  filter: drop-shadow(0 0 5px rgba(253, 184, 67, 0.55));
+}
+.bulb-switch .bulb-icon-moon {
+  left: 142px;
+  color: var(--cyan);
+}
+[data-theme="dark"] .bulb-switch .bulb-icon-sun,
+[data-theme="light"] .bulb-switch .bulb-icon-moon {
+  opacity: 0.9;
+  transform: none;
+}
+
+/* Sparks: fly out of the bulb every time it lights up (dark mode). Sizes and
+   distances are a little bigger than in the original 220px design so they
+   still read at the switch's small on-screen size. */
+.bulb-switch .sparks i {
+  display: block;
+  position: absolute;
+  border-radius: 50%;
+  background-color: #f3d43a;
+  box-shadow: 0 0 6px 2px rgba(253, 184, 67, 0.85);
+  opacity: 0;
+  height: 3px;
+  width: 3px;
+}
+.bulb-switch .sparks .spark1 {
+  right: -5px;
+  bottom: 23px;
+}
+.bulb-switch .sparks .spark2 {
+  right: 20px;
+  bottom: 80px;
+}
+.bulb-switch .sparks .spark3 {
+  left: 20px;
+  bottom: 80px;
+}
+.bulb-switch .sparks .spark4 {
+  left: 20px;
+  bottom: 20px;
+}
+[data-theme="dark"] .bulb-switch .sparks .spark1 {
+  animation: bulb-spark-1 2s ease-in-out 0.4s;
+}
+[data-theme="dark"] .bulb-switch .sparks .spark2 {
+  animation: bulb-spark-2 2.4s ease-in-out 0.4s;
+}
+[data-theme="dark"] .bulb-switch .sparks .spark3 {
+  animation: bulb-spark-3 2s ease-in-out 0.9s;
+}
+[data-theme="dark"] .bulb-switch .sparks .spark4 {
+  animation: bulb-spark-4 1.7s ease-in-out 0.9s;
+}
+@keyframes bulb-spark-1 {
+  0% {
+    right: -5px;
+    height: 2px;
+    width: 2px;
+    opacity: 0;
+  }
+  20% {
+    height: 7px;
+    width: 7px;
+    right: 0px;
+    opacity: 1;
+  }
+  30% {
+    right: -5px;
+    opacity: 1;
+    height: 7px;
+    width: 7px;
+  }
+  70% {
+    height: 7px;
+    width: 7px;
+  }
+  100% {
+    right: -85px;
+    bottom: 55px;
+    opacity: 0;
+  }
+}
+@keyframes bulb-spark-2 {
+  0% {
+    height: 7px;
+    width: 7px;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    right: -35px;
+    bottom: 140px;
+    opacity: 0;
+  }
+}
+@keyframes bulb-spark-3 {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+    height: 5px;
+    width: 5px;
+  }
+  100% {
+    left: -10px;
+    bottom: 140px;
+    opacity: 0;
+    height: 7px;
+    width: 7px;
+  }
+}
+@keyframes bulb-spark-4 {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+    height: 5px;
+    width: 5px;
+  }
+  100% {
+    left: -40px;
+    bottom: -30px;
+    opacity: 0;
+    height: 7px;
+    width: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="dark"] .bulb-switch .sparks i {
+    animation: none;
+  }
+  .bulb-switch .bulb-icon,
+  .bulb-switch label,
+  .bulb-switch label .bulb,
+  .bulb-switch label .bulb .bulb-center,
+  .bulb-switch label .bulb .bulb-center:after,
+  .bulb-switch label .bulb .filament-1:before,
+  .bulb-switch label .bulb .filament-2:before,
+  .bulb-switch label .bulb .filament-1:after,
+  .bulb-switch label .bulb .filament-2:after {
+    transition: none;
+  }
+}
+
 /* =========================================================================
    NAV
    ========================================================================= */
@@ -457,13 +874,24 @@ section {
 
 @media (max-width: 860px) {
   .nav-desktop .nav-links,
-  .nav-desktop .btn,
+  .nav-desktop .btn {
+    display: none;
+  }
+  /* Theme toggle stays in the topbar on mobile, just left of the burger. */
+  .nav-desktop {
+    margin-left: auto;
+  }
   .nav-desktop .theme-toggle {
+    min-height: 2.6rem;
+    padding: 0.4rem 0.55rem;
+  }
+  .nav-desktop .theme-toggle .tt-label {
     display: none;
   }
   .nav-toggle-wrap {
     display: block;
     position: relative;
+    margin-left: 0.6rem;
   }
   .nav-toggle summary {
     list-style: none;
@@ -571,6 +999,56 @@ section {
 .hero.spot-active::before,
 #contact.spot-active::before {
   opacity: 1;
+}
+
+/* ---------- Hero fireflies (dark mode only; spawned by scripts.js) ----------
+   They fly out of the bulb switch when dark mode turns on and fade away when
+   it turns off. Sits above the hero background but behind the hero content. */
+.fireflies {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.firefly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--ff-size, 5px);
+  height: var(--ff-size, 5px);
+  margin: calc(var(--ff-size, 5px) / -2) 0 0 calc(var(--ff-size, 5px) / -2);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.firefly i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fdf7b0;
+  box-shadow:
+    0 0 6px 2px rgba(214, 255, 90, 0.9),
+    0 0 18px 7px rgba(214, 255, 90, 0.35);
+  animation: firefly-glow var(--ff-pulse, 2.4s) ease-in-out var(--ff-delay, 0s)
+    infinite;
+}
+@keyframes firefly-glow {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(0.7);
+  }
+  45%,
+  55% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+@media print {
+  .fireflies {
+    display: none;
+  }
 }
 
 .hero-eyebrow {
@@ -1535,7 +2013,7 @@ text.arch-fn-3 {
 .job::before {
   content: "";
   position: absolute;
-  left: 0;
+  left: -3px;
   top: 0.4rem;
   width: 20px;
   height: 20px;
@@ -2273,7 +2751,6 @@ text.arch-fn-3 {
   position: relative;
   z-index: 4;
   margin-top: clamp(-4rem, -9vw, -9rem);
-  border-radius: var(--radius-l) var(--radius-l) 0 0;
   box-shadow: 0 -30px 70px -45px rgba(0, 0, 0, 0.8);
 }
 
@@ -2283,12 +2760,29 @@ text.arch-fn-3 {
   left: 0;
   right: 0;
   top: -100px;
-  height: 110px;
+  height: 100px;
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--bg));
   z-index: -1;
 }
 
+#education {
+  position: relative;
+  z-index: 4;
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.8);
+}
+
+#education::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -100px;
+  height: 100px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--bg), transparent);
+  z-index: -1;
+}
 /* =========================================================================
    CONTACT -- its own atmospheric entrance, mirroring the hero. As
    --contact-progress goes 0 -> 1 the section settles into place: it never
