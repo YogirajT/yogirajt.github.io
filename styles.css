@@ -2871,19 +2871,26 @@ html {
     color 1.8s ease;
 }
 
-body,
-.nav,
-.hero,
-.about,
-.experience,
-.skills,
-.edu,
-.contact,
-.facts,
-.job-card,
-.skill-group,
-.avatar-slot,
-.ambient-layer {
+/* The slow colour cross-fade only applies while the theme is actually
+   switching (scripts.js puts .theme-shifting-to-* on <html> for ~1.9s). Kept
+   off these elements the rest of the time so it can't override their own
+   hover / reveal transitions (e.g. the .job-card lift). The ambient layer
+   isn't listed: it has its own opacity fade further down. */
+html:is(.theme-shifting-to-light, .theme-shifting-to-dark)
+  :is(
+    body,
+    .nav,
+    .hero,
+    .about,
+    .experience,
+    .skills,
+    .edu,
+    .contact,
+    .facts,
+    .job-card,
+    .skill-group,
+    .avatar-slot
+  ) {
   transition:
     background-color 1.8s ease,
     color 1.5s ease,

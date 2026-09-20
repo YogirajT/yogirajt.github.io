@@ -138,8 +138,8 @@
      buzz) plus a CSS glow pulse. The loop pauses while the hero is off-screen
      and nothing runs at all under prefers-reduced-motion. */
 
-  const FIREFLY_MIN = 8;
-  const FIREFLY_MAX = 12;
+  const FIREFLY_MIN = 6;
+  const FIREFLY_MAX = 10;
   const FIREFLY_AREA_PER_FLY = 80000; // px² of hero per firefly
   const FIREFLY_FADE_IN_MS = 700;
   const FIREFLY_FADE_OUT_MS = 1100;
