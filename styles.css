@@ -80,9 +80,13 @@
   --ink: #0c1a14;
   --ink-soft: #45564d;
   --line: rgba(12, 40, 30, 0.14);
-  --cyan: #017f8c;
+  /* Darkened from the original #017f8c / #0f8a4b: both are used as *text* color
+     (eyebrows, nav links, job company, tags, the hero role line), and needed a
+     touch more contrast against --bg / --bg-2 / --card to clear WCAG AA (4.5:1)
+     at the small sizes they're set in. Dark theme is unaffected. */
+  --cyan: #016b77;
   --magenta: #b30074;
-  --green: #0f8a4b;
+  --green: #0b7540;
   --violet: #7c3aed;
   --rain: rgba(32, 46, 50, 0.6);
   --shadow: 0 20px 44px -26px rgba(10, 30, 20, 0.28);
@@ -191,6 +195,14 @@ ul {
   border-radius: 4px;
 }
 
+/* Briefly hides the page while i18n.js swaps English for German on first
+   paint (?ln=de, or a remembered choice) -- English itself is never delayed,
+   see the inline script in <head>. A hard three-second safety net in that
+   inline script removes this class even if i18n.js fails to load. */
+html.i18n-pending body {
+  visibility: hidden;
+}
+
 .wrap {
   max-width: var(--wrap);
   margin-inline: auto;
@@ -271,6 +283,12 @@ section {
   border-color: var(--cyan);
   box-shadow: var(--glow-cyan);
   font-weight: 700;
+}
+/* Near-black text reads fine on the vivid dark-theme cyan, but against the
+   darker, less saturated light-theme cyan, white clears AA text contrast by a
+   wider margin. */
+[data-theme="light"] .btn-primary {
+  color: #ffffff;
 }
 .btn-primary:hover {
   box-shadow: 0 0 22px rgba(34, 232, 255, 0.7);
@@ -791,6 +809,55 @@ section {
 }
 
 /* =========================================================================
+   LANGUAGE SWITCH (EN / DE)
+   ========================================================================= */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.25rem;
+  flex: none;
+}
+.lang-switch a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.lang-switch a[aria-current="true"] {
+  background: var(--cyan);
+  color: #041018;
+}
+[data-theme="light"] .lang-switch a[aria-current="true"] {
+  color: #ffffff;
+}
+.lang-switch a:not([aria-current="true"]):hover {
+  color: var(--cyan);
+}
+@media (max-width: 860px) {
+  .nav-desktop .lang-switch {
+    display: none;
+  }
+}
+.lang-switch-mobile {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+}
+
+/* =========================================================================
    NAV
    ========================================================================= */
 .nav {
@@ -873,7 +940,7 @@ section {
 }
 
 @media (max-width: 860px) {
-  .nav-desktop .nav-links,
+  .nav-desktop nav,
   .nav-desktop .btn {
     display: none;
   }
@@ -1168,8 +1235,49 @@ section {
   border: 0;
 }
 
-.arch-dots {
+.arch-controls {
   margin-top: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+.arch-pause {
+  flex: none;
+  width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.arch-pause:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.arch-pause svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+.arch-pause .icon-play {
+  display: none;
+}
+.arch-pause[aria-pressed="true"] .icon-pause {
+  display: none;
+}
+.arch-pause[aria-pressed="true"] .icon-play {
+  display: block;
+}
+.arch-dots {
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;

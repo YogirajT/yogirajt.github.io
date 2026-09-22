@@ -1,6 +1,9 @@
 /**
  * Site behaviour for yogirajt.github.io
  *
+ * Accessibility: honours window.siteI18n (see i18n.js) for every user-facing
+ * string it creates itself (toast, live-region announcements, aria-labels).
+ *
  * A plain script (no build step, no modules). Every feature looks up its own
  * markup and quietly does nothing when it isn't on the page, so the same file
  * also works on pages that only contain part of the site (e.g. privacy.html).
@@ -57,6 +60,10 @@
     }
   };
 
+  /** Translates `key` (falling back to `fallback` in English) via i18n.js, if it loaded. */
+  const t = (key, fallback, vars) =>
+    window.siteI18n ? window.siteI18n.t(key, fallback, vars) : fallback;
+
   /* ==========================================================================
      2. PAGE FEATURES
      ========================================================================== */
@@ -78,13 +85,21 @@
 
     const syncLabels = () => {
       const light = isLightTheme();
-      if (bulb) bulb.checked = !light;
+      if (bulb) {
+        bulb.checked = !light;
+        bulb.setAttribute("aria-checked", String(!light));
+        bulb.setAttribute(
+          "aria-label",
+          t("a.theme.dark", "Dark mode"),
+        );
+      }
       buttons.forEach((button) => {
         button.setAttribute("aria-pressed", String(light));
         const label = button.querySelector(".tt-label");
         if (label) label.textContent = light ? "LIGHT" : "DARK";
       });
     };
+    document.addEventListener("sitelanguagechange", syncLabels);
 
     const setTheme = (theme) => {
       if (currentTheme() === theme) return;
@@ -386,11 +401,15 @@
 
     const panels = cycler.querySelectorAll("[data-arch-panel]");
     const dots = cycler.querySelectorAll("[data-arch-target]");
+    const pauseButton = cycler.querySelector("[data-arch-pause]");
+    const statusEl = cycler.querySelector("[data-arch-status]");
 
     let index = 0; // position of the visible diagram in ARCH_ORDER
     let timer = null;
     let hovered = false;
     let inView = true;
+    let userPaused = false;
+    let announceTimer = null;
 
     /** Key of the diagram `step` places after (or before) the current one. */
     const keyAtOffset = (step) =>
@@ -400,19 +419,42 @@
       dots.forEach((dot) => {
         const isActive = dot.getAttribute("data-arch-target") === key;
         dot.classList.toggle("is-active", isActive);
-        dot.setAttribute("aria-selected", String(isActive));
+        if (isActive) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
       });
+    };
+
+    /** Tells a screen reader which diagram is now showing (throttled so
+     *  auto-advance every few seconds doesn't talk over the user). */
+    const announce = (key) => {
+      if (!statusEl) return;
+      clearTimeout(announceTimer);
+      const n = ARCH_ORDER.indexOf(key) + 1;
+      // Read the name straight from that dot's visually-hidden label rather
+      // than keeping a second copy of the diagram names in JS: i18n.js keeps
+      // that label in the current language already.
+      const dot = cycler.querySelector(`[data-arch-target="${key}"]`);
+      const name = dot ? dot.textContent.trim() : key;
+      const message = t("arch.status", "Diagram {n} of {total}: {name}", {
+        n,
+        total: ARCH_ORDER.length,
+        name,
+      });
+      statusEl.textContent = "";
+      announceTimer = setTimeout(() => {
+        statusEl.textContent = message;
+      }, 120);
     };
 
     const showDiagram = (key) => {
       index = ARCH_ORDER.indexOf(key);
       panels.forEach((panel) => {
-        panel.classList.toggle(
-          "is-active",
-          panel.getAttribute("data-arch-panel") === key,
-        );
+        const active = panel.getAttribute("data-arch-panel") === key;
+        panel.classList.toggle("is-active", active);
+        panel.setAttribute("aria-hidden", String(!active));
       });
       highlightDot(key);
+      announce(key);
     };
 
     /**
@@ -424,6 +466,8 @@
       const toPanel = cycler.querySelector(`[data-arch-panel="${key}"]`);
       const fromPanel = cycler.querySelector(".arch-diagram.is-active");
       if (!toPanel || toPanel === fromPanel) return;
+      toPanel.setAttribute("aria-hidden", "false");
+      if (fromPanel) fromPanel.setAttribute("aria-hidden", "true");
 
       if (reduceMotion) {
         showDiagram(key);
@@ -447,6 +491,7 @@
         toPanel.classList.remove(enterClass);
         toPanel.classList.add("is-active");
       });
+      announce(key);
 
       const cleanup = () => {
         toPanel.classList.remove("arch-swipe");
@@ -463,11 +508,23 @@
     /** (Re)starts auto-advance, unless something says it should be paused. */
     const refreshTimer = () => {
       clearInterval(timer);
-      if (reduceMotion || hovered || !inView) return;
+      if (reduceMotion || hovered || !inView || userPaused) return;
 
       const delay =
         window.innerWidth <= 700 ? ARCH_DELAY_MOBILE_MS : ARCH_DELAY_MS;
       timer = setInterval(() => showDiagram(keyAtOffset(1)), delay);
+    };
+
+    const syncPauseButton = () => {
+      if (!pauseButton) return;
+      const paused = userPaused || reduceMotion;
+      pauseButton.setAttribute("aria-pressed", String(paused));
+      pauseButton.setAttribute(
+        "aria-label",
+        paused
+          ? t("arch.play", "Resume diagram rotation")
+          : t("arch.pause", "Pause diagram rotation"),
+      );
     };
 
     dots.forEach((dot) => {
@@ -476,6 +533,19 @@
         refreshTimer();
       });
     });
+
+    if (pauseButton) {
+      // A manual pause/play, independent of the automatic reasons above (hover,
+      // focus, off-screen, reduced motion): it is the only one that persists.
+      pauseButton.hidden = reduceMotion; // reduced motion is already fully paused
+      pauseButton.addEventListener("click", () => {
+        userPaused = !userPaused;
+        syncPauseButton();
+        refreshTimer();
+      });
+      syncPauseButton();
+      document.addEventListener("sitelanguagechange", syncPauseButton);
+    }
 
     // Pause while the pointer is over the diagrams or keyboard focus is inside.
     [
@@ -554,6 +624,7 @@
 
   function initMobileNav() {
     const navToggle = document.querySelector(".nav-toggle");
+    const summary = navToggle?.querySelector("summary");
     if (!navToggle) return;
 
     const closeMenu = () => navToggle.removeAttribute("open");
@@ -566,6 +637,22 @@
     document.addEventListener("click", (event) => {
       if (navToggle.open && !navToggle.contains(event.target)) closeMenu();
     });
+
+    // <details>/<summary> has no built-in aria-expanded; keep one in sync so
+    // screen readers announce the menu's open/closed state.
+    if (summary) {
+      summary.setAttribute("aria-expanded", "false");
+      navToggle.addEventListener("toggle", () => {
+        summary.setAttribute("aria-expanded", String(navToggle.open));
+      });
+      // Escape closes the menu and returns focus to the toggle button.
+      navToggle.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && navToggle.open) {
+          closeMenu();
+          summary.focus();
+        }
+      });
+    }
   }
 
   /* --- Scroll reveal --------------------------------------------------------
@@ -787,6 +874,8 @@
       if (!element) {
         element = document.createElement("div");
         element.className = "toast";
+        element.setAttribute("role", "status");
+        element.setAttribute("aria-live", "polite");
         document.body.appendChild(element);
       }
       element.textContent = message;
@@ -812,7 +901,7 @@
     copyButton.style.marginLeft = "0.5rem";
     copyButton.addEventListener("click", () => {
       navigator.clipboard.writeText(CONTACT_EMAIL).then(() => {
-        showToast("Email copied to clipboard");
+        showToast(t("toast.copied", "Email copied to clipboard"));
       });
     });
   }
@@ -1416,10 +1505,18 @@
 
   /* --- Banner --- */
 
+  let cookieReturnFocus = null;
+
   const showBanner = () => {
     const banner = document.getElementById("cookie-banner");
     if (!banner) return;
 
+    // Deliberately does NOT move focus into the banner: it is a non-modal
+    // notice (aria-modal="false") that appears on first load, right after the
+    // skip link -- auto-focusing it here would jump keyboard users straight
+    // past the skip link with no way back via a forward Tab press. It is
+    // still the very next stop from the top, so it is reached a moment later.
+    cookieReturnFocus = document.activeElement;
     banner.hidden = false;
     requestAnimationFrame(() => banner.classList.add("is-visible"));
   };
@@ -1431,6 +1528,10 @@
     banner.classList.remove("is-visible");
     setTimeout(() => {
       banner.hidden = true;
+      if (cookieReturnFocus && document.contains(cookieReturnFocus)) {
+        cookieReturnFocus.focus();
+      }
+      cookieReturnFocus = null;
     }, BANNER_HIDE_DELAY_MS);
   };
 
