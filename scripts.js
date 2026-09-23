@@ -620,6 +620,110 @@
     refreshTimer();
   }
 
+  /* --- Language switch: a 3D globe that spins between EN and DE -------------
+     The two links in .lang-switch are labels written on opposite sides of one
+     globe (see the CSS). Whichever part of it is hit, a click always goes to the
+     language that isn't showing: the globe spins half a turn to show its far
+     side, and once the new label is coming round the real link is
+     followed, so i18n.js does the actual switching exactly as before. Only the
+     label pointing away is exposed to keyboards / screen readers, as the
+     "switch to ..." action. */
+
+  function initLangSwitch() {
+    const box = document.querySelector(".lang-switch");
+    const faces = box ? [...box.querySelectorAll("a[data-lang]")] : [];
+    if (faces.length < 2) return;
+
+    const SPIN_MS = 800; // matches the --rot transition in the CSS
+    const SPIN_DEG = 180; // half a turn: ends on the other language
+    const SWAP_AT = 0.5; // follow the link once the new label is coming round
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const titles = new Map(faces.map((f) => [f, f.getAttribute("title") || ""]));
+    let rot = null; // globe angle in degrees once we've set it; null = CSS decides
+    let relaying = false;
+    let busy = false;
+
+    const showing = () =>
+      faces.find((f) => f.getAttribute("aria-current") === "true") || faces[0];
+    const waiting = () => faces.find((f) => f !== showing());
+    const restAngle = () => (showing().dataset.lang === "de" ? 180 : 0);
+
+    const setRot = (deg, animate) => {
+      if (animate) {
+        box.classList.add("is-animated");
+      } else {
+        box.classList.remove("is-animated");
+      }
+      box.style.setProperty("--rot", `${deg}deg`);
+      if (!animate) void box.offsetWidth; // commit the snap before anything else changes
+      rot = deg;
+    };
+
+    // Keep focus order, screen-reader exposure and tooltips in step with the labels.
+    const sync = () => {
+      const front = showing();
+      const back = waiting();
+      faces.forEach((face) => {
+        face.tabIndex = face === front ? -1 : 0;
+        if (face === front) face.setAttribute("aria-hidden", "true");
+        else face.removeAttribute("aria-hidden");
+      });
+      // Hovering the globe names the language a click will switch to.
+      front.setAttribute("title", titles.get(back));
+      back.setAttribute("title", titles.get(back));
+      // If the language changed by other means, park the globe on the right side.
+      if (!busy && rot !== null && ((rot % 360) + 360) % 360 !== restAngle()) {
+        setRot(restAngle(), false);
+      }
+    };
+
+    // Capture phase: runs before i18n.js sees the click, so we can hold it back
+    // until the globe is well into its spin.
+    box.addEventListener(
+      "click",
+      (event) => {
+        if (relaying || !event.target.closest("a[data-lang]")) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (busy) return;
+
+        const target = waiting();
+        const from = rot ?? restAngle();
+        busy = true;
+        setRot(from + SPIN_DEG, true);
+
+        const quick = reduceMotion.matches;
+        window.setTimeout(
+          () => {
+            relaying = true;
+            target.click();
+            relaying = false;
+          },
+          quick ? 0 : SPIN_MS * SWAP_AT,
+        );
+        window.setTimeout(
+          () => {
+            busy = false;
+            // The switch didn't register (e.g. it was blocked): turn back.
+            if (showing() !== target) setRot(from, true);
+            sync();
+          },
+          quick ? 50 : SPIN_MS + 100,
+        );
+      },
+      true,
+    );
+
+    // i18n.js flips aria-current when the language changes; follow it.
+    new MutationObserver(sync).observe(box, {
+      attributes: true,
+      attributeFilter: ["aria-current"],
+      subtree: true,
+    });
+
+    sync();
+  }
+
   /* --- Mobile nav: close the <details> menu after a link is tapped ---------- */
 
   function initMobileNav() {
@@ -1596,6 +1700,7 @@
   initFooterYear();
   initArchCycler();
   initMobileNav();
+  initLangSwitch();
   initScrollReveal();
   initScrollSpy();
   initTypewriter();
