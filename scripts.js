@@ -1333,16 +1333,23 @@
       const yPercent =
         edge === 2 ? -5 + Math.random() * 10 : Math.random() * 60;
 
-      setStyleProps(root, {
+      // Set on the two lightning elements themselves rather than on <html>:
+      // a custom property changed on the root makes the browser re-check
+      // styles for the entire page, twice per flash.
+      setStyleProps(lightningElement, {
         "--lightning-x": `${xPercent}%`,
         "--lightning-y": `${yPercent}%`,
         "--lightning-opacity": peakOpacity,
       });
+      boltSvg?.style.setProperty("--lightning-opacity", peakOpacity);
 
       drawBolt(xPercent, yPercent);
 
       setTimeout(
-        () => root.style.setProperty("--lightning-opacity", 0),
+        () => {
+          lightningElement.style.setProperty("--lightning-opacity", 0);
+          boltSvg?.style.setProperty("--lightning-opacity", 0);
+        },
         90 + Math.random() * 80,
       );
     };
