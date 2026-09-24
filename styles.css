@@ -2848,6 +2848,28 @@ text.arch-fn-3 {
   transform-origin: center;
   transition: opacity 0.6s ease;
   will-change: transform, opacity;
+  /* Idle sway: a transform-only animation, so it runs on the compositor with
+     no script involved. Per-leaf amplitude, speed and starting point come
+     from the --sway-* properties set in scripts.js. The static transform
+     above is the resting pose (and the reduced-motion fallback). */
+  animation: leaf-sway var(--sway-duration, 9s) ease-in-out
+    var(--sway-delay, 0s) infinite alternate;
+}
+@keyframes leaf-sway {
+  from {
+    transform: translate3d(
+        calc(var(--sway-x, 0px) * -1),
+        calc(var(--sway-y, 0px) * -1),
+        0
+      )
+      rotate(calc(var(--leaf-rotation, 0deg) - var(--sway-rot, 0deg)))
+      scale(var(--leaf-scale, 1));
+  }
+  to {
+    transform: translate3d(var(--sway-x, 0px), var(--sway-y, 0px), 0)
+      rotate(calc(var(--leaf-rotation, 0deg) + var(--sway-rot, 0deg)))
+      scale(var(--leaf-scale, 1));
+  }
 }
 .ambient-leaf svg {
   display: block;
@@ -3080,6 +3102,23 @@ text.arch-fn-3 {
   }
 }
 
+/* Phones and touch-first devices: drop the two full-screen effects that make
+   the GPU blend against everything drawn behind them on every frame.
+   - The nav's backdrop blur (its background is already ~90% opaque, so the
+     blur is barely visible; the opacity goes up a touch to compensate).
+   - The CRT scanline overlay, whose overlay blend adds less than half a colour
+     level on the dark background, i.e. nothing you can see. */
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  .nav {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--bg-2) 95%, transparent);
+  }
+  body::before {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-layer {
     filter: none !important;
@@ -3091,6 +3130,7 @@ text.arch-fn-3 {
   }
   .ambient-leaf {
     transition: none;
+    animation: none;
   }
 
   #top {

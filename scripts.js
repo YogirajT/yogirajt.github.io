@@ -1012,11 +1012,12 @@
 
   /* ==========================================================================
      3. AMBIENT SCENE
-     One persistent rain / jungle / lightning layer behind the whole page. A
-     single requestAnimationFrame loop drives every atmospheric effect (rain
-     intensity, leaf sway, hero + contact transitions, glow position). It reads
-     layout values fresh each frame, so it responds to scroll and resize with
-     no extra listeners, and the leaves keep their slow idle sway at rest.
+     One persistent rain / jungle / lightning layer behind the whole page.
+     Nothing in it needs a script to keep moving: rain falls and leaves sway
+     through CSS animations that run on the compositor. The script only reacts
+     to scroll / resize (rain + foliage intensity, hero + contact transitions,
+     glow position), and only does any work in a frame where something
+     actually changed. At rest the page runs no scripted animation at all.
      ========================================================================== */
 
   /* --- Foliage geometry ------------------------------------------------------
@@ -1199,11 +1200,8 @@
        spread evenly down the viewport (with jitter) so the foliage reads as a
        continuous border instead of random patches and gaps. */
 
-    const leaves = []; // { element, baseRotation, swayRange, swaySeed, swaySpeed }
-
     const createLeaves = () => {
       leavesContainer.innerHTML = "";
-      leaves.length = 0;
 
       const perSide = Math.ceil(leafCount / 2);
 
@@ -1250,7 +1248,14 @@
               ? 0.34 + Math.random() * 0.18
               : 0.22 + Math.random() * 0.12;
 
+        // Idle sway is a CSS animation (see @keyframes leaf-sway), so it runs
+        // off the main thread. Same motion as before: a slow back-and-forth
+        // over a period of roughly 12-25 s, larger for leaves nearer the
+        // viewer, starting at a random point in its cycle.
         const swayRange = depth === "front" ? 14 : depth === "mid" ? 8 : 4;
+        const swaySpeed = 0.00025 + Math.random() * 0.00025; // rad per ms
+        const swayHalfPeriod = Math.PI / swaySpeed / 1000; // seconds, one way
+        const swayDelay = -Math.random() * swayHalfPeriod * 2;
         const tint = pick(LEAF_TINTS);
 
         setStyleProps(leaf, {
@@ -1260,47 +1265,15 @@
           "--leaf-rotation": `${rotation}deg`,
           "--leaf-opacity": baseOpacity,
           "--leaf-tint": tint,
-        });
-
-        leaves.push({
-          element: leaf,
-          baseRotation: rotation,
-          swayRange,
-          swaySeed: Math.random() * Math.PI * 2,
-          swaySpeed: 0.00025 + Math.random() * 0.00025,
+          "--sway-x": `${(swayRange * 0.18).toFixed(2)}px`,
+          "--sway-y": `${(swayRange * 0.4).toFixed(2)}px`,
+          "--sway-rot": `${(swayRange * 0.25).toFixed(2)}deg`,
+          "--sway-duration": `${swayHalfPeriod.toFixed(2)}s`,
+          "--sway-delay": `${swayDelay.toFixed(2)}s`,
         });
 
         leavesContainer.appendChild(leaf);
       }
-    };
-
-    /**
-     * Leaf movement: slow, gentle and bounded, so a leaf never drifts
-     * permanently off screen however far the page scrolls. Sway is a slow
-     * idle "breathing" motion over time plus a small scroll-bounded offset
-     * per depth.
-     */
-    const updateLeaves = (scrollY, now) => {
-      if (reducedMotionQuery.matches) return;
-
-      const viewportHeight = window.innerHeight || 800;
-      // Bounded by viewport height so the scroll offset can't accumulate into
-      // an unbounded, permanent drift.
-      const scrollPhase = (scrollY % viewportHeight) / viewportHeight;
-
-      leaves.forEach((leaf) => {
-        const idleSway =
-          Math.sin(now * leaf.swaySpeed + leaf.swaySeed) * leaf.swayRange;
-        const scrollSway =
-          Math.sin(scrollPhase * Math.PI * 2 + leaf.swaySeed) *
-          (leaf.swayRange * 0.6);
-
-        setStyleProps(leaf.element, {
-          "--leaf-shift-y": `${(idleSway * 0.4).toFixed(2)}px`,
-          "--leaf-shift-x": `${(scrollSway * 0.3).toFixed(2)}px`,
-          "--leaf-rotation": `${(leaf.baseRotation + idleSway * 0.25).toFixed(2)}deg`,
-        });
-      });
     };
 
     /* --- Lightning ---
@@ -1435,6 +1408,8 @@
 
     /* --- Apply atmosphere: one function, one set of custom properties --- */
 
+    let lastAtmosphere = "";
+
     const updateAtmosphere = (heroProgress, contactProgress) => {
       const heroFactor = 1 - heroProgress;
       const contactFactor = contactProgress;
@@ -1445,55 +1420,83 @@
       const glowX = 22 + strongest * 55;
       const glowY = 20 + (1 - strongest) * 45;
 
-      setStyleProps(root, {
+      const props = {
         "--rain-intensity": intensity.toFixed(3),
         "--leaf-density": intensity.toFixed(3),
         "--ambient-blur": `${((1 - intensity) * 0.6).toFixed(2)}px`,
         "--glow-x": `${glowX.toFixed(1)}%`,
         "--glow-y": `${glowY.toFixed(1)}%`,
-      });
+      };
+
+      // Writing a custom property on <html> makes the browser re-check styles
+      // for the whole document, so only do it when a value really changed.
+      const key = Object.values(props).join("|");
+      if (key === lastAtmosphere) return;
+      lastAtmosphere = key;
+      setStyleProps(root, props);
     };
 
-    /* --- Animation loop --- */
+    /* --- Scroll / resize driven update ---
+       No permanent animation loop: a single frame is requested when the scroll
+       position or the layout changes, and does nothing else. Measurements are
+       all read first and the custom properties written afterwards (and only
+       when their value changed), so the browser never has to recalculate
+       layout between the two. */
 
-    let rafId = null;
+    let frameRequested = false;
+    let lastHero = "";
+    let lastContact = "";
 
-    const frame = (now) => {
+    const frame = () => {
+      frameRequested = false;
+      if (reducedMotionQuery.matches) return;
+
+      // Reads
       const heroProgress = getHeroProgress();
       const contactProgress = getContactProgress();
+      const heroValue = heroProgress.toFixed(4);
+      const contactValue = contactProgress.toFixed(4);
 
+      // Writes
       updateAtmosphere(heroProgress, contactProgress);
-      topSection?.style.setProperty("--hero-progress", heroProgress.toFixed(4));
-      contactSection?.style.setProperty(
-        "--contact-progress",
-        contactProgress.toFixed(4),
-      );
-      updateLeaves(window.scrollY, now);
 
-      rafId = requestAnimationFrame(frame);
+      if (heroValue !== lastHero) {
+        lastHero = heroValue;
+        topSection?.style.setProperty("--hero-progress", heroValue);
+      }
+      if (contactValue !== lastContact) {
+        lastContact = contactValue;
+        contactSection?.style.setProperty("--contact-progress", contactValue);
+      }
     };
 
-    const startLoop = () => {
-      if (rafId !== null) return;
-      rafId = requestAnimationFrame(frame);
+    const requestFrame = () => {
+      if (frameRequested || reducedMotionQuery.matches) return;
+      frameRequested = true;
+      requestAnimationFrame(frame);
     };
 
-    const stopLoop = () => {
-      if (rafId === null) return;
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    };
+    window.addEventListener("scroll", requestFrame, { passive: true });
+    window.addEventListener("resize", requestFrame, { passive: true });
+    window.addEventListener("orientationchange", requestFrame);
+    window.addEventListener("pageshow", requestFrame); // back/forward cache
+    window.addEventListener("load", requestFrame);
+    // Content above the contact section can change height without any scroll
+    // (language switch, fonts, images, the typewriter), which moves the
+    // section the progress is measured against.
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(requestFrame).observe(document.body);
+    }
 
     reducedMotionQuery.addEventListener("change", () => {
       createRain();
 
       if (reducedMotionQuery.matches) {
-        stopLoop();
         clearTimeout(lightningTimer);
         // Leave the CSS reduced-motion fallback values in charge.
         updateAtmosphere(0, 1);
       } else {
-        startLoop();
+        requestFrame();
         scheduleLightning();
       }
     });
@@ -1506,7 +1509,7 @@
     if (reducedMotionQuery.matches) {
       updateAtmosphere(0, 1);
     } else {
-      startLoop();
+      requestFrame();
       scheduleLightning();
     }
   }
