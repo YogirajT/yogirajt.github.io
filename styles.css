@@ -86,7 +86,7 @@
   --ink: #eaf6f1;
   --ink-soft: #93a8ab;
   --line: rgba(150, 200, 210, 0.16);
-  --cyan: #00A4C2;
+  --cyan: #22e8ff;
   --magenta: #ff2ec4;
   --green: #39ff88;
   --violet: #a855f7;
@@ -111,7 +111,7 @@
      (eyebrows, nav links, job company, tags, the hero role line), and needed a
      touch more contrast against --bg / --bg-2 / --card to clear WCAG AA (4.5:1)
      at the small sizes they're set in. Dark theme is unaffected. */
-  --cyan: #00C5EB;
+  --cyan: #016b77;
   --magenta: #b30074;
   --green: #0b7540;
   --violet: #7c3aed;
@@ -306,7 +306,7 @@ section {
 }
 .btn-primary {
   background: var(--cyan);
-  color: black;
+  color: #041018;
   border-color: var(--cyan);
   box-shadow: var(--glow-cyan);
   font-weight: 700;
@@ -315,7 +315,7 @@ section {
    darker, less saturated light-theme cyan, white clears AA text contrast by a
    wider margin. */
 [data-theme="light"] .btn-primary {
-  color: black;
+  color: #ffffff;
 }
 .btn-primary:hover {
   box-shadow: 0 0 22px rgba(34, 232, 255, 0.7);
@@ -2398,7 +2398,7 @@ text.arch-fn-3 {
   letter-spacing: 0.02em;
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--green) 14%, transparent);
+  background: color-mix(in srgb, var(--green) 8%, transparent);
   color: var(--green);
   border: 1px solid color-mix(in srgb, var(--green) 35%, transparent);
   transition:
@@ -2407,18 +2407,19 @@ text.arch-fn-3 {
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
-
-[data-theme="light"] .tag {
-  color: black;
-  border: black;
-}
-
 .skill-tags .tag:hover,
 .tag-row .tag:hover {
   background: var(--green);
   color: #041018;
   transform: translateY(-1px);
   box-shadow: var(--glow-green);
+}
+/* Near-black reads fine on the vivid dark-theme green, but fails AA against
+   the darker light-theme green (~3.3:1) -- white clears it (~5.8:1). Same
+   pattern as .btn-primary / .cookie-btn--primary above. */
+[data-theme="light"] .skill-tags .tag:hover,
+[data-theme="light"] .tag-row .tag:hover {
+  color: #ffffff;
 }
 
 .earlier {
@@ -2481,7 +2482,7 @@ text.arch-fn-3 {
   font-size: 0.76rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--cyan);
   margin-bottom: 0.85rem;
 }
 .skill-tags {
@@ -2587,6 +2588,7 @@ text.arch-fn-3 {
   border-color: var(--cyan);
 }
 .contact-sub {
+  margin-top: 0.9rem;
   color: var(--ink-soft);
 }
 .contact-cta {
@@ -2666,8 +2668,6 @@ text.arch-fn-3 {
   font: inherit;
   padding: 0;
   transition: color 0.15s ease;
-  margin: 0.75rem;
-  padding: 0.25rem;
 }
 .copy-btn:hover {
   color: var(--cyan);
@@ -3490,15 +3490,17 @@ html.theme-shifting-to-dark .ambient-glow {
 
   border: 1px solid var(--cyan);
 
-  color: black;
+  color: #041018;
 
   font-weight: 700;
 
   box-shadow: var(--glow-cyan);
 }
-
+/* Same reason as .btn-primary above: near-black reads fine on the vivid
+   dark-theme cyan, but fails AA against the darker, less saturated
+   light-theme cyan (~3.1:1) -- white clears it comfortably (~6.2:1). */
 [data-theme="light"] .cookie-btn--primary {
-  color: black;
+  color: #ffffff;
 }
 
 .cookie-btn--secondary {
