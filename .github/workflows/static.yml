@@ -1,4 +1,4 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Workflow for building, minifying and deploying static content to GitHub Pages
 name: Deploy static content to Pages
 
 on:
@@ -9,31 +9,108 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Default GITHUB_TOKEN permissions for the official Pages deployment flow.
+# "contents: write" is no longer needed -- nothing pushes to a branch anymore.
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
+# Allow one concurrent deployment. Unlike the previous setup, an in-flight
+# deployment is left to finish rather than cancelled, so a live site is never
+# interrupted mid-deploy; the next push just queues behind it.
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build website
-        run: |
-          echo "Building the static website..."
-          rsync -av --exclude 'styles.scss' --exclude '.github/' --exclude '.gitignore' --exclude '.git/' --exclude 'README.md' --exclude 'LICENSE' . dist
-          ls
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
+          node-version: 22
+
+      # Speeds up repeat runs: npx normally re-downloads terser on every run
+      # since there's no package.json/lockfile here.
+      - name: Cache npx downloads
+        uses: actions/cache@v5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npx-terser
+
+      - name: Assemble the site
+        run: |
+          echo "Copying site files..."
+          rsync -av \
+            --exclude 'styles.scss' \
+            --exclude '.github/' \
+            --exclude '.gitignore' \
+            --exclude '.git/' \
+            --exclude 'README.md' \
+            --exclude 'LICENSE' \
+            . dist
+          ls -la dist
+
+      # NOTE: CSS minification (clean-css-cli) was removed here. It was
+      # found to silently break the rain animation in production -- clean-css
+      # produced CSS that was byte-for-byte equivalent under every check we
+      # could find, yet demonstrably broke the @keyframes-driven raindrop
+      # animation in a real browser and was confirmed by comparing against a
+      # non-minifying deploy. Given the cause couldn't be pinned down and the
+      # size saving was the smallest win in this pipeline, it's safer to skip
+      # it than risk another silent visual regression. JS minification
+      # (terser, below) and CSS inlining (further down) were both verified
+      # safe and are unaffected by this.
+
+      # Minifies every .js file in place. --compress --mangle only renames
+      # LOCAL variable/function names; it leaves global (top-level) names,
+      # property names and string literals untouched, so it's safe even
+      # without knowing every cross-file reference in i18n.js / scripts.js.
+      - name: Minify JavaScript
+        run: |
+          find dist -type f -name '*.js' | while read -r file; do
+            echo "Minifying $file"
+            npx --yes terser@5 "$file" --compress --mangle --output "$file.tmp"
+            mv "$file.tmp" "$file"
+          done
+
+      - name: Report size savings
+        run: |
+          echo "Minified sizes:"
+          find dist -type f -name '*.js' -exec du -h {} \;
+
+      # Folds the (already-minified) styles.css into every HTML page that
+      # links it, so the browser gets CSS in the same response as the page
+      # instead of a second network round trip. Removes the now-unused
+      # styles.css afterward. Fails the build (rather than deploying broken
+      # pages) if the markup doesn't match what this script expects --
+      # see .github/scripts/inline-css.js for the exact checks.
+      - name: Inline CSS into HTML
+        run: node .github/scripts/inline-css.js dist
+
+      - name: Set up Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  # Deploy job -- separate from build, as GitHub's own Pages template
+  # recommends, so the deployment shows up with its own URL and status
+  # under the "github-pages" environment.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
