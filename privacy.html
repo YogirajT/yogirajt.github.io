@@ -74,6 +74,27 @@
       type="font/woff"
       crossorigin
     />
+    <link
+      rel="preload"
+      as="font"
+      href="assets/fonts/Outfit-Bold.woff"
+      type="font/woff"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      href="assets/fonts/JetBrainsMono-Regular.woff"
+      type="font/woff"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      href="assets/fonts/JetBrainsMono-Bold.woff"
+      type="font/woff"
+      crossorigin
+    />
 
     <script>
       // Runs before first paint. Same rules as the home page, so the two never disagree:
@@ -114,6 +135,10 @@
       })();
     </script>
     <link rel="stylesheet" href="styles.css?v=20260924a" />
+    <!-- defer: fetched in parallel with everything else above, instead of only
+         being discovered once the parser reaches the bottom of the document. -->
+    <script src="privacy-i18n.js?v=20260923a" defer></script>
+    <script src="scripts.js?v=20260924a" defer></script>
   </head>
 
   <body>
@@ -772,7 +797,5 @@
       </section>
     </main>
 
-    <script src="privacy-i18n.js?v=20260923a"></script>
-    <script src="scripts.js?v=20260924a"></script>
   </body>
 </html>
