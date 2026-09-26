@@ -5,6 +5,33 @@
    light is an overcast-jungle-daylight variant with the same neon accents.
    ========================================================================= */
 
+/* -----------------------------------------------------------------------
+   CONTENTS (in file order -- search for the all-caps heading to jump in)
+
+     Fonts, tokens & base .............. self-hosted fonts, dark/light
+                                          theme variables, resets, layout
+                                          primitives (.wrap, .eyebrow, etc.)
+     Buttons ............................ .btn family
+     Bulb switch (theme toggle) ......... light/dark control in the nav
+     LANGUAGE SWITCH .................... EN/DE globe control
+     NAV
+     HERO ................................ incl. fireflies, typewriter,
+                                            the "arch-cycler" diagram system
+     ABOUT
+     EXPERIENCE
+     SKILLS
+     EDUCATION / LANGUAGES
+     CONTACT / FOOTER
+     reveal / stagger, copy toast, scrollbar, print ... small utilities
+     GLOBAL AMBIENT ATMOSPHERE .......... the persistent rain / jungle /
+                                            lightning layer (all pages)
+     TOP / HERO CINEMATIC TRANSITION .... scroll-linked hero & #contact
+     MOBILE / REDUCED MOTION ............ atmosphere overrides
+     CINEMATIC DAWN / DUSK THEME TRANSITION
+     COOKIE CONSENT ...................... shared by both pages
+     PRIVACY PAGE ........................ privacy.html-only rules
+   ----------------------------------------------------------------------- */
+
 /* ---------- Self-hosted fonts (subset, WOFF) ---------- */
 @font-face {
   font-family: "Tektur";
@@ -59,7 +86,7 @@
   --ink: #eaf6f1;
   --ink-soft: #93a8ab;
   --line: rgba(150, 200, 210, 0.16);
-  --cyan: #22e8ff;
+  --cyan: #00A4C2;
   --magenta: #ff2ec4;
   --green: #39ff88;
   --violet: #a855f7;
@@ -84,7 +111,7 @@
      (eyebrows, nav links, job company, tags, the hero role line), and needed a
      touch more contrast against --bg / --bg-2 / --card to clear WCAG AA (4.5:1)
      at the small sizes they're set in. Dark theme is unaffected. */
-  --cyan: #016b77;
+  --cyan: #00C5EB;
   --magenta: #b30074;
   --green: #0b7540;
   --violet: #7c3aed;
@@ -279,7 +306,7 @@ section {
 }
 .btn-primary {
   background: var(--cyan);
-  color: #041018;
+  color: black;
   border-color: var(--cyan);
   box-shadow: var(--glow-cyan);
   font-weight: 700;
@@ -288,7 +315,7 @@ section {
    darker, less saturated light-theme cyan, white clears AA text contrast by a
    wider margin. */
 [data-theme="light"] .btn-primary {
-  color: #ffffff;
+  color: black;
 }
 .btn-primary:hover {
   box-shadow: 0 0 22px rgba(34, 232, 255, 0.7);
@@ -300,14 +327,6 @@ section {
 .btn-ghost:hover {
   border-color: var(--cyan);
   color: var(--cyan);
-}
-.btn-outline {
-  border-color: var(--line);
-  color: var(--ink);
-}
-.btn-outline:hover {
-  border-color: var(--green);
-  color: var(--green);
 }
 
 .icon-row {
@@ -339,56 +358,6 @@ section {
 .icon-link svg {
   width: 1.15rem;
   height: 1.15rem;
-}
-
-/* ---------- Theme toggle ---------- */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.4rem 0.7rem 0.4rem 0.5rem;
-  cursor: pointer;
-  color: var(--ink-soft);
-}
-.theme-toggle .tt-label {
-  display: inline-block;
-  width: calc(5ch + 0.4em);
-  text-align: left;
-}
-.theme-toggle:hover {
-  border-color: var(--cyan);
-}
-.theme-toggle .track {
-  width: 34px;
-  height: 18px;
-  border-radius: 999px;
-  background: var(--bg-3);
-  border: 1px solid var(--line);
-  position: relative;
-  flex: none;
-}
-.theme-toggle .knob {
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--cyan);
-  box-shadow: var(--glow-cyan);
-  transition:
-    transform 0.25s ease,
-    background-color 0.25s ease;
-}
-[data-theme="light"] .theme-toggle .knob {
-  transform: translateX(16px);
-  background: var(--magenta);
 }
 
 /* ---------- Bulb switch (theme toggle) ----------
@@ -1049,13 +1018,6 @@ section {
   .nav-desktop {
     margin-left: auto;
     gap: 0.5rem;
-  }
-  .nav-desktop .theme-toggle {
-    min-height: 2.6rem;
-    padding: 0.4rem 0.55rem;
-  }
-  .nav-desktop .theme-toggle .tt-label {
-    display: none;
   }
   .nav-toggle-wrap {
     display: block;
@@ -2445,6 +2407,12 @@ text.arch-fn-3 {
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
+
+[data-theme="light"] .tag {
+  color: black;
+  border: black;
+}
+
 .skill-tags .tag:hover,
 .tag-row .tag:hover {
   background: var(--green);
@@ -2513,7 +2481,7 @@ text.arch-fn-3 {
   font-size: 0.76rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--cyan);
+  color: var(--ink);
   margin-bottom: 0.85rem;
 }
 .skill-tags {
@@ -2606,12 +2574,6 @@ text.arch-fn-3 {
   font-size: clamp(1.9rem, 4.6vw, 2.9rem);
   max-width: 22ch;
 }
-.contact-mail-row {
-  margin-top: 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
 .contact-mail {
   font-family: var(--font-mono);
   font-size: clamp(1rem, 2.2vw, 1.2rem);
@@ -2625,7 +2587,6 @@ text.arch-fn-3 {
   border-color: var(--cyan);
 }
 .contact-sub {
-  margin-top: 0.9rem;
   color: var(--ink-soft);
 }
 .contact-cta {
@@ -2705,6 +2666,8 @@ text.arch-fn-3 {
   font: inherit;
   padding: 0;
   transition: color 0.15s ease;
+  margin: 0.75rem;
+  padding: 0.25rem;
 }
 .copy-btn:hover {
   color: var(--cyan);
@@ -3412,6 +3375,8 @@ html.theme-shifting-to-dark .ambient-glow {
 
 /* =========================================================================
    COOKIE CONSENT
+   Shared by both pages (the footer link on index.html uses a separate class,
+   .footer-cookie-settings, styled identically to .cookie-settings-link).
    ========================================================================= */
 
 .cookie-banner {
@@ -3420,12 +3385,13 @@ html.theme-shifting-to-dark .ambient-glow {
   right: 1rem;
   bottom: 1rem;
 
-  z-index: 300;
+  z-index: 500;
 
   max-width: 680px;
+  width: min(680px, calc(100vw - 2rem));
   margin-inline: auto;
 
-  padding: 1.35rem;
+  padding: 1.4rem;
 
   background: linear-gradient(
     135deg,
@@ -3438,7 +3404,9 @@ html.theme-shifting-to-dark .ambient-glow {
 
   box-shadow:
     var(--shadow),
-    0 0 30px color-mix(in srgb, var(--cyan) 12%, transparent);
+    0 0 35px color-mix(in srgb, var(--cyan) 12%, transparent);
+
+  backdrop-filter: blur(18px);
 
   opacity: 0;
   transform: translateY(24px);
@@ -3446,8 +3414,6 @@ html.theme-shifting-to-dark .ambient-glow {
   transition:
     opacity 0.35s ease,
     transform 0.35s ease;
-
-  backdrop-filter: blur(18px);
 }
 
 .cookie-banner[hidden] {
@@ -3473,15 +3439,14 @@ html.theme-shifting-to-dark .ambient-glow {
 }
 
 .cookie-banner h2 {
-  font-size: clamp(1.25rem, 3vw, 1.55rem);
-
+  font-size: 1.35rem;
   color: var(--ink);
 }
 
 .cookie-banner p:not(.cookie-banner__eyebrow) {
   color: var(--ink-soft);
   font-size: 0.92rem;
-  line-height: 1.6;
+  line-height: 1.65;
 
   max-width: 62ch;
 }
@@ -3492,15 +3457,15 @@ html.theme-shifting-to-dark .ambient-glow {
 
   gap: 0.75rem;
 
-  margin-top: 0.4rem;
+  margin-top: 0.35rem;
 }
 
 .cookie-btn {
   appearance: none;
 
-  min-height: 42px;
+  min-height: 44px;
 
-  padding: 0.7rem 1rem;
+  padding: 0.75rem 1rem;
 
   border-radius: var(--radius-s);
 
@@ -3513,8 +3478,7 @@ html.theme-shifting-to-dark .ambient-glow {
     transform 0.15s ease,
     border-color 0.15s ease,
     background-color 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease;
+    color 0.15s ease;
 }
 
 .cookie-btn:hover {
@@ -3526,11 +3490,15 @@ html.theme-shifting-to-dark .ambient-glow {
 
   border: 1px solid var(--cyan);
 
-  color: #041018;
+  color: black;
 
   font-weight: 700;
 
   box-shadow: var(--glow-cyan);
+}
+
+[data-theme="light"] .cookie-btn--primary {
+  color: black;
 }
 
 .cookie-btn--secondary {
@@ -3555,7 +3523,7 @@ html.theme-shifting-to-dark .ambient-glow {
 
   padding: 0;
 
-  background: none;
+  background: transparent;
   border: none;
 
   color: var(--ink-soft);
@@ -3581,6 +3549,8 @@ html.theme-shifting-to-dark .ambient-glow {
     left: 0.75rem;
     right: 0.75rem;
     bottom: 0.75rem;
+
+    width: auto;
 
     padding: 1.15rem;
   }
@@ -3790,212 +3760,3 @@ html.theme-shifting-to-dark .ambient-glow {
   margin-top: 1.4rem;
 }
 
-/* =========================================================================
-   COOKIE CONSENT
-   ========================================================================= */
-
-.cookie-banner {
-  position: fixed;
-
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-
-  z-index: 500;
-
-  width: min(680px, calc(100vw - 2rem));
-
-  margin-inline: auto;
-
-  padding: 1.4rem;
-
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--bg-3) 96%, var(--cyan) 4%),
-    var(--bg-2)
-  );
-
-  border: 1px solid var(--line);
-
-  border-radius: var(--radius-m);
-
-  box-shadow:
-    var(--shadow),
-    0 0 35px color-mix(in srgb, var(--cyan) 12%, transparent);
-
-  backdrop-filter: blur(18px);
-
-  opacity: 0;
-
-  transform: translateY(24px);
-
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-.cookie-banner[hidden] {
-  display: none;
-}
-
-.cookie-banner.is-visible {
-  opacity: 1;
-
-  transform: translateY(0);
-}
-
-.cookie-banner__content {
-  display: grid;
-
-  gap: 0.85rem;
-}
-
-.cookie-banner__eyebrow {
-  font-family: var(--font-mono);
-
-  font-size: 0.7rem;
-
-  letter-spacing: 0.1em;
-
-  color: var(--green);
-}
-
-.cookie-banner h2 {
-  font-size: 1.35rem;
-
-  color: var(--ink);
-}
-
-.cookie-banner p:not(.cookie-banner__eyebrow) {
-  color: var(--ink-soft);
-
-  font-size: 0.92rem;
-
-  line-height: 1.65;
-}
-
-.cookie-banner__actions {
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 0.75rem;
-
-  margin-top: 0.35rem;
-}
-
-.cookie-btn {
-  min-height: 44px;
-
-  padding: 0.75rem 1rem;
-
-  border-radius: var(--radius-s);
-
-  font-family: var(--font-mono);
-
-  font-size: 0.78rem;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.15s ease,
-    border-color 0.15s ease,
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.cookie-btn:hover {
-  transform: translateY(-2px);
-}
-
-.cookie-btn--primary {
-  background: var(--cyan);
-
-  border: 1px solid var(--cyan);
-
-  color: #041018;
-
-  font-weight: 700;
-
-  box-shadow: var(--glow-cyan);
-}
-
-.cookie-btn--secondary {
-  background: transparent;
-
-  border: 1px solid var(--line);
-
-  color: var(--ink);
-}
-
-.cookie-btn--secondary:hover {
-  border-color: var(--magenta);
-
-  color: var(--magenta);
-}
-
-.cookie-settings-link {
-  appearance: none;
-
-  width: fit-content;
-
-  padding: 0;
-
-  background: transparent;
-
-  border: none;
-
-  color: var(--ink-soft);
-
-  font-family: var(--font-mono);
-
-  font-size: 0.72rem;
-
-  text-decoration: underline;
-
-  text-underline-offset: 3px;
-
-  cursor: pointer;
-}
-
-.cookie-settings-link:hover {
-  color: var(--cyan);
-}
-
-/* -------------------------------------------------------------------------
-   MOBILE
-   ------------------------------------------------------------------------- */
-
-@media (max-width: 560px) {
-  .cookie-banner {
-    left: 0.75rem;
-    right: 0.75rem;
-    bottom: 0.75rem;
-
-    width: auto;
-
-    padding: 1.15rem;
-  }
-
-  .cookie-banner__actions {
-    display: grid;
-
-    grid-template-columns: 1fr;
-  }
-
-  .cookie-btn {
-    width: 100%;
-  }
-}
-
-/* -------------------------------------------------------------------------
-   REDUCED MOTION
-   ------------------------------------------------------------------------- */
-
-@media (prefers-reduced-motion: reduce) {
-  .cookie-banner {
-    transition: none;
-
-    transform: none;
-  }
-}
