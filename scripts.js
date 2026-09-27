@@ -790,9 +790,19 @@
       );
 
       document.querySelectorAll(".reveal").forEach((element) => {
+        // Just observe -- the callback adds "in-view" once the section is
+        // actually intersecting. Sections already on screen at load (e.g.
+        // the hero) get their entry fired immediately by the browser, so
+        // this doesn't delay anything above the fold. Eagerly adding
+        // "in-view" here used to fire the opacity transition for every
+        // section the instant JS ran, regardless of scroll position --
+        // including sections far below the fold. That's harmless for a
+        // real visitor (0.6s fade, and they haven't scrolled there yet
+        // anyway), but a fixed-timing audit tool can sample styles mid-fade
+        // and see a genuinely low-contrast, semi-transparent button as a
+        // result -- exactly the "insufficient color contrast" PSI reported
+        // on the below-the-fold contact CTA.
         observer.observe(element);
-        // The section wrapper itself: no hide, just a hook.
-        element.classList.add("in-view");
       });
 
       REVEAL_STAGGER_GROUPS.forEach((selector) => {

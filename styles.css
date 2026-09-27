@@ -2588,7 +2588,6 @@ text.arch-fn-3 {
   border-color: var(--cyan);
 }
 .contact-sub {
-  margin-top: 0.9rem;
   color: var(--ink-soft);
 }
 .contact-cta {
@@ -2668,6 +2667,8 @@ text.arch-fn-3 {
   font: inherit;
   padding: 0;
   transition: color 0.15s ease;
+  margin: 0.75rem;
+  padding: 0.25rem;
 }
 .copy-btn:hover {
   color: var(--cyan);

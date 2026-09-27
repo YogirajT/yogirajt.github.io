@@ -35,13 +35,13 @@ jobs:
         with:
           node-version: 22
 
-      # Speeds up repeat runs: npx normally re-downloads terser on every run
-      # since there's no package.json/lockfile here.
+      # Speeds up repeat runs: npx normally re-downloads terser/lightningcss
+      # on every run since there's no package.json/lockfile here.
       - name: Cache npx downloads
         uses: actions/cache@v5
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npx-terser
+          key: ${{ runner.os }}-npx-terser-lightningcss
 
       - name: Assemble the site
         run: |
@@ -56,17 +56,6 @@ jobs:
             . dist
           ls -la dist
 
-      # NOTE: CSS minification (clean-css-cli) was removed here. It was
-      # found to silently break the rain animation in production -- clean-css
-      # produced CSS that was byte-for-byte equivalent under every check we
-      # could find, yet demonstrably broke the @keyframes-driven raindrop
-      # animation in a real browser and was confirmed by comparing against a
-      # non-minifying deploy. Given the cause couldn't be pinned down and the
-      # size saving was the smallest win in this pipeline, it's safer to skip
-      # it than risk another silent visual regression. JS minification
-      # (terser, below) and CSS inlining (further down) were both verified
-      # safe and are unaffected by this.
-
       # Minifies every .js file in place. --compress --mangle only renames
       # LOCAL variable/function names; it leaves global (top-level) names,
       # property names and string literals untouched, so it's safe even
@@ -79,10 +68,30 @@ jobs:
             mv "$file.tmp" "$file"
           done
 
+      # clean-css-cli used to run here and was removed: it produced CSS that
+      # was byte-for-byte equivalent under every diff/property check we could
+      # find, yet demonstrably broke the @keyframes-driven raindrop animation
+      # in a real browser, and the cause couldn't be pinned down.
+      #
+      # Lightning CSS (the Rust/Parcel minifier) replaces it. It's a real CSS
+      # parser rather than clean-css's regex/AST-lite pipeline, so it doesn't
+      # perform the kind of speculative keyframe/selector merging that broke
+      # the animation. No --targets is passed on purpose: with no browser
+      # targets, Lightning CSS only minifies (whitespace, safe value
+      # shorthanding) and does not try to transpile or polyfill anything --
+      # so modern syntax already in use here (color-mix(), @property) is
+      # left semantically untouched rather than rewritten for older browsers.
+      # Runs before inlining, so what actually ends up in the <style> tag
+      # inlined into index.html and privacy.html is the minified CSS.
+      - name: Minify CSS with Lightning CSS
+        run: |
+          npx --yes lightningcss-cli --minify dist/styles.css -o dist/styles.min.css
+          mv dist/styles.min.css dist/styles.css
+
       - name: Report size savings
         run: |
           echo "Minified sizes:"
-          find dist -type f -name '*.js' -exec du -h {} \;
+          find dist -type f \( -name '*.js' -o -name '*.css' \) -exec du -h {} \;
 
       # Folds the (already-minified) styles.css into every HTML page that
       # links it, so the browser gets CSS in the same response as the page
