@@ -249,9 +249,9 @@
   const TOKEN_RE = /<[^>]+>|&[a-zA-Z#0-9]+;|[\s\S]/g;
   const tokenize = (html) => html.match(TOKEN_RE) || [];
 
-  const TYPE_MS_PER_TOKEN = 9;
-  const TYPE_MS_MIN = 200;
-  const TYPE_MS_MAX = 2200;
+  const TYPE_MS_PER_TOKEN = 16; // pace of the cursor: roughly constant, so length genuinely changes duration
+  const TYPE_MS_MIN = 450; // even a one-word swap should read as a deliberate retype, not a flicker
+  const TYPE_MS_MAX = 3600; // a full paragraph takes longer, but this stops an outlier running away
   const STAGGER_MS = 260;
 
   const isOnScreen = (el) => {
@@ -275,6 +275,58 @@
   const SIZE_SETTLE_EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
   const smoothstep = (x) => x * x * (3 - 2 * x);
   const norm = (text) => text.replace(/\s+/g, " ").trim();
+
+  /* The cursor, and the words it has already cleared. While the new text is typed over the old, a
+     thin cursor marks the boundary and the next LOOKAHEAD_WORDS words of old text ahead of it are
+     already gone -- so the eye can follow the cursor, and it never types into text that is still
+     there. The cursor has no layout width (a border cancelled by a negative margin, like the
+     hero's), and its style is added from here so both pages get it without a stylesheet change. */
+  const LOOKAHEAD_WORDS = 2;
+  const CARET_HTML = '<span class="i18n-caret" aria-hidden="true"></span>';
+  const CARET_RE = /<span class="i18n-caret"[^>]*><\/span>/g;
+  if (!document.getElementById("i18n-caret-style")) {
+    const style = document.createElement("style");
+    style.id = "i18n-caret-style";
+    style.textContent =
+      ".i18n-caret{display:inline-block;width:0;height:1.05em;margin-right:-2px;vertical-align:text-bottom;" +
+      "border-right:2px solid var(--green,currentColor);pointer-events:none}";
+    document.head.appendChild(style);
+  }
+
+  /** How many words of old text to clear ahead of the cursor: none for a label, so a one- or
+   *  two-word item is never blank; the full amount only for real sentences. */
+  const lookaheadFor = (tokens) => {
+    let words = 0;
+    let inWord = false;
+    for (const token of tokens) {
+      if (/^\s$/.test(token) || token === "&nbsp;") inWord = false;
+      else if (token[0] !== "<" && !inWord) {
+        inWord = true;
+        words++;
+      }
+    }
+    return words >= 6 ? LOOKAHEAD_WORDS : words >= 3 ? 1 : 0;
+  };
+
+  /** Index just past the next `count` words, starting at `from` (tags and spaces don't count). */
+  const skipWords = (tokens, from, count) => {
+    let k = from;
+    let words = 0;
+    let inWord = false;
+    while (k < tokens.length && words < count) {
+      const token = tokens[k];
+      if (/^\s$/.test(token) || token === "&nbsp;") {
+        if (inWord) {
+          words++;
+          inWord = false;
+        }
+      } else if (token[0] !== "<") {
+        inWord = true;
+      }
+      k++;
+    }
+    return k;
+  };
 
   /** Width/height to give CSS so the box measures like `rect`, whatever box-sizing says. */
   const cssBoxSize = (el, rect) => {
@@ -311,10 +363,10 @@
     return stack;
   };
 
-  /** [new text so far] + [old text from the same fractional position on], both well-formed. */
-  const overwriteFrame = (fromTokens, toTokens, progress) => {
+  /** [new text so far] + cursor + [old text from just past the words the cursor has cleared]. */
+  const overwriteFrame = (fromTokens, toTokens, progress, withCaret, lookahead) => {
     const i = Math.round(toTokens.length * progress);
-    const j = Math.round(fromTokens.length * progress);
+    const j = skipWords(fromTokens, Math.round(fromTokens.length * progress), lookahead);
     const typed = toTokens.slice(0, i);
     const closeTyped = openTagsAt(typed)
       .map((tag) => `</${tag.name}>`)
@@ -323,7 +375,7 @@
     const reopenRest = openTagsAt(fromTokens.slice(0, j))
       .map((tag) => tag.token)
       .join("");
-    return typed.join("") + closeTyped + reopenRest + fromTokens.slice(j).join("");
+    return typed.join("") + closeTyped + (withCaret ? CARET_HTML : "") + reopenRest + fromTokens.slice(j).join("");
   };
 
   const latestSwap = new WeakMap(); // el -> token of the newest swap requested for it
@@ -349,13 +401,17 @@
       if (!isCurrent()) return;
 
       // The text as it is *now* -- which, on a quick second click, is the middle of the last swap.
-      const fromHtml = el.innerHTML;
+      const fromHtml = el.innerHTML.replace(CARET_RE, "");
       if (fromHtml === toHtml) {
         cancelSwap(el);
         return;
       }
       const fromTokens = tokenize(fromHtml);
       const toTokens = tokenize(toHtml);
+      // Flex/grid containers (an icon + label button) lay each child out separately, so an extra
+      // child -- even an invisible cursor -- would move things; they just go without one.
+      const withCaret = !/flex|grid/.test(getComputedStyle(el).display);
+      const lookahead = lookaheadFor(fromTokens);
       const durationMs = Math.min(
         TYPE_MS_MAX,
         Math.max(TYPE_MS_MIN, Math.max(fromTokens.length, toTokens.length) * TYPE_MS_PER_TOKEN),
@@ -437,13 +493,15 @@
       const start = performance.now();
       const step = (now) => {
         if (!isCurrent()) return;
-        const progress = (now - start) / durationMs;
+        // (rAF's timestamp is the frame's start, which can be a hair before `start`: never go below 0,
+        // or the first frame would slice from the wrong end.)
+        const progress = Math.max(0, (now - start) / durationMs);
         if (progress >= 1) {
           el.innerHTML = toHtml; // land on the exact final markup, not an interpolated step
           finish();
           return;
         }
-        el.innerHTML = overwriteFrame(fromTokens, toTokens, progress);
+        el.innerHTML = overwriteFrame(fromTokens, toTokens, progress, withCaret, lookahead);
         if (hasBox) {
           const k = smoothstep(Math.min(1, progress / SIZE_LEAD));
           boxEl.style.height = `${from.h + (to.h - from.h) * k}px`;
