@@ -19,7 +19,7 @@
  * Pages opt in with data-i18n-page on <html>; on any other page (e.g. privacy.html) this file does
  * nothing at all.
  *
- * Public API (used by scripts.js):  window.siteI18n = { lang, set(lang), t(key, fallback, vars) }
+ * Public API (used by scripts.js):  window.siteI18n = { lang, set(lang), t(key, fallback, vars), build }
  * Fires "sitelanguagechange" on document after every change.
  */
 (() => {
@@ -303,9 +303,9 @@
   const TOKEN_RE = /<[^>]+>|&[a-zA-Z#0-9]+;|[\s\S]/g;
   const tokenize = (html) => html.match(TOKEN_RE) || [];
 
-  const TYPE_MS_PER_TOKEN = 16; // pace of the cursor: roughly constant, so length genuinely changes duration
-  const TYPE_MS_MIN = 450; // even a one-word swap should read as a deliberate retype, not a flicker
-  const TYPE_MS_MAX = 3600; // a full paragraph takes longer, but this stops an outlier running away
+  const TYPE_MS_PER_TOKEN = 24; // pace of the cursor: roughly constant, so length genuinely changes duration
+  const TYPE_MS_MIN = 600; // even a one-word swap should read as a deliberate retype, not a flicker
+  const TYPE_MS_MAX = 6000; // the longest paragraph (the hero pitch) takes this long; stops an outlier running away
   const STAGGER_MS = 260; // spread across the visible viewport, top to bottom
 
   const isOnScreen = (el) => {
@@ -331,19 +331,23 @@
   const norm = (text) => text.replace(/\s+/g, " ").trim();
 
   /* The cursor, and the words it has already cleared. While the new text is typed over the old, a
-     thin cursor marks the boundary and the next LOOKAHEAD_WORDS words of old text ahead of it are
-     already gone -- so the eye can follow the cursor, and it never types into text that is still
-     there. The cursor has no layout width (a border cancelled by a negative margin, like the
-     hero's), and its style is added from here so both pages get it without a stylesheet change. */
+     block cursor -- the kind an editor shows in overwrite mode -- sits on the next character of old
+     text that is about to be replaced, and the next few words after the typed text are already gone
+     (see lookaheadFor). The eye can follow the block, and it never types into text that is still
+     there. The block is that character itself with a background, so it adds no width and can't
+     change how anything wraps. It is styled inline (with the theme colours as variables) so it
+     shows even if the small stylesheet below were ever dropped. */
   const LOOKAHEAD_WORDS = 2;
-  const CARET_HTML = '<span class="i18n-caret" aria-hidden="true"></span>';
-  const CARET_RE = /<span class="i18n-caret"[^>]*><\/span>/g;
+  const CARET_STYLE = "background:var(--green,#39ff88);color:var(--i18n-caret-ink,#06120b);border-radius:2px";
+  const caretOver = (token) => `<span class="i18n-caret" aria-hidden="true" style="${CARET_STYLE}">${token}</span>`;
+  const CARET_RE = /<span class="i18n-caret"[^>]*>([\s\S]*?)<\/span>/g; // matches a cursor; $1 is the character under it
+  const INVISIBLE_TOKEN = /^(?:<[^>]+>|&shy;|&#173;|&#xad;)$/i; // tags and soft hyphens: nothing to put a block on
   if (!document.getElementById("i18n-caret-style")) {
     const style = document.createElement("style");
     style.id = "i18n-caret-style";
     style.textContent =
-      ".i18n-caret{display:inline-block;width:0;height:1.05em;margin-right:-2px;vertical-align:text-bottom;" +
-      "border-right:2px solid var(--green,currentColor);pointer-events:none}";
+      ":root{--i18n-caret-ink:#06120b}" + // dark text on the neon-green block in the dark theme...
+      '[data-theme="light"]{--i18n-caret-ink:#fff}'; // ...white text on the deeper green in the light theme
     document.head.appendChild(style);
   }
 
@@ -417,7 +421,8 @@
     return stack;
   };
 
-  /** [new text so far] + cursor + [old text from just past the words the cursor has cleared]. */
+  /** [new text so far] + [old text from just past the words the cursor has cleared], with the
+   *  block cursor on the first character of that old text (or trailing the typing if none is left). */
   const overwriteFrame = (fromTokens, toTokens, progress, withCaret, lookahead) => {
     const i = Math.round(toTokens.length * progress);
     const j = skipWords(fromTokens, Math.round(fromTokens.length * progress), lookahead);
@@ -429,7 +434,14 @@
     const reopenRest = openTagsAt(fromTokens.slice(0, j))
       .map((tag) => tag.token)
       .join("");
-    return typed.join("") + closeTyped + (withCaret ? CARET_HTML : "") + reopenRest + fromTokens.slice(j).join("");
+    const rest = fromTokens.slice(j);
+    let trailing = "";
+    if (withCaret) {
+      const onto = rest.findIndex((token) => !INVISIBLE_TOKEN.test(token));
+      if (onto >= 0) rest[onto] = caretOver(rest[onto]);
+      else trailing = caretOver("&nbsp;");
+    }
+    return typed.join("") + closeTyped + reopenRest + rest.join("") + trailing;
   };
 
   const latestSwap = new WeakMap(); // el -> token of the newest swap requested for it
@@ -455,7 +467,7 @@
       if (!isCurrent()) return;
 
       // The text as it is *now* -- which, on a quick second click, is the middle of the last swap.
-      const fromHtml = el.innerHTML.replace(CARET_RE, "");
+      const fromHtml = el.innerHTML.replace(CARET_RE, "$1");
       if (fromHtml === toHtml) {
         cancelSwap(el);
         return;
@@ -463,7 +475,7 @@
       const fromTokens = tokenize(fromHtml);
       const toTokens = tokenize(toHtml);
       // Flex/grid containers (an icon + label button) lay each child out separately, so an extra
-      // child -- even an invisible cursor -- would move things; they just go without one.
+      // child -- even a cursor -- would move things; they just go without one.
       const withCaret = !/flex|grid/.test(getComputedStyle(el).display);
       const lookahead = lookaheadFor(fromTokens);
       const durationMs = Math.min(
@@ -687,6 +699,8 @@
     },
     set: setLanguage,
     t: translate,
+    // Which copy of this file the browser is really running (type `siteI18n.build` in the console).
+    build: "overwrite-block-cursor",
   };
 
   /* --- wire up the EN / DE links ------------------------------------------------------------ */
