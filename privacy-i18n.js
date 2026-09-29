@@ -27,6 +27,9 @@
   const root = document.documentElement;
   const STORAGE_KEY = "lang";
   const LANGS = ["en", "de"];
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
   /* ==========================================================================
      GERMAN TEXT  (formal "Sie", as usual for a privacy policy)
@@ -238,15 +241,243 @@
 
   const langLinks = [...document.querySelectorAll(".lang-switch a[data-lang]")];
 
-  const apply = (lang) => {
+  /* --- typewriter-style text swap (switching language after page load) ----------------------
+     Mirrors the effect in i18n.js -- see that file for the full rationale. In short: on a live
+     switch, on-screen text is overwritten left to right, a token at a time (whole tags/entities count as one
+     token, so nothing renders half-written); anything off-screen just swaps instantly. */
+
+  const TOKEN_RE = /<[^>]+>|&[a-zA-Z#0-9]+;|[\s\S]/g;
+  const tokenize = (html) => html.match(TOKEN_RE) || [];
+
+  const TYPE_MS_PER_TOKEN = 9;
+  const TYPE_MS_MIN = 200;
+  const TYPE_MS_MAX = 2200;
+  const STAGGER_MS = 260;
+
+  const isOnScreen = (el) => {
+    const rect = el.getBoundingClientRect();
+    const viewportH = window.innerHeight || document.documentElement.clientHeight;
+    return rect.bottom > 0 && rect.top < viewportH;
+  };
+
+  /* Retyping. The new text is typed left to right *over* the old text: at any moment the element
+     shows [the new text so far] + [whatever of the old text hasn't been overwritten yet], so it
+     is never empty and the two languages just trade places from left to right.
+
+     Size. The text inside a box changes, and with it the box. Rather than letting the box follow
+     the half-old, half-new text around (or snap at the end), the box is held at its old size and
+     eased to its new size in step with the overwrite -- the size is driven from the same progress
+     value as the text, so the two can't drift apart, and there's nothing left to snap at the end.
+     Everything is measured when *this* element starts, not when the button was clicked. */
+  const SIZE_LEAD = 0.85; // the box reaches its new size at this share of the overwrite
+  const SIZE_EPSILON = 0.5; // px; a smaller change isn't worth animating
+  const SIZE_SETTLE_MS = 220; // absorbs a last late-layout difference instead of snapping
+  const SIZE_SETTLE_EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
+  const smoothstep = (x) => x * x * (3 - 2 * x);
+  const norm = (text) => text.replace(/\s+/g, " ").trim();
+
+  /** Width/height to give CSS so the box measures like `rect`, whatever box-sizing says. */
+  const cssBoxSize = (el, rect) => {
+    const cs = getComputedStyle(el);
+    if (cs.boxSizing === "border-box") return { w: rect.width, h: rect.height };
+    const px = (value) => parseFloat(value) || 0;
+    return {
+      w: rect.width - px(cs.paddingLeft) - px(cs.paddingRight) - px(cs.borderLeftWidth) - px(cs.borderRightWidth),
+      h: rect.height - px(cs.paddingTop) - px(cs.paddingBottom) - px(cs.borderTopWidth) - px(cs.borderBottomWidth),
+    };
+  };
+
+  /* Cutting HTML in the middle can cut through <strong>...</strong>. These helpers work out which
+     tags are open at a cut point, so the two halves can each be closed and re-opened properly. */
+  const VOID_TAGS = new Set(["br", "wbr", "img", "hr", "input"]);
+  const openTagsAt = (tokens) => {
+    const stack = [];
+    for (const token of tokens) {
+      const match = /^<(\/?)([a-zA-Z][\w-]*)/.exec(token);
+      if (!match) continue;
+      const name = match[2].toLowerCase();
+      if (VOID_TAGS.has(name) || token.endsWith("/>")) continue;
+      if (match[1]) {
+        for (let n = stack.length - 1; n >= 0; n--) {
+          if (stack[n].name === name) {
+            stack.length = n; // closes it (and anything left open inside it)
+            break;
+          }
+        }
+      } else {
+        stack.push({ name, token });
+      }
+    }
+    return stack;
+  };
+
+  /** [new text so far] + [old text from the same fractional position on], both well-formed. */
+  const overwriteFrame = (fromTokens, toTokens, progress) => {
+    const i = Math.round(toTokens.length * progress);
+    const j = Math.round(fromTokens.length * progress);
+    const typed = toTokens.slice(0, i);
+    const closeTyped = openTagsAt(typed)
+      .map((tag) => `</${tag.name}>`)
+      .reverse()
+      .join("");
+    const reopenRest = openTagsAt(fromTokens.slice(0, j))
+      .map((tag) => tag.token)
+      .join("");
+    return typed.join("") + closeTyped + reopenRest + fromTokens.slice(j).join("");
+  };
+
+  const latestSwap = new WeakMap(); // el -> token of the newest swap requested for it
+  const heldBox = new WeakMap(); // el -> how to put its box back, while a swap has it held
+
+  /** Stops any swap running (or waiting to start) on `el` and gives its box back. */
+  const cancelSwap = (el) => {
+    latestSwap.set(el, null);
+    const held = heldBox.get(el);
+    if (held) {
+      heldBox.delete(el);
+      held.restoreBox();
+    }
+  };
+
+  const typeSwap = (el, toHtml, delayMs) => {
+    // Whatever was pending or running for this element is superseded by this request.
+    const token = {};
+    latestSwap.set(el, token);
+    const isCurrent = () => latestSwap.get(el) === token;
+
+    const run = () => {
+      if (!isCurrent()) return;
+
+      // The text as it is *now* -- which, on a quick second click, is the middle of the last swap.
+      const fromHtml = el.innerHTML;
+      if (fromHtml === toHtml) {
+        cancelSwap(el);
+        return;
+      }
+      const fromTokens = tokenize(fromHtml);
+      const toTokens = tokenize(toHtml);
+      const durationMs = Math.min(
+        TYPE_MS_MAX,
+        Math.max(TYPE_MS_MIN, Math.max(fromTokens.length, toTokens.length) * TYPE_MS_PER_TOKEN),
+      );
+
+      // Which box to hold? Usually the element itself. An inline element (a span, a link) has no
+      // height or width of its own: if it is all the text its block parent has (like the hero role
+      // line), hold the parent; otherwise turn it inline-block for the duration -- with
+      // `vertical-align: top`, because an inline-block's baseline is that of its last line and the
+      // line around it would otherwise grow and shrink as its text changes.
+      let held = heldBox.get(el);
+      if (!held) {
+        const inline = getComputedStyle(el).display === "inline";
+        const parent = el.parentElement;
+        const soleInParent =
+          inline &&
+          parent &&
+          parent !== document.body &&
+          getComputedStyle(parent).display !== "inline" &&
+          !parent.hasAttribute("data-i18n") &&
+          norm(parent.textContent) === norm(el.textContent);
+        const boxEl = soleInParent ? parent : el;
+        const saved = { display: el.style.display, align: el.style.verticalAlign, wrap: boxEl.style.whiteSpace };
+        const convert = inline && !soleInParent;
+        held = {
+          boxEl,
+          convert,
+          restoreBox: () => {
+            boxEl.style.height = "";
+            boxEl.style.width = "";
+            boxEl.style.whiteSpace = saved.wrap;
+            if (convert) {
+              el.style.display = saved.display;
+              el.style.verticalAlign = saved.align;
+            }
+          },
+        };
+        heldBox.set(el, held);
+      }
+      const { boxEl, convert, restoreBox } = held;
+      if (convert) {
+        el.style.display = "inline-block";
+        el.style.verticalAlign = "top";
+      }
+
+      // Measure the old and the new rendering back to back (no paint in between, so no flicker).
+      const from = cssBoxSize(boxEl, boxEl.getBoundingClientRect());
+      boxEl.style.height = "";
+      boxEl.style.width = "";
+      el.innerHTML = toHtml;
+      const to = cssBoxSize(boxEl, boxEl.getBoundingClientRect());
+      el.innerHTML = fromHtml;
+
+      // Hold the old size -- width too where the element sizes itself to its text (buttons, nav
+      // links), or it would keep resizing while the text changes and push its neighbours around.
+      const hasBox = from.w > 0 && from.h > 0;
+      const widthChanges = Math.abs(to.w - from.w) > SIZE_EPSILON;
+      if (hasBox) {
+        boxEl.style.height = `${from.h}px`;
+        boxEl.style.width = `${from.w}px`;
+        // An item that sizes itself to its text (a nav link, a button) stays on one line while its
+        // width eases: the half-old, half-new text can briefly be wider than either language.
+        if (widthChanges) boxEl.style.whiteSpace = "nowrap";
+      }
+
+      const finish = () => {
+        heldBox.delete(el);
+        restoreBox();
+        if (!hasBox || convert || typeof boxEl.animate !== "function") return;
+        const natural = cssBoxSize(boxEl, boxEl.getBoundingClientRect());
+        if (Math.abs(natural.h - to.h) > 1) {
+          boxEl.animate([{ height: `${to.h}px` }, { height: `${natural.h}px` }], {
+            duration: SIZE_SETTLE_MS,
+            easing: SIZE_SETTLE_EASE,
+          });
+        }
+      };
+
+      const start = performance.now();
+      const step = (now) => {
+        if (!isCurrent()) return;
+        const progress = (now - start) / durationMs;
+        if (progress >= 1) {
+          el.innerHTML = toHtml; // land on the exact final markup, not an interpolated step
+          finish();
+          return;
+        }
+        el.innerHTML = overwriteFrame(fromTokens, toTokens, progress);
+        if (hasBox) {
+          const k = smoothstep(Math.min(1, progress / SIZE_LEAD));
+          boxEl.style.height = `${from.h + (to.h - from.h) * k}px`;
+          if (widthChanges) boxEl.style.width = `${from.w + (to.w - from.w) * k}px`;
+        }
+        requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    if (delayMs > 0) setTimeout(run, delayMs);
+    else run();
+  };
+
+  const apply = (lang, { animate = false } = {}) => {
     const german = lang === "de";
     current = lang;
     root.lang = lang;
+    const viewportH = window.innerHeight || document.documentElement.clientHeight;
 
     contentNodes.forEach(({ el, key, en }) => {
       const value = german && has(key) ? DE[key] : en;
-      if (el.tagName === "TITLE") el.textContent = value;
-      else el.innerHTML = value;
+      if (el.tagName === "TITLE") {
+        el.textContent = value;
+        return;
+      }
+      if (!animate || reduceMotion || !isOnScreen(el)) {
+        cancelSwap(el); // a swap still running here (quick second click) must not overwrite this
+        el.innerHTML = value;
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      const delayMs = Math.max(0, Math.min(STAGGER_MS, (rect.top / viewportH) * STAGGER_MS));
+      typeSwap(el, value, delayMs);
     });
 
     attrNodes.forEach(({ el, attr, key, en }) => {
@@ -259,10 +490,10 @@
     });
   };
 
-  const setLang = (lang, { persist = true, updateUrl = true } = {}) => {
+  const setLang = (lang, { persist = true, updateUrl = true, animate = true } = {}) => {
     if (!LANGS.includes(lang)) return;
     const changed = lang !== current;
-    apply(lang);
+    apply(lang, { animate });
     if (persist) writeStored(lang);
 
     if (updateUrl) {

@@ -1019,6 +1019,9 @@ section {
     margin-left: auto;
     gap: 0.5rem;
   }
+  .hero-role {
+    min-height: 5rem;
+  }
   .nav-toggle-wrap {
     display: block;
     position: relative;
@@ -1242,6 +1245,7 @@ section {
   font-size: clamp(1.02rem, 2vw, 1.22rem);
   color: var(--green);
   margin-top: 0.7rem;
+  min-height: 4rem;
 }
 /* Typewriter: the full line is always laid out (the not-yet-typed part is
    just invisible), so the space is reserved up front and nothing below
@@ -1271,7 +1275,9 @@ section {
   font-size: 1.05rem;
   color: var(--ink-soft);
   line-height: 1.7;
+  min-height: 11rem;
 }
+
 .hero-pitch strong {
   color: var(--ink);
   font-weight: 700;
@@ -2641,20 +2647,36 @@ text.arch-fn-3 {
   transform: none;
 }
 
-.js-anim .job,
-.js-anim .skill-group,
-.js-anim .earlier-item {
-  opacity: 0;
-  transform: translateY(18px);
+.js-anim:not([data-theme="light"]) .job,
+.js-anim:not([data-theme="light"]) .skill-group,
+.js-anim:not([data-theme="light"]) .earlier-item {
+  /* A soft, still-legible starting state (not fully transparent) rather than
+     a hard hide: a card that hasn't animated in yet reads as "about to come
+     into focus," not "missing content," and never drops low enough in
+     contrast for an audit tool to flag it mid-transition.
+     :not([data-theme="light"]) is compounded directly onto .js-anim (not
+     chained as a separate ancestor selector) because both live on the same
+     <html> element -- a descendant combinator between them would require
+     .js-anim to be a *descendant* of the themed element, which it can never
+     be when they're the same node. Light mode (the default, and what an
+     unauthenticated crawler like PageSpeed Insights always sees) never
+     matches this rule at all, so cards there are simply visible from the
+     first frame -- no transition to be caught mid-flight, live even if the
+     theme is toggled after load. */
+  opacity: 0.4;
+  filter: blur(6px);
+  transform: translateY(10px);
   transition:
     opacity 0.55s ease,
+    filter 0.55s ease,
     transform 0.55s ease;
   transition-delay: var(--d, 0s);
 }
-.js-anim .job.in-view,
-.js-anim .skill-group.in-view,
-.js-anim .earlier-item.in-view {
+.js-anim:not([data-theme="light"]) .job.in-view,
+.js-anim:not([data-theme="light"]) .skill-group.in-view,
+.js-anim:not([data-theme="light"]) .earlier-item.in-view {
   opacity: 1;
+  filter: blur(0);
   transform: none;
 }
 
@@ -2711,10 +2733,12 @@ text.arch-fn-3 {
   .js-anim .skill-group,
   .js-anim .earlier-item {
     opacity: 1;
+    filter: none;
     transform: none;
     transition: none;
   }
 }
+
 @media (hover: none) {
   .hero::before,
   #contact::before {
@@ -3112,6 +3136,19 @@ text.arch-fn-3 {
   opacity: calc(0.82 + (var(--contact-progress, 1) * 0.18));
   filter: blur(calc((1 - var(--contact-progress, 1)) * 2px));
   will-change: transform, opacity, filter;
+}
+
+/* Light mode: same reasoning as the card reveal above. This section's own
+   scroll-linked "atmospheric entrance" starts at 0.82 opacity + a slight
+   blur/offset until --contact-progress reaches 1 (i.e. until the section has
+   been scrolled to) -- and a crawler that never scrolls audits it sitting at
+   exactly that dimmed, blurred starting frame. That's what kept failing the
+   contact CTA's color contrast even after the .job/.skill-group reveal fix:
+   this is a separate effect the reveal fix never touched. */
+[data-theme="light"] #contact > .wrap {
+  transform: none;
+  opacity: 1;
+  filter: none;
 }
 
 /* =========================================================================

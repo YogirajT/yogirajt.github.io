@@ -760,15 +760,16 @@
   }
 
   /* --- Scroll reveal --------------------------------------------------------
-     Sections fade in as they scroll into view, and card grids stagger. Content
-     is fully visible without JS or IntersectionObserver: this only ever adds
-     an "in-view" class, it never hides anything permanently. */
+     Sections themselves are always visible from first paint -- only the card
+     grids inside them (.job, .skill-group, .earlier-item) stagger in as the
+     section scrolls into view. Content is fully visible without JS or
+     IntersectionObserver: browsers without it get everything shown
+     immediately, no fade. */
 
   const REVEAL_STAGGER_GROUPS = [".job", ".skill-group", ".earlier-item"];
   const REVEAL_SELECTOR = `.reveal, ${REVEAL_STAGGER_GROUPS.join(", ")}`;
   const REVEAL_STAGGER_STEP_MS = 90;
   const REVEAL_STAGGER_MAX_MS = 360;
-  const REVEAL_SAFETY_NET_MS = 2500;
 
   function initScrollReveal() {
     const revealEverything = () => {
@@ -776,6 +777,17 @@
         element.classList.add("in-view");
       });
     };
+
+    // Light mode never runs the fade/blur machinery at all: the matching
+    // CSS (.js-anim:not([data-theme="light"]) ...) already makes it a no-op
+    // there, but skipping the observer too means light-mode visitors never
+    // pay for it, and nothing can ever be caught mid-transition regardless
+    // of what the CSS says -- belt and suspenders for whatever crawls the
+    // page (PageSpeed Insights included).
+    if (isLightTheme()) {
+      revealEverything();
+      return;
+    }
 
     if (hasIntersectionObserver) {
       const observer = new IntersectionObserver(
@@ -786,23 +798,27 @@
             observer.unobserve(entry.target);
           });
         },
-        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+        // A positive bottom margin grows the intersection area *past* the
+        // viewport, so a card counts as "in view" a little before it's
+        // actually scrolled into sight -- it's finished (or well underway)
+        // revealing by the time it reaches the visible area, instead of
+        // visibly popping in right as it crosses the fold.
+        { threshold: 0.12, rootMargin: "0px 0px 15% 0px" },
       );
 
       document.querySelectorAll(".reveal").forEach((element) => {
-        // Just observe -- the callback adds "in-view" once the section is
-        // actually intersecting. Sections already on screen at load (e.g.
-        // the hero) get their entry fired immediately by the browser, so
-        // this doesn't delay anything above the fold. Eagerly adding
-        // "in-view" here used to fire the opacity transition for every
-        // section the instant JS ran, regardless of scroll position --
-        // including sections far below the fold. That's harmless for a
-        // real visitor (0.6s fade, and they haven't scrolled there yet
-        // anyway), but a fixed-timing audit tool can sample styles mid-fade
-        // and see a genuinely low-contrast, semi-transparent button as a
-        // result -- exactly the "insufficient color contrast" PSI reported
-        // on the below-the-fold contact CTA.
-        observer.observe(element);
+        // The section wrapper itself is never gated behind scroll -- only
+        // the card groups inside it stagger in (below). Marking it in-view
+        // immediately means a section is at full opacity/contrast from the
+        // very first paint, whether it's above the fold or not, so nothing
+        // sits mid-fade waiting to be scrolled to (that's what previously
+        // made whole sections, not just cards, feel like they only "loaded"
+        // once you scrolled down -- and separately was why an audit tool
+        // once caught the below-the-fold contact CTA at a genuinely
+        // low-contrast, semi-transparent opacity: it was still mid-fade at
+        // sample time). Real per-card staggering happens entirely through
+        // the observer below.
+        element.classList.add("in-view");
       });
 
       REVEAL_STAGGER_GROUPS.forEach((selector) => {
@@ -818,10 +834,6 @@
     } else {
       revealEverything();
     }
-
-    // Safety net: if the observer never fires for an element (older or
-    // unusual browsers), force everything visible so content can't stay hidden.
-    setTimeout(revealEverything, REVEAL_SAFETY_NET_MS);
   }
 
   /* --- Scroll-spy: highlight the current section in the nav ------------------ */
@@ -904,6 +916,9 @@
 
     let charCount = 0;
     const typeNextCharacter = () => {
+      // The language switch takes over this line (it replaces our spans): stop, so we never
+      // write the old language back over the new one.
+      if (!typed.isConnected) return;
       typed.textContent = fullText.slice(0, charCount);
       rest.textContent = fullText.slice(charCount);
       charCount++;
@@ -913,7 +928,7 @@
       } else {
         // Let the caret blink a moment, then settle back to plain text.
         setTimeout(() => {
-          target.textContent = fullText;
+          if (typed.isConnected) target.textContent = fullText;
         }, TYPEWRITER_SETTLE_MS);
       }
     };
