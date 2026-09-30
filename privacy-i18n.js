@@ -390,6 +390,57 @@
     return typed.join("") + closeTyped + reopenRest + rest.join("") + trailing;
   };
 
+  /* Typing rhythm. A cursor that advances one token every 24 ms exactly reads as a machine; a
+     person (or a good typewriter animation) speeds up and slows down, hesitates a touch before
+     starting, and breathes at punctuation. So the *time* each token takes is weighted rather than
+     equal: letters wobble a little (a deterministic wobble, so it never flickers between frames),
+     spaces are quick, a comma or dash is followed by a short beat and a full stop by a longer one,
+     and the first few characters ease in. Tags and soft hyphens cost nothing. The weights are only
+     proportions: the total duration is still durationMs, so a long paragraph can't run away. */
+  const PAUSE_SENTENCE = 7; // in "letter" units, after . ! ? …
+  const PAUSE_CLAUSE = 3.5; // after , ; : and dashes
+  const WARM_UP = [2.4, 1.8, 1.4, 1.15]; // the first typed characters are a little slower
+  const wobble = (n) => {
+    const x = Math.sin(n * 12.9898 + 4.1414) * 43758.5453;
+    return x - Math.floor(x);
+  };
+
+  /** Returns progressAt(u): how far through the new text (0..1) the cursor is after the share
+   *  `u` (0..1) of the animation's time, following the rhythm above. */
+  const buildRhythm = (tokens) => {
+    const cum = [];
+    let total = 0;
+    let pause = 0;
+    let typedCount = 0;
+    tokens.forEach((token, n) => {
+      let weight = 0;
+      if (!INVISIBLE_TOKEN.test(token)) {
+        const isSpace = /^\s$/.test(token) || token === "&nbsp;";
+        weight = isSpace ? 0.55 : 0.7 + 0.5 * wobble(n) + 0.2 * Math.sin(n / 7); // bursts and lulls
+        weight += pause;
+        pause = 0;
+        if (typedCount < WARM_UP.length) weight *= WARM_UP[typedCount];
+        typedCount++;
+        if (/^[.!?…]$/.test(token)) pause = PAUSE_SENTENCE;
+        else if (/^(?:[,;:–—]|&[mn]dash;|&#8211;|&#8212;)$/.test(token)) pause = PAUSE_CLAUSE;
+      }
+      total += weight;
+      cum.push(total);
+    });
+    if (total <= 0) return (u) => u;
+    return (u) => {
+      const target = u * total;
+      let lo = 0;
+      let hi = cum.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (cum[mid] <= target) lo = mid + 1;
+        else hi = mid;
+      }
+      return lo / tokens.length; // share of tokens fully typed at this moment
+    };
+  };
+
   const latestSwap = new WeakMap(); // el -> token of the newest swap requested for it
   const heldBox = new WeakMap(); // el -> how to put its box back, while a swap has it held
 
@@ -423,6 +474,7 @@
       // Flex/grid containers (an icon + label button) lay each child out separately, so an extra
       // child -- even a cursor -- would move things; they just go without one.
       const withCaret = !/flex|grid/.test(getComputedStyle(el).display);
+      const progressAt = buildRhythm(toTokens);
       const lookahead = lookaheadFor(fromTokens);
       const durationMs = Math.min(
         TYPE_MS_MAX,
@@ -503,19 +555,26 @@
       };
 
       const start = performance.now();
+      let lastFrameKey = "";
       const step = (now) => {
         if (!isCurrent()) return;
         // (rAF's timestamp is the frame's start, which can be a hair before `start`: never go below 0,
         // or the first frame would slice from the wrong end.)
-        const progress = Math.max(0, (now - start) / durationMs);
-        if (progress >= 1) {
+        const time = Math.max(0, (now - start) / durationMs);
+        if (time >= 1) {
           el.innerHTML = toHtml; // land on the exact final markup, not an interpolated step
           finish();
           return;
         }
-        el.innerHTML = overwriteFrame(fromTokens, toTokens, progress, withCaret, lookahead);
+        const progress = progressAt(time); // the text follows the typing rhythm...
+        const frameKey = `${Math.round(toTokens.length * progress)}:${Math.round(fromTokens.length * progress)}`;
+        if (frameKey !== lastFrameKey) {
+          // ...and is only rewritten when the cursor actually moved (during a pause, nothing to do)
+          lastFrameKey = frameKey;
+          el.innerHTML = overwriteFrame(fromTokens, toTokens, progress, withCaret, lookahead);
+        }
         if (hasBox) {
-          const k = smoothstep(Math.min(1, progress / SIZE_LEAD));
+          const k = smoothstep(Math.min(1, time / SIZE_LEAD));
           boxEl.style.height = `${from.h + (to.h - from.h) * k}px`;
           if (widthChanges) boxEl.style.width = `${from.w + (to.w - from.w) * k}px`;
         }
