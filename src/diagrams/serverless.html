@@ -1,0 +1,91 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="serverless"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-dash arch-c-cyan"
+                    d="M92,130 L250,130"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-cyan"
+                    d="M92,130 L370,130"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-cyan"
+                    d="M92,130 L490,130"
+                  />
+                  <circle class="arch-pulse pulse-fn-trigger-1" r="4" />
+                  <circle class="arch-pulse pulse-fn-trigger-2" r="4" />
+                  <circle class="arch-pulse pulse-fn-trigger-3" r="4" />
+
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="70"
+                    cy="130"
+                    r="22"
+                  />
+                  <text
+                    class="arch-band-sub"
+                    x="70"
+                    y="167"
+                    text-anchor="middle"
+                  >
+                    EVENT TRIGGER
+                  </text>
+
+                  <rect
+                    class="arch-fn-box arch-fn-1"
+                    x="200"
+                    y="105"
+                    width="100"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title arch-fn-1"
+                    x="250"
+                    y="135"
+                    text-anchor="middle"
+                  >
+                    λ FN
+                  </text>
+                  <rect
+                    class="arch-fn-box arch-fn-2"
+                    x="320"
+                    y="105"
+                    width="100"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title arch-fn-2"
+                    x="370"
+                    y="135"
+                    text-anchor="middle"
+                  >
+                    λ FN
+                  </text>
+                  <rect
+                    class="arch-fn-box arch-fn-3"
+                    x="440"
+                    y="105"
+                    width="100"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title arch-fn-3"
+                    x="490"
+                    y="135"
+                    text-anchor="middle"
+                  >
+                    λ FN
+                  </text>
+                </svg>

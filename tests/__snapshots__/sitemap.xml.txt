@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>«url»/</loc>
+    <lastmod>YYYY-MM-DD</lastmod>
+    <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>«url»/assets/cv.pdf</loc>
+    <lastmod>YYYY-MM-DD</lastmod>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>«url»/privacy.html</loc>
+    <lastmod>YYYY-MM-DD</lastmod>
+    <priority>0.10</priority>
+  </url>
+</urlset>

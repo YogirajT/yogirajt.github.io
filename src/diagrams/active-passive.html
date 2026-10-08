@@ -1,0 +1,93 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="active-passive"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-dash arch-c-muted"
+                    d="M300,50 L450,110"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M300,50 L150,110"
+                  />
+                  <circle class="arch-pulse pulse-ap-traffic-1" r="4" />
+                  <circle class="arch-pulse pulse-ap-traffic-2" r="4" />
+
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M240,145 L360,145"
+                  />
+                  <circle class="arch-pulse pulse-ap-sync" r="4" />
+
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="300"
+                    cy="35"
+                    r="18"
+                  />
+                  <text
+                    class="arch-band-sub"
+                    x="300"
+                    y="12"
+                    text-anchor="middle"
+                  >
+                    TRAFFIC
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="60"
+                    y="110"
+                    width="180"
+                    height="70"
+                    rx="10"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="150"
+                    y="140"
+                    text-anchor="middle"
+                  >
+                    PRIMARY
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="150"
+                    y="158"
+                    text-anchor="middle"
+                  >
+                    active
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-muted"
+                    x="360"
+                    y="110"
+                    width="180"
+                    height="70"
+                    rx="10"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="450"
+                    y="140"
+                    text-anchor="middle"
+                  >
+                    STANDBY
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="450"
+                    y="158"
+                    text-anchor="middle"
+                  >
+                    idle · replicated
+                  </text>
+                </svg>

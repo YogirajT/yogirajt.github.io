@@ -1,0 +1,389 @@
+<html data-i18n-page="" lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>
+      ·
+    <meta content="·" name="description">
+    <meta content="·" name="author">
+    <link href="«url»/" rel="canonical">
+    <link href="«url»/" hreflang="en" rel="alternate">
+    <link href="«url»/?ln=de" hreflang="de" rel="alternate">
+    <link href="«url»/" hreflang="x-default" rel="alternate">
+    <meta content="«verification»" name="google-site-verification">
+    <meta content="interest-cohort=()" http-equiv="Permissions-Policy">
+    <meta content="«light»" name="theme-color">
+    <meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" name="robots">
+    <meta content="·" property="og:site_name">
+    <meta content="profile" property="og:type">
+    <meta content="·" property="profile:first_name">
+    <meta content="·" property="profile:last_name">
+    <meta content="en_US" property="og:locale">
+    <meta content="de_DE" property="og:locale:alternate">
+    <meta content="·" property="og:title">
+    <meta content="·" property="og:description">
+    <meta content="«url»/assets/og-image.png" property="og:image">
+    <meta content="image/png" property="og:image:type">
+    <meta content="1200" property="og:image:width">
+    <meta content="630" property="og:image:height">
+    <meta content="·" property="og:image:alt">
+    <meta content="«url»/" property="og:url">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="·" name="twitter:title">
+    <meta content="·" name="twitter:description">
+    <meta content="«url»/assets/og-image.png" name="twitter:image">
+    <meta content="·" name="twitter:image:alt">
+    <link href="assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+    <link href="assets/favicon.ico" rel="icon" type="image/x-icon">
+    <link href="assets/favicon-144x144.png" rel="icon" sizes="144x144" type="image/png">
+    <link href="assets/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="assets/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="assets/site.webmanifest" rel="manifest">
+    <link as="font" crossorigin="" href="assets/fonts/Tektur-Medium.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/Outfit-Regular.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/Outfit-Bold.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/JetBrainsMono-Regular.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/JetBrainsMono-Bold.woff" rel="preload" type="font/woff">
+    <script>
+      ‹(function () { var root = document.documentElement; var theme = "light"; try { var saved = localStorage.getItem("theme"); if (saved === "dark" || saved === "light") theme = saved; } catch (e) {} root.setAttribute("data-theme", theme); var bar = document.querySelector('meta[name="theme-color"]'); if (bar) bar.setAttribute("content", theme === "dark" ? "«dark»" : "«light»"); try { var asked = new URLSearchParams(location.search).get("ln"); var stored = null; try { stored = localStorage.getItem("lang"); } catch (e) {} var lang = asked === "de" || asked === "en" ? asked : stored === "de" ? "de" : "en"; if (lang === "de") { root.classList.add("i18n-pending"); setTimeout(function () { root.classList.remove("i18n-pending"); }, 3000); } } catch (e) {} })();›
+    <link href="styles.css?v=HASH" rel="stylesheet">
+    <script defer="" src="i18n.js?v=HASH">
+    <script defer="" src="scripts.js?v=HASH">
+    <script id="ld-json" type="application/ld+json">
+      ‹json-ld: see its own snapshot›
+  <body>
+    <div aria-describedby="cookie-description" aria-labelledby="cookie-title" aria-modal="false" class="cookie-banner" hidden="" id="cookie-banner" role="dialog">
+      <div class="cookie-banner__content">
+        <p aria-hidden="true" class="cookie-banner__eyebrow" data-i18n="ui.cookie.eyebrow">
+          ·
+        <h2 data-i18n="ui.cookie.title" id="cookie-title">
+          ·
+        <p data-i18n="ui.cookie.desc" id="cookie-description">
+          ·
+        <div class="cookie-banner__actions">
+          <button class="cookie-btn cookie-btn--secondary" data-i18n="ui.cookie.reject" id="cookie-reject" type="button">
+            ·
+          <button class="cookie-btn cookie-btn--primary" data-i18n="ui.cookie.accept" id="cookie-accept" type="button">
+            ·
+        <a class="cookie-settings-link" data-i18n="ui.cookie.policy" href="privacy.html">
+          ·
+    <div aria-hidden="true" class="theme-transition-overlay">
+    <div aria-hidden="true" class="ambient-layer">
+      <div class="ambient-rain">
+      <div class="ambient-leaves">
+      <div class="ambient-glow">
+      <div class="ambient-lightning">
+      <svg class="ambient-bolt" focusable="false" preserveaspectratio="none">
+    <header class="nav">
+      <div class="wrap">
+        <a class="nav-brand" href="#top">
+          <svg aria-hidden="true" class="brand-mark" focusable="false" viewbox="0 0 32 32">
+          <span class="brand-name">
+            <span class="brand-first">
+              ·
+            <span class="brand-last">
+              ·
+        <div class="nav-desktop">
+          <nav aria-label="·" data-i18n-attr="aria-label:ui.aria.navPrimary">
+            <ul class="nav-links">
+              <li>
+                <a data-i18n="ui.nav.about" href="#about">
+                  ·
+              <li>
+                <a data-i18n="ui.nav.experience" href="#experience">
+                  ·
+              <li>
+                <a data-i18n="ui.nav.skills" href="#skills">
+                  ·
+              <li>
+                <a data-i18n="ui.nav.contact" href="#contact">
+                  ·
+          <div aria-label="·" class="lang-switch" data-i18n-attr="aria-label:ui.aria.langGroup" role="group">
+            <span aria-hidden="true" class="globe">
+              <i style="--l: 15deg">
+              <i style="--l: 45deg">
+              <i style="--l: 75deg">
+              <i style="--l: 105deg">
+              <i style="--l: 135deg">
+              <i style="--l: 165deg">
+              <i style="--l: 195deg">
+              <i style="--l: 225deg">
+              <i style="--l: 255deg">
+              <i style="--l: 285deg">
+              <i style="--l: 315deg">
+              <i style="--l: 345deg">
+            <a aria-current="true" aria-label="·" data-lang="en" href="./" hreflang="en" lang="en" title="·">
+              ·
+            <a aria-label="·" data-lang="de" href="?ln=de" hreflang="de" lang="de" title="·">
+              ·
+          <div class="theme-switch" id="theme-switch">
+            <div class="bulb-switch">
+              <input aria-label="·" data-i18n-attr="aria-label:ui.aria.themeDark" id="theme-toggle" role="switch" type="checkbox">
+              <label for="theme-toggle">
+                <svg aria-hidden="true" class="bulb-icon bulb-icon-sun" focusable="false" viewbox="0 0 24 24">
+                <svg aria-hidden="true" class="bulb-icon bulb-icon-moon" focusable="false" viewbox="0 0 24 24">
+                <i aria-hidden="true" class="bulb">
+                  <span class="bulb-center">
+                  <span class="filament-1">
+                  <span class="filament-2">
+                  <span class="reflections">
+                    <span>
+                  <span class="sparks">
+                    <i class="spark1">
+                    <i class="spark2">
+                    <i class="spark3">
+                    <i class="spark4">
+        <div class="nav-toggle-wrap">
+          <details class="nav-toggle">
+            <summary aria-label="·" data-i18n-attr="aria-label:ui.aria.menu">
+              <svg aria-hidden="true" class="icon-burger" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewbox="0 0 24 24">
+              <svg aria-hidden="true" class="icon-close" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewbox="0 0 24 24">
+            <nav aria-label="·" class="nav-toggle-panel" data-i18n-attr="aria-label:ui.aria.navPrimary">
+              <a data-i18n="ui.nav.about" href="#about">
+                ·
+              <a data-i18n="ui.nav.experience" href="#experience">
+                ·
+              <a data-i18n="ui.nav.skills" href="#skills">
+                ·
+              <a data-i18n="ui.nav.contact" href="#contact">
+                ·
+    <main id="main" tabindex="-1">
+      <section aria-labelledby="hero-title" class="hero" id="top">
+        <div class="wrap">
+          <div class="hero-text">
+            <p class="eyebrow hero-eyebrow" data-i18n="hero.eyebrow">
+              ·
+            <h1 id="hero-title">
+              <span aria-hidden="true">
+                ·
+              <span class="sr-only">
+                ·
+            <p class="hero-role">
+              <span data-i18n="hero.role" id="typewriter">
+                ·
+            <p class="hero-pitch" data-i18n="hero.pitch">
+              ·
+            <div class="hero-cta">
+              <a class="btn btn-primary" href="assets/cv.pdf" rel="noopener" target="_blank">
+                <svg aria-hidden="true" fill="none" focusable="false" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16">
+                <span data-i18n="hero.cta.download">
+                  ·
+                <span class="sr-only" data-i18n="ui.a11y.pdfnewtab">
+                  ·
+              <a class="btn btn-ghost" data-i18n="hero.cta.hello" href="mailto:«email»">
+                ·
+            <ul aria-label="·" class="hero-social icon-row" data-i18n-attr="aria-label:ui.aria.socialGroup" role="list">
+              <li>
+                <a class="icon-link" href="«github»" rel="noopener" target="_blank" title="·">
+                  <svg aria-hidden="true" fill="currentColor" focusable="false" viewbox="0 0 24 24">
+                  <span class="sr-only">
+                    ·
+                    <span data-i18n="ui.a11y.newtab">
+                      ·
+              <li>
+                <a class="icon-link" href="«linkedin»" rel="noopener" target="_blank" title="·">
+                  <svg aria-hidden="true" fill="currentColor" focusable="false" viewbox="0 0 24 24">
+                  <span class="sr-only">
+                    ·
+                    <span data-i18n="ui.a11y.newtab">
+                      ·
+              <li>
+                <a class="icon-link" data-i18n-attr="title:ui.aria.socialEmail" href="mailto:«email»" title="·">
+                  <svg aria-hidden="true" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+                  <span class="sr-only" data-i18n="ui.social.email">
+                    ·
+          <div class="hero-visual">
+            <div aria-label="·" aria-roledescription="·" class="arch-cycler" data-arch-cycler="" data-i18n-attr="aria-label:ui.aria.archRegion;aria-roledescription:ui.aria.archRoledesc" role="region">
+              <div class="arch-stage">
+                <svg aria-label="·" class="arch-diagram is-active" data-arch-panel="layered" data-i18n-attr="aria-label:hero.architectures.*.description" focusable="false" preserveaspectratio="xMidYMid meet" role="img" viewbox="0 0 600 260">
+                <svg aria-hidden="true" aria-label="·" class="arch-diagram" data-arch-panel="hexagonal" data-i18n-attr="aria-label:hero.architectures.*.description" focusable="false" preserveaspectratio="xMidYMid meet" role="img" viewbox="0 0 600 260">
+              <div class="arch-controls">
+                <button aria-label="·" class="arch-pause" data-arch-pause="" hidden="" type="button">
+                  <svg aria-hidden="true" class="icon-pause" fill="currentColor" focusable="false" viewbox="0 0 24 24">
+                  <svg aria-hidden="true" class="icon-play" fill="currentColor" focusable="false" viewbox="0 0 24 24">
+                <div aria-label="·" aria-orientation="horizontal" class="arch-dots" data-arch-dots="" data-i18n-attr="aria-label:ui.aria.archGroup" role="toolbar">
+                  <button aria-current="true" class="arch-dot is-active" data-arch-target="layered" type="button">
+                    <span class="sr-only" data-i18n="hero.architectures.*.name">
+                      ·
+                  <button class="arch-dot" data-arch-target="hexagonal" type="button">
+                    <span class="sr-only" data-i18n="hero.architectures.*.name">
+                      ·
+              <p class="sr-only" data-arch-status="" role="status">
+      <section aria-labelledby="about-title" class="about reveal" id="about">
+        <div class="wrap">
+          <div class="about-copy">
+            <p class="eyebrow" data-i18n="about.eyebrow">
+              ·
+            <h2 data-i18n="about.title" id="about-title" style="
+                margin-top: 0.6rem;
+                font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+              ">
+              ·
+            <div style="margin-top: 1.4rem">
+              <p data-i18n="about.paragraphs.*">
+                ·
+          <aside aria-label="·" class="facts" data-i18n-attr="aria-label:ui.aria.facts">
+            <dl>
+              <div>
+                <dt data-i18n="about.facts.*.label">
+                  ·
+                <dd data-i18n="about.facts.*.value">
+                  ·
+      <section aria-labelledby="experience-title" class="experience reveal" id="experience">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow" data-i18n="experience.eyebrow">
+              ·
+            <h2 data-i18n="experience.title" id="experience-title">
+              ·
+            <p data-i18n="experience.subtitle">
+              ·
+          <div class="timeline">
+            <article class="job job-current">
+              <div class="job-card">
+                <div class="job-head">
+                  <div>
+                    <h3 class="job-title">
+                      ·
+                    <p class="job-company">
+                      ·
+                      <span class="job-location" data-i18n="experience.places.berlin">
+                        ·
+                  <span class="job-dates" data-i18n="experience.jobs.*.dates">
+                    ·
+                <ul class="job-bullets">
+                  <li data-i18n="experience.jobs.*.bullets.*">
+                    ·
+                <ul aria-label="·" class="tag-row" data-i18n-attr="aria-label:ui.aria.tech" role="list">
+                  <li class="tag">
+                    ·
+            <article class="job">
+              <div class="job-card">
+                <div class="job-head">
+                  <div>
+                    <h3 class="job-title">
+                      ·
+                    <p class="job-company">
+                      ·
+                      <span class="job-location" data-i18n="experience.places.berlin">
+                        ·
+                  <span class="job-dates" data-i18n="experience.jobs.*.dates">
+                    ·
+                <ul class="job-bullets">
+                  <li data-i18n="experience.jobs.*.bullets.*">
+                    ·
+                <ul aria-label="·" class="tag-row" data-i18n-attr="aria-label:ui.aria.tech" role="list">
+                  <li class="tag">
+                    ·
+          <div class="earlier">
+            <h3 data-i18n="experience.earlierTitle">
+              ·
+            <div class="earlier-grid">
+              <div class="earlier-item">
+                <h4 data-i18n="experience.earlier.*.heading">
+                  ·
+                <span class="job-dates" data-i18n="experience.earlier.*.dates">
+                  ·
+                <p data-i18n="experience.earlier.*.summary">
+                  ·
+      <section aria-labelledby="skills-title" class="skills reveal" id="skills">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow" data-i18n="skills.eyebrow">
+              ·
+            <h2 data-i18n="skills.title" id="skills-title">
+              ·
+          <div class="skill-groups">
+            <div class="skill-group">
+              <h3 data-i18n="skills.groups.*.title" id="skill-g1">
+                ·
+              <ul aria-labelledby="skill-g1" class="skill-tags" role="list">
+                <li class="tag">
+                  ·
+      <section aria-labelledby="education-title" class="edu reveal" id="education">
+        <h2 class="sr-only" data-i18n="education.srTitle" id="education-title">
+          ·
+        <div class="wrap">
+          <div class="edu-block">
+            <h3 data-i18n="education.title">
+              ·
+            <ul class="edu-list">
+              <li>
+                <strong>
+                  ·
+                <span>
+                  ·
+              <li>
+                <strong data-i18n="education.degrees.*.title">
+                  ·
+                <span>
+                  ·
+          <div class="edu-block">
+            <h3 data-i18n="education.languagesTitle">
+              ·
+            <ul class="lang-list" role="list">
+              <li class="lang-row">
+                <span data-i18n="education.languages.*.name">
+                  ·
+              <li class="lang-row">
+                <span data-i18n="education.languages.*.name">
+                  ·
+                <span>
+                  ·
+              <li class="lang-row">
+                <span>
+                  ·
+                <span data-i18n="education.levels.native">
+                  ·
+      <section aria-labelledby="contact-title" class="contact reveal" id="contact">
+        <div class="wrap">
+          <p class="eyebrow" data-i18n="contact.eyebrow" style="justify-content: center">
+            ·
+          <h2 data-i18n="contact.title" id="contact-title" style="margin-top: 0.8rem">
+            ·
+          <a class="contact-mail" href="mailto:«email»" id="contact-mail-link">
+            ·
+          <button aria-label="·" class="copy-btn" data-i18n-attr="aria-label:ui.aria.copyEmail;title:ui.aria.copyEmail" id="copy-email" style="display: none" title="·" type="button">
+            <svg aria-hidden="true" fill="none" focusable="false" height="15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="vertical-align: -2px" viewbox="0 0 24 24" width="15">
+          <p class="contact-sub" data-i18n="contact.sub">
+            ·
+          <div class="contact-cta">
+            <a class="btn btn-primary" href="assets/cv.pdf" rel="noopener" target="_blank">
+              <span data-i18n="contact.ctaDownload">
+                ·
+              <span class="sr-only" data-i18n="ui.a11y.pdfnewtab">
+                ·
+            <a class="btn btn-ghost" href="«linkedin»" rel="noopener" target="_blank">
+              <span data-i18n="contact.ctaLinkedin">
+                ·
+              <span class="sr-only" data-i18n="ui.a11y.newtab">
+                ·
+          <ul aria-label="·" class="contact-social icon-row" data-i18n-attr="aria-label:ui.aria.socialGroup" role="list">
+            <li>
+              <a class="icon-link" href="«github»" rel="noopener" target="_blank" title="·">
+                <svg aria-hidden="true" fill="currentColor" focusable="false" viewbox="0 0 24 24">
+                <span class="sr-only">
+                  ·
+                  <span data-i18n="ui.a11y.newtab">
+                    ·
+            <li>
+              <a class="icon-link" href="«linkedin»" rel="noopener" target="_blank" title="·">
+                <svg aria-hidden="true" fill="currentColor" focusable="false" viewbox="0 0 24 24">
+                <span class="sr-only">
+                  ·
+                  <span data-i18n="ui.a11y.newtab">
+                    ·
+          <footer class="wrap site-footer" style="padding-inline: 0">
+            <span>
+              ·
+              <span id="year">
+                ·
+              ·
+            <span>
+              <a href="mailto:«email»">
+                ·
+              ·
+            <a data-i18n="ui.footer.privacy" href="privacy.html">
+              ·
+            <button class="footer-cookie-settings" data-i18n="ui.footer.cookies" id="footer-cookie-settings" type="button">
+              ·

@@ -1,0 +1,69 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "«url»/#website",
+      "url": "«url»/",
+      "name": "·",
+      "inLanguage": [
+        "en",
+        "de"
+      ],
+      "publisher": {
+        "@id": "«url»/#person"
+      }
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "«url»/#profilepage",
+      "url": "«url»/",
+      "name": "·",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "«url»/#website"
+      },
+      "mainEntity": {
+        "@id": "«url»/#person"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "«url»/#person",
+      "name": "·",
+      "alternateName": "·",
+      "url": "«url»/",
+      "jobTitle": "·",
+      "description": "·",
+      "email": "mailto:«email»",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "·",
+        "addressCountry": "DE"
+      },
+      "worksFor": {
+        "@type": "Organization",
+        "name": "·"
+      },
+      "alumniOf": [
+        {
+          "@type": "CollegeOrUniversity",
+          "name": "·"
+        }
+      ],
+      "knowsLanguage": [
+        "·"
+      ],
+      "knowsAbout": [
+        "·"
+      ],
+      "mainEntityOfPage": {
+        "@id": "«url»/#profilepage"
+      },
+      "sameAs": [
+        "«github»",
+        "«linkedin»"
+      ]
+    }
+  ]
+}

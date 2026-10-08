@@ -1,0 +1,83 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="peer-to-peer"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M300,37 L390.4,102.6"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M390.4,102.6 L355.8,208.9"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M355.8,208.9 L244.2,208.9"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M244.2,208.9 L209.6,102.6"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M209.6,102.6 L300,37"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M300,37 L355.8,208.9"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M390.4,102.6 L244.2,208.9"
+                  />
+                  <circle class="arch-pulse pulse-p2p-1" r="4" />
+                  <circle class="arch-pulse pulse-p2p-2" r="4" />
+                  <circle class="arch-pulse pulse-p2p-3" r="4" />
+                  <circle class="arch-pulse pulse-p2p-4" r="4" />
+
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="300"
+                    cy="37"
+                    r="18"
+                  />
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="390.4"
+                    cy="102.6"
+                    r="18"
+                  />
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="355.8"
+                    cy="208.9"
+                    r="18"
+                  />
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="244.2"
+                    cy="208.9"
+                    r="18"
+                  />
+                  <circle
+                    class="arch-node-circle arch-c-cyan"
+                    cx="209.6"
+                    cy="102.6"
+                    r="18"
+                  />
+                  <text
+                    class="arch-band-sub"
+                    x="300"
+                    y="250"
+                    text-anchor="middle"
+                  >
+                    no central server
+                  </text>
+                </svg>

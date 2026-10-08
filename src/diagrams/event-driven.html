@@ -1,0 +1,158 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="event-driven"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-solid arch-c-green"
+                    d="M70,90 C140,90 170,100 230,102"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-green"
+                    d="M70,190 C140,190 170,160 230,158"
+                  />
+                  <circle class="arch-pulse pulse-evt-in-1" r="4" />
+                  <circle class="arch-pulse pulse-evt-in-2" r="4" />
+
+                  <path
+                    class="arch-line-solid arch-c-magenta"
+                    d="M370,100 C450,100 470,50 540,50"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-magenta"
+                    d="M370,130 L540,130"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-magenta"
+                    d="M370,160 C450,160 470,210 540,210"
+                  />
+                  <circle class="arch-pulse pulse-evt-out-1" r="4" />
+                  <circle class="arch-pulse pulse-evt-out-2" r="4" />
+                  <circle class="arch-pulse pulse-evt-out-3" r="4" />
+
+                  <circle class="arch-ping" cx="300" cy="130" r="20" />
+                  <rect
+                    class="arch-bus-box"
+                    x="230"
+                    y="80"
+                    width="140"
+                    height="100"
+                    rx="10"
+                  />
+                  <line
+                    class="arch-bus-div"
+                    x1="260"
+                    y1="90"
+                    x2="260"
+                    y2="170"
+                  />
+                  <line
+                    class="arch-bus-div"
+                    x1="300"
+                    y1="90"
+                    x2="300"
+                    y2="170"
+                  />
+                  <line
+                    class="arch-bus-div"
+                    x1="340"
+                    y1="90"
+                    x2="340"
+                    y2="170"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="300"
+                    y="200"
+                    text-anchor="middle"
+                  >
+                    EVENT BUS
+                  </text>
+
+                  <g class="arch-port">
+                    <circle
+                      class="arch-node-circle arch-c-green"
+                      cx="70"
+                      cy="90"
+                      r="18"
+                    />
+                    <text
+                      class="arch-band-sub"
+                      x="70"
+                      y="56"
+                      text-anchor="middle"
+                    >
+                      ORDER SVC
+                    </text>
+                  </g>
+                  <g class="arch-port">
+                    <circle
+                      class="arch-node-circle arch-c-green"
+                      cx="70"
+                      cy="190"
+                      r="18"
+                    />
+                    <text
+                      class="arch-band-sub"
+                      x="70"
+                      y="231"
+                      text-anchor="middle"
+                    >
+                      PAYMENT SVC
+                    </text>
+                  </g>
+                  <g class="arch-port">
+                    <circle
+                      class="arch-node-circle arch-c-magenta"
+                      cx="540"
+                      cy="50"
+                      r="18"
+                    />
+                    <text
+                      class="arch-band-sub"
+                      x="540"
+                      y="16"
+                      text-anchor="middle"
+                    >
+                      EMAIL SVC
+                    </text>
+                  </g>
+                  <g class="arch-port">
+                    <circle
+                      class="arch-node-circle arch-c-magenta"
+                      cx="540"
+                      cy="130"
+                      r="18"
+                    />
+                    <text
+                      class="arch-band-sub"
+                      x="540"
+                      y="96"
+                      text-anchor="middle"
+                    >
+                      ANALYTICS
+                    </text>
+                  </g>
+                  <g class="arch-port">
+                    <circle
+                      class="arch-node-circle arch-c-magenta"
+                      cx="540"
+                      cy="210"
+                      r="18"
+                    />
+                    <text
+                      class="arch-band-sub"
+                      x="540"
+                      y="251"
+                      text-anchor="middle"
+                    >
+                      INVENTORY
+                    </text>
+                  </g>
+                </svg>

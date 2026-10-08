@@ -1,0 +1,17 @@
+{
+  "name": "yogirajt.github.io",
+  "private": true,
+  "description": "Static profile site. Content lives in content/*.json, templates in src/, the generator in .github/scripts/build.mjs.",
+  "scripts": {
+    "build": "node .github/scripts/build.mjs dist --with-static",
+    "build:strict": "node .github/scripts/build.mjs dist --with-static --strict",
+    "test": "node --test",
+    "test:update": "UPDATE_SNAPSHOTS=1 node --test"
+  },
+  "dependencies": {
+    "nunjucks": "3.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

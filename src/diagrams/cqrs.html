@@ -1,0 +1,143 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="cqrs"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M50,130 C90,105 125,80 160,62"
+                  />
+                  <circle class="arch-pulse pulse-cqrs-cmd-1" r="4" />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M310,60 L428,60"
+                  />
+                  <circle class="arch-pulse pulse-cqrs-cmd-2" r="4" />
+
+                  <path
+                    class="arch-line-solid arch-c-magenta"
+                    d="M50,130 C90,155 125,180 160,198"
+                  />
+                  <circle class="arch-pulse pulse-cqrs-qry-1" r="4" />
+                  <path
+                    class="arch-line-solid arch-c-magenta"
+                    d="M310,200 L428,200"
+                  />
+                  <circle class="arch-pulse pulse-cqrs-qry-2" r="4" />
+
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M428,72 C390,95 330,135 238,176"
+                  />
+                  <circle class="arch-pulse pulse-cqrs-proj" r="4" />
+
+                  <circle class="arch-node-circle" cx="50" cy="130" r="22" />
+                  <text
+                    class="arch-band-sub"
+                    x="50"
+                    y="167"
+                    text-anchor="middle"
+                  >
+                    CLIENT
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-cyan"
+                    x="160"
+                    y="35"
+                    width="150"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="235"
+                    y="57"
+                    text-anchor="middle"
+                  >
+                    WRITE MODEL
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="235"
+                    y="73"
+                    text-anchor="middle"
+                  >
+                    Commands · Validation
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-magenta"
+                    x="160"
+                    y="175"
+                    width="150"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="235"
+                    y="197"
+                    text-anchor="middle"
+                  >
+                    READ MODEL
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="235"
+                    y="213"
+                    text-anchor="middle"
+                  >
+                    Queries · Projections
+                  </text>
+
+                  <g class="arch-db arch-c-cyan">
+                    <ellipse
+                      class="arch-db-cyl"
+                      cx="460"
+                      cy="60"
+                      rx="32"
+                      ry="10"
+                    />
+                    <path
+                      class="arch-db-cyl-body"
+                      d="M428,60 L428,80 A32,10 0 0 0 492,80 L492,60"
+                    />
+                  </g>
+                  <text
+                    class="arch-band-sub"
+                    x="460"
+                    y="100"
+                    text-anchor="middle"
+                  >
+                    EVENT STORE
+                  </text>
+
+                  <g class="arch-db arch-c-magenta">
+                    <ellipse
+                      class="arch-db-cyl"
+                      cx="460"
+                      cy="200"
+                      rx="32"
+                      ry="10"
+                    />
+                    <path
+                      class="arch-db-cyl-body"
+                      d="M428,200 L428,220 A32,10 0 0 0 492,220 L492,200"
+                    />
+                  </g>
+                  <text
+                    class="arch-band-sub"
+                    x="460"
+                    y="240"
+                    text-anchor="middle"
+                  >
+                    READ DB
+                  </text>
+                </svg>

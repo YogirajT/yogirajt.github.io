@@ -1,0 +1,227 @@
+    <div
+      class="cookie-banner"
+      id="cookie-banner"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="cookie-title"
+      aria-describedby="cookie-description"
+      hidden
+    >
+      <div class="cookie-banner__content">
+        <p
+          class="cookie-banner__eyebrow"
+          aria-hidden="true"
+          data-i18n="{{ ui.cookie.eyebrow.key }}"
+        >{{ ui.cookie.eyebrow.en }}</p>
+        <h2 id="cookie-title" data-i18n="{{ ui.cookie.title.key }}">{{ ui.cookie.title.en }}</h2>
+        <p id="cookie-description" data-i18n="{{ ui.cookie.desc.key }}">{{ ui.cookie.desc.en }}</p>
+        <div class="cookie-banner__actions">
+          <button
+            class="cookie-btn cookie-btn--secondary"
+            id="cookie-reject"
+            type="button"
+            data-i18n="{{ ui.cookie.reject.key }}"
+          >{{ ui.cookie.reject.en }}</button>
+          <button
+            class="cookie-btn cookie-btn--primary"
+            id="cookie-accept"
+            type="button"
+            data-i18n="{{ ui.cookie.accept.key }}"
+          >{{ ui.cookie.accept.en }}</button>
+        </div>
+        <a
+          class="cookie-settings-link"
+          href="{{ page.cookiePolicyHref }}"
+          data-i18n="{{ ui.cookie.policy.key }}"
+          >{{ ui.cookie.policy.en }}</a
+        >
+      </div>
+    </div>
+
+    <div class="theme-transition-overlay" aria-hidden="true"></div>
+    <div class="ambient-layer" aria-hidden="true">
+      <div class="ambient-rain"></div>
+      <div class="ambient-leaves"></div>
+      <div class="ambient-glow"></div>
+      <div class="ambient-lightning"></div>
+      <svg
+        class="ambient-bolt"
+        preserveAspectRatio="none"
+        focusable="false"
+      ></svg>
+    </div>
+
+    <!-- ============ NAV ============ -->
+    <header class="nav">
+      <div class="wrap">
+        <a class="nav-brand" href="{{ page.base }}#top">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="bm-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop class="bm-stop-a" offset="0" />
+                <stop class="bm-stop-b" offset="1" />
+              </linearGradient>
+            </defs>
+            <path class="bm-plate" d="M16 1.8 28.2 8.9v14.2L16 30.2 3.8 23.1V8.9z" />
+            <path class="bm-tube" d="M16 1.8 28.2 8.9v14.2L16 30.2 3.8 23.1" />
+            <path class="bm-tube bm-flicker" d="M3.8 23.1V8.9L16 1.8" />
+            <path class="bm-glow" d="M9.6 10c2.4 2.2 4.7 4.5 6.4 7.2 1.7-2.7 4-5 6.4-7.2M16 17.2v6" />
+            <path class="bm-trace" pathLength="1" d="M9.6 10c2.4 2.2 4.7 4.5 6.4 7.2 1.7-2.7 4-5 6.4-7.2M16 17.2v6" />
+            <circle class="bm-node bm-n1" cx="9.6" cy="10" r="1.7" />
+            <circle class="bm-node bm-n2" cx="22.4" cy="10" r="1.7" />
+            <circle class="bm-node bm-n3" cx="16" cy="23.4" r="1.7" />
+          </svg>
+          <span class="brand-name"
+            ><span class="brand-first">{{ site.firstName | e }}</span> <span class="brand-last">{{ site.lastName | e }}</span></span
+          >
+        </a>
+
+        <div class="nav-desktop">
+          <nav aria-label="{{ ui.aria.navPrimary.enText | e }}" data-i18n-attr="aria-label:{{ ui.aria.navPrimary.key }}">
+            <ul class="nav-links">
+              <li><a href="{{ page.base }}#about" data-i18n="{{ ui.nav.about.key }}">{{ ui.nav.about.en }}</a></li>
+              <li>
+                <a href="{{ page.base }}#experience" data-i18n="{{ ui.nav.experience.key }}">{{ ui.nav.experience.en }}</a>
+              </li>
+              <li><a href="{{ page.base }}#skills" data-i18n="{{ ui.nav.skills.key }}">{{ ui.nav.skills.en }}</a></li>
+              <li><a href="{{ page.base }}#contact" data-i18n="{{ ui.nav.contact.key }}">{{ ui.nav.contact.en }}</a></li>
+            </ul>
+          </nav>
+          <div
+            class="lang-switch"
+            role="group"
+            aria-label="{{ ui.aria.langGroup.enText | e }}"
+            data-i18n-attr="aria-label:{{ ui.aria.langGroup.key }}"
+          >
+            <span class="globe" aria-hidden="true">
+              <i style="--l: 15deg"></i>
+              <i style="--l: 45deg"></i>
+              <i style="--l: 75deg"></i>
+              <i style="--l: 105deg"></i>
+              <i style="--l: 135deg"></i>
+              <i style="--l: 165deg"></i>
+              <i style="--l: 195deg"></i>
+              <i style="--l: 225deg"></i>
+              <i style="--l: 255deg"></i>
+              <i style="--l: 285deg"></i>
+              <i style="--l: 315deg"></i>
+              <i style="--l: 345deg"></i>
+            </span>
+            <a
+              href="{{ page.enHref }}"
+              lang="en"
+              hreflang="en"
+              data-lang="en"
+              title="English"
+              aria-label="English"
+              aria-current="true"
+              >EN</a
+            >
+            <a
+              href="?ln=de"
+              lang="de"
+              hreflang="de"
+              data-lang="de"
+              title="Deutsch"
+              aria-label="Deutsch"
+              >DE</a
+            >
+          </div>
+          <div class="theme-switch" id="theme-switch">
+            <div class="bulb-switch">
+              <input
+                type="checkbox"
+                id="theme-toggle"
+                role="switch"
+                aria-label="{{ ui.aria.themeDark.enText | e }}"
+                data-i18n-attr="aria-label:{{ ui.aria.themeDark.key }}"
+              />
+              <label for="theme-toggle">
+                <svg
+                  class="bulb-icon bulb-icon-sun"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <circle cx="12" cy="12" r="4" fill="currentColor" />
+                  <path
+                    d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3L7 7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <svg
+                  class="bulb-icon bulb-icon-moon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <i class="bulb" aria-hidden="true">
+                  <span class="bulb-center"></span>
+                  <span class="filament-1"></span>
+                  <span class="filament-2"></span>
+                  <span class="reflections"><span></span></span>
+                  <span class="sparks">
+                    <i class="spark1"></i>
+                    <i class="spark2"></i>
+                    <i class="spark3"></i>
+                    <i class="spark4"></i>
+                  </span>
+                </i>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-toggle-wrap">
+          <details class="nav-toggle">
+            <summary aria-label="{{ ui.aria.menu.enText | e }}" data-i18n-attr="aria-label:{{ ui.aria.menu.key }}">
+              <svg
+                class="icon-burger"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+              <svg
+                class="icon-close"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <line x1="4" y1="4" x2="20" y2="20" />
+                <line x1="20" y1="4" x2="4" y2="20" />
+              </svg>
+            </summary>
+            <nav
+              class="nav-toggle-panel"
+              aria-label="{{ ui.aria.navPrimary.enText | e }}"
+              data-i18n-attr="aria-label:{{ ui.aria.navPrimary.key }}"
+            >
+              <a href="{{ page.base }}#about" data-i18n="{{ ui.nav.about.key }}">{{ ui.nav.about.en }}</a>
+              <a href="{{ page.base }}#experience" data-i18n="{{ ui.nav.experience.key }}">{{ ui.nav.experience.en }}</a>
+              <a href="{{ page.base }}#skills" data-i18n="{{ ui.nav.skills.key }}">{{ ui.nav.skills.en }}</a>
+              <a href="{{ page.base }}#contact" data-i18n="{{ ui.nav.contact.key }}">{{ ui.nav.contact.en }}</a>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>

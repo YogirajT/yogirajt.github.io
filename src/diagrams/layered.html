@@ -1,0 +1,129 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="layered"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                >
+                  <defs>
+                    <marker
+                      id="arch-arrow-cyan"
+                      viewBox="0 0 10 10"
+                      refX="8"
+                      refY="5"
+                      markerWidth="6"
+                      markerHeight="6"
+                      orient="auto-start-reverse"
+                    >
+                      <path class="arch-marker-cyan" d="M0,0 L10,5 L0,10 Z" />
+                    </marker>
+                    <marker
+                      id="arch-arrow-violet"
+                      viewBox="0 0 10 10"
+                      refX="8"
+                      refY="5"
+                      markerWidth="6"
+                      markerHeight="6"
+                      orient="auto-start-reverse"
+                    >
+                      <path class="arch-marker-violet" d="M0,0 L10,5 L0,10 Z" />
+                    </marker>
+                  </defs>
+
+                  <text
+                    class="arch-band-sub"
+                    x="576"
+                    y="19"
+                    text-anchor="middle"
+                  >
+                    CALLS
+                  </text>
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M576,30 L576,207"
+                    marker-end="url(#arch-arrow-cyan)"
+                  />
+                  <circle class="arch-pulse pulse-layered-down" r="4" />
+
+                  <text
+                    class="arch-band-sub"
+                    x="24"
+                    y="228"
+                    text-anchor="middle"
+                  >
+                    IMPLEMENTS
+                  </text>
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M24,210 L24,152"
+                    marker-end="url(#arch-arrow-violet)"
+                  />
+                  <circle class="arch-pulse pulse-layered-up" r="4" />
+
+                  <g class="arch-band">
+                    <rect
+                      class="arch-band-box arch-c-cyan"
+                      x="50"
+                      y="10"
+                      width="500"
+                      height="46"
+                      rx="8"
+                    />
+                    <text class="arch-band-title" x="72" y="30">
+                      PRESENTATION
+                    </text>
+                    <text class="arch-band-sub" x="72" y="46">
+                      REST API · GraphQL · Web UI
+                    </text>
+                  </g>
+                  <g class="arch-band">
+                    <rect
+                      class="arch-band-box arch-c-green"
+                      x="50"
+                      y="68"
+                      width="500"
+                      height="46"
+                      rx="8"
+                    />
+                    <text class="arch-band-title" x="72" y="88">
+                      APPLICATION
+                    </text>
+                    <text class="arch-band-sub" x="72" y="104">
+                      Use Cases · Orchestration
+                    </text>
+                  </g>
+                  <g class="arch-band">
+                    <rect
+                      class="arch-band-box arch-c-violet"
+                      x="50"
+                      y="126"
+                      width="500"
+                      height="46"
+                      rx="8"
+                    />
+                    <text class="arch-band-title" x="72" y="146">DOMAIN</text>
+                    <text class="arch-band-sub" x="72" y="162">
+                      Entities · Business Rules
+                    </text>
+                  </g>
+                  <g class="arch-band">
+                    <rect
+                      class="arch-band-box arch-c-magenta"
+                      x="50"
+                      y="184"
+                      width="500"
+                      height="46"
+                      rx="8"
+                    />
+                    <text class="arch-band-title" x="72" y="204">
+                      INFRASTRUCTURE
+                    </text>
+                    <text class="arch-band-sub" x="72" y="220">
+                      DB · Queue · External APIs
+                    </text>
+                  </g>
+                </svg>

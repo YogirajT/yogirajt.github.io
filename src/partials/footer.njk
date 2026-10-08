@@ -1,0 +1,14 @@
+          <footer class="wrap site-footer" style="padding-inline: 0">
+            <span>&copy; <span id="year">{{ buildYear }}</span> {{ site.name | e }}</span>
+            <span
+              ><a href="mailto:{{ site.email }}">{{ site.email }}</a>
+              &middot; {{ site.city.en }}, {{ site.country.code }}</span
+            >
+            <a href="privacy.html"{% if page.name == "privacy" %} aria-current="page"{% endif %} data-i18n="{{ ui.footer.privacy.key }}">{{ ui.footer.privacy.en }}</a>
+            <button
+              class="footer-cookie-settings"
+              id="footer-cookie-settings"
+              type="button"
+              data-i18n="{{ ui.footer.cookies.key }}"
+            >{{ ui.footer.cookies.en }}</button>
+          </footer>

@@ -1,0 +1,81 @@
+{
+  "srTitle": {
+    "en": "Education and spoken languages",
+    "de": "Ausbildung und Sprachen"
+  },
+  "title": {
+    "en": "Education",
+    "de": "Ausbildung"
+  },
+  "degrees": [
+    {
+      "title": {
+        "text": "M.S. Clinical Research & Regulatory Affairs"
+      },
+      "institution": "Sikkim Manipal University",
+      "years": "2010–2012",
+      "alumni": true
+    },
+    {
+      "title": {
+        "text": "Bachelor of Pharmacy"
+      },
+      "institution": "University of Mumbai",
+      "years": "2006–2010",
+      "alumni": true
+    },
+    {
+      "title": {
+        "en": "Web Development Training",
+        "de": "Weiterbildung Webentwicklung"
+      },
+      "institution": "Itvedant Education Pvt. Ltd.",
+      "years": "2017–2018"
+    }
+  ],
+  "languagesTitle": {
+    "en": "Spoken languages",
+    "de": "Gesprochene Sprachen"
+  },
+  "levels": {
+    "professional": {
+      "en": "Professional Working Proficiency",
+      "de": "Fließend im beruflichen Kontext"
+    },
+    "a2": {
+      "text": "A2"
+    },
+    "native": {
+      "en": "Native",
+      "de": "Muttersprache"
+    }
+  },
+  "languages": [
+    {
+      "name": {
+        "en": "English",
+        "de": "Englisch"
+      },
+      "level": "professional"
+    },
+    {
+      "name": {
+        "en": "German",
+        "de": "Deutsch"
+      },
+      "level": "a2"
+    },
+    {
+      "name": {
+        "text": "Hindi"
+      },
+      "level": "native"
+    },
+    {
+      "name": {
+        "text": "Marathi"
+      },
+      "level": "native"
+    }
+  ]
+}

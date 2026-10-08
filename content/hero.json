@@ -1,0 +1,169 @@
+{
+  "eyebrow": {
+    "en": "{{ role.title }} · {{ city }}, {{ country.code }}",
+    "de": "{{ role.title }} · {{ city }}, {{ country.code }}"
+  },
+  "role": {
+    "en": "Distributed systems, event-driven APIs & databases that hold up at scale.",
+    "de": "Verteilte Systeme, ereignisgesteuerte APIs und Datenbanken, die auch im großen Maßstab halten."
+  },
+  "pitch": {
+    "en": "I'm a backend-leaning {{ discipline | lower }} engineer with **{{ years }}+ years** of experience turning messy production problems into systems that scale — from a RabbitMQ framework moving thousands of events a second to a product line that grew into **$1M in annual revenue**. Currently leading backend architecture in Berlin.",
+    "de": "Ich bin ein Backend-orientierter {{ discipline }}-Entwickler mit **über {{ years }} Jahren** Erfahrung darin, chaotische Produktionsprobleme in skalierbare Systeme zu verwandeln – von einem RabbitMQ-Framework, das Tausende Events pro Sekunde verarbeitet, bis zu einer Produktlinie, die auf **1&nbsp;Mio.&nbsp;US-Dollar Jahresumsatz** wuchs. Derzeit verantworte ich die Backend-Architektur in Berlin."
+  },
+  "cta": {
+    "download": {
+      "en": "Download resume",
+      "de": "Lebenslauf herunterladen"
+    },
+    "hello": {
+      "en": "Say hello",
+      "de": "Kontakt aufnehmen"
+    }
+  },
+  "architectures": [
+    {
+      "id": "layered",
+      "name": {
+        "en": "Layered",
+        "de": "Schichtenarchitektur"
+      },
+      "description": {
+        "en": "Layered architecture: presentation, application, domain and infrastructure layers stacked on top of each other. Calls flow downward through the layers, and infrastructure implements the interfaces defined by the domain.",
+        "de": "Schichtenarchitektur: Präsentations-, Anwendungs-, Domänen- und Infrastrukturschicht übereinander. Aufrufe laufen von oben nach unten durch die Schichten, und die Infrastruktur implementiert die von der Domäne definierten Schnittstellen."
+      }
+    },
+    {
+      "id": "hexagonal",
+      "name": {
+        "en": "Hexagonal",
+        "de": "Hexagonal"
+      },
+      "description": {
+        "en": "Hexagonal architecture: a domain core surrounded by ports. A REST API, an external API and a CLI drive the core on one side; a message queue, a cache and a database are driven by it on the other.",
+        "de": "Hexagonale Architektur: ein Domänenkern, umgeben von Ports. Eine REST-API, eine externe API und eine CLI steuern den Kern auf der einen Seite; Message Queue, Cache und Datenbank werden auf der anderen Seite von ihm angesteuert."
+      }
+    },
+    {
+      "id": "event-driven",
+      "name": {
+        "en": "Event-driven",
+        "de": "Ereignisgesteuert"
+      },
+      "description": {
+        "en": "Event-driven architecture: order and payment services publish events to a central event bus, which fans them out to email, analytics and inventory services.",
+        "de": "Ereignisgesteuerte Architektur: Bestell- und Zahlungsdienst veröffentlichen Events auf einem zentralen Event-Bus, der sie an E-Mail-, Analyse- und Lagerdienst verteilt."
+      }
+    },
+    {
+      "id": "microservices",
+      "name": {
+        "en": "Microservices",
+        "de": "Microservices"
+      },
+      "description": {
+        "en": "Microservices: an API gateway routes requests to independent user, order, inventory and payment services, each with its own database.",
+        "de": "Microservices: Ein API-Gateway leitet Anfragen an unabhängige Benutzer-, Bestell-, Lager- und Zahlungsdienste weiter, jeder mit eigener Datenbank."
+      }
+    },
+    {
+      "id": "cqrs",
+      "name": {
+        "en": "CQRS",
+        "de": "CQRS"
+      },
+      "description": {
+        "en": "CQRS: a client sends commands to a write model backed by an event store, and queries to a separate read model backed by a read database. Changes are projected from the event store into the read database.",
+        "de": "CQRS: Ein Client sendet Befehle an ein Schreibmodell mit Event Store und Abfragen an ein getrenntes Lesemodell mit eigener Lesedatenbank. Änderungen werden vom Event Store in die Lesedatenbank projiziert."
+      }
+    },
+    {
+      "id": "pipeline",
+      "name": {
+        "en": "Pipe-and-filter",
+        "de": "Pipes und Filter"
+      },
+      "description": {
+        "en": "Pipe-and-filter: data flows from a source through parse, validate and transform stages into a sink.",
+        "de": "Pipes und Filter: Daten fließen von einer Quelle durch die Stufen Parsen, Validieren und Transformieren in eine Senke."
+      }
+    },
+    {
+      "id": "service-mesh",
+      "name": {
+        "en": "Service mesh",
+        "de": "Service Mesh"
+      },
+      "description": {
+        "en": "Service mesh: a control plane configures sidecar proxies attached to services A, B and C, which talk to each other through those proxies.",
+        "de": "Service Mesh: Eine Control Plane konfiguriert Sidecar-Proxys an den Diensten A, B und C, die darüber miteinander kommunizieren."
+      }
+    },
+    {
+      "id": "actor-model",
+      "name": {
+        "en": "Actor model",
+        "de": "Aktormodell"
+      },
+      "description": {
+        "en": "Actor model: independent actors A, B, C and D communicate only through asynchronous messages, with no shared state.",
+        "de": "Aktormodell: Unabhängige Aktoren A, B, C und D kommunizieren ausschließlich über asynchrone Nachrichten, ohne gemeinsamen Zustand."
+      }
+    },
+    {
+      "id": "peer-to-peer",
+      "name": {
+        "en": "Peer-to-peer",
+        "de": "Peer-to-Peer"
+      },
+      "description": {
+        "en": "Peer-to-peer: five nodes connected directly to one another, with no central server.",
+        "de": "Peer-to-Peer: fünf direkt miteinander verbundene Knoten, ohne zentralen Server."
+      }
+    },
+    {
+      "id": "saga",
+      "name": {
+        "en": "Saga",
+        "de": "Saga"
+      },
+      "description": {
+        "en": "Saga pattern: order, payment, inventory and shipping services each run a local transaction in sequence; if a step fails, compensating actions undo the earlier steps.",
+        "de": "Saga-Muster: Bestell-, Zahlungs-, Lager- und Versanddienst führen nacheinander je eine lokale Transaktion aus; schlägt ein Schritt fehl, machen Kompensationsaktionen die vorherigen Schritte rückgängig."
+      }
+    },
+    {
+      "id": "master-worker",
+      "name": {
+        "en": "Master-worker",
+        "de": "Master-Worker"
+      },
+      "description": {
+        "en": "Master-worker: a master distributes tasks to four workers and collects their results.",
+        "de": "Master-Worker: Ein Master verteilt Aufgaben an vier Worker und sammelt deren Ergebnisse ein."
+      }
+    },
+    {
+      "id": "serverless",
+      "name": {
+        "en": "Serverless",
+        "de": "Serverless"
+      },
+      "description": {
+        "en": "Serverless: an event trigger invokes short-lived functions on demand.",
+        "de": "Serverless: Ein Ereignis-Trigger ruft kurzlebige Funktionen bei Bedarf auf."
+      }
+    },
+    {
+      "id": "active-passive",
+      "name": {
+        "en": "Active-passive",
+        "de": "Aktiv-Passiv"
+      },
+      "description": {
+        "en": "Active-passive failover: traffic goes to the active primary node while a replicated standby waits idle.",
+        "de": "Aktiv-Passiv-Failover: Der Datenverkehr geht an den aktiven Primärknoten, während ein replizierter Standby-Knoten im Leerlauf wartet."
+      }
+    }
+  ]
+}

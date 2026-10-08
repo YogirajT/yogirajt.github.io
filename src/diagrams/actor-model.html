@@ -1,0 +1,100 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="actor-model"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M115,65 C185,65 225,95 300,130"
+                  />
+                  <circle class="arch-pulse pulse-actor-ab" r="4" />
+                  <path
+                    class="arch-line-solid arch-c-green"
+                    d="M115,195 C185,195 225,160 300,130"
+                  />
+                  <circle class="arch-pulse pulse-actor-cb" r="4" />
+                  <path
+                    class="arch-line-solid arch-c-magenta"
+                    d="M300,130 L485,130"
+                  />
+                  <circle class="arch-pulse pulse-actor-bd" r="4" />
+
+                  <rect
+                    class="arch-band-box arch-c-cyan"
+                    x="60"
+                    y="40"
+                    width="110"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="115"
+                    y="70"
+                    text-anchor="middle"
+                  >
+                    ACTOR A
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-violet"
+                    x="245"
+                    y="105"
+                    width="110"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="300"
+                    y="135"
+                    text-anchor="middle"
+                  >
+                    ACTOR B
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="60"
+                    y="170"
+                    width="110"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="115"
+                    y="200"
+                    text-anchor="middle"
+                  >
+                    ACTOR C
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-magenta"
+                    x="430"
+                    y="105"
+                    width="110"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="485"
+                    y="135"
+                    text-anchor="middle"
+                  >
+                    ACTOR D
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="300"
+                    y="247"
+                    text-anchor="middle"
+                  >
+                    async messages · no shared state
+                  </text>
+                </svg>

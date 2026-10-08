@@ -1,0 +1,62 @@
+{
+  "eyebrow": {
+    "en": "The journey",
+    "de": "Der Werdegang"
+  },
+  "title": {
+    "en": "From QBasic doodles to distributed systems",
+    "de": "Von QBasic-Kritzeleien zu verteilten Systemen"
+  },
+  "paragraphs": [
+    {
+      "en": "It all began with a curiosity about drawing shapes in QBasic, then moved on to building bots for Ragnarok Online and reverse-engineering Windows executables with OllyDbg to get an edge over other players, to creating a CPT code conflict search app in Excel.",
+      "de": "Alles begann mit der Neugier, in QBasic Formen zu zeichnen. Es folgten Bots für Ragnarok Online und das Reverse Engineering von Windows-Programmen mit OllyDbg, um sich einen Vorteil gegenüber anderen Spielern zu verschaffen – bis hin zu einer Excel-Anwendung zur Suche nach CPT-Code-Konflikten."
+    },
+    {
+      "en": "Mostly self-taught, with **{{ years }}+ years** of eventful web and mobile development across various domains, stacks, backend architectures, distributed systems, and {{ discipline | lower }} product work, on a mix of wildly successful projects and some quieter lessons learned the hard way. Still going strong. And of course, we’re just getting started!",
+      "de": "Überwiegend Autodidakt, mit **über {{ years }} Jahren** bewegter Web- und Mobile-Entwicklung in unterschiedlichen Branchen, Tech-Stacks, Backend-Architekturen, verteilten Systemen und {{ discipline }}-Produktarbeit – zwischen äußerst erfolgreichen Projekten und einigen leiseren Lektionen, die ich auf die harte Tour gelernt habe. Und es geht weiter. Wir fangen ja gerade erst an!"
+    }
+  ],
+  "facts": [
+    {
+      "label": {
+        "en": "Location",
+        "de": "Standort"
+      },
+      "value": {
+        "en": "{{ city }}, {{ country.en }}",
+        "de": "{{ city }}, {{ country.de }}"
+      }
+    },
+    {
+      "label": {
+        "en": "Focus",
+        "de": "Schwerpunkt"
+      },
+      "value": {
+        "en": "Backend architecture & distributed systems",
+        "de": "Backend-Architektur und verteilte Systeme"
+      }
+    },
+    {
+      "label": {
+        "en": "Experience",
+        "de": "Erfahrung"
+      },
+      "value": {
+        "en": "{{ years }}+ years, {{ discipline | lower }} roots",
+        "de": "{{ years }}+ Jahre, {{ discipline }}-Wurzeln"
+      }
+    },
+    {
+      "label": {
+        "en": "Languages",
+        "de": "Sprachen"
+      },
+      "value": {
+        "en": "English, German (A2), Hindi, Marathi",
+        "de": "Englisch, Deutsch (A2), Hindi, Marathi"
+      }
+    }
+  ]
+}

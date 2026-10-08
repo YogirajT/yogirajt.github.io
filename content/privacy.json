@@ -1,0 +1,387 @@
+{
+  "meta": {
+    "title": {
+      "en": "Privacy Policy | {{ name }}",
+      "de": "Datenschutzerklärung | {{ name }}"
+    },
+    "description": {
+      "en": "Privacy Policy for {{ name }}'s personal website.",
+      "de": "Datenschutzerklärung für die persönliche Website von {{ name }}."
+    }
+  },
+  "hero": {
+    "eyebrow": {
+      "en": "How your data is handled",
+      "de": "Umgang mit Ihren Daten"
+    },
+    "title": {
+      "en": "Privacy Policy",
+      "de": "Daten&shy;schutz&shy;erklärung"
+    },
+    "intro": {
+      "en": "This page explains how this website handles personal data, browser storage, and analytics.",
+      "de": "Diese Seite erklärt, wie diese Website mit personenbezogenen Daten, dem Browser-Speicher und der Webanalyse umgeht."
+    },
+    "updated": {
+      "en": "Last updated: September 23, 2026",
+      "de": "Zuletzt aktualisiert: 23. September 2026"
+    }
+  },
+  "glance": {
+    "ariaLabel": {
+      "en": "At a glance",
+      "de": "Auf einen Blick"
+    },
+    "controller": {
+      "en": "Controller",
+      "de": "Verantwortlicher"
+    },
+    "hosting": {
+      "en": "Hosting",
+      "de": "Hosting"
+    },
+    "analytics": {
+      "en": "Analytics",
+      "de": "Analytics"
+    },
+    "contact": {
+      "en": "Contact",
+      "de": "Kontakt"
+    },
+    "hostingValue": {
+      "text": "GitHub Pages"
+    },
+    "analyticsValue": {
+      "en": "Google Analytics, only after you accept",
+      "de": "Google Analytics, nur nach Ihrer Zustimmung"
+    }
+  },
+  "sections": [
+    {
+      "id": "controller",
+      "heading": {
+        "en": "Who is responsible for this website?",
+        "de": "Wer ist für diese Website verantwortlich?"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The person responsible for the processing of personal data on this website is:",
+            "de": "Verantwortlich für die Verarbeitung personenbezogener Daten auf dieser Website ist:"
+          }
+        },
+        {
+          "type": "panel",
+          "role": {
+            "en": "Personal portfolio website",
+            "de": "Persönliche Portfolio-Website"
+          },
+          "emailLabel": {
+            "en": "Email:",
+            "de": "E-Mail:"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hosting",
+      "heading": {
+        "en": "Website hosting",
+        "de": "Hosting der Website"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "This website is hosted using GitHub Pages. When you visit the website, technical information may be processed in server logs to deliver the website securely and reliably.",
+            "de": "Diese Website wird über GitHub Pages gehostet. Beim Besuch der Website können technische Informationen in Server-Logs verarbeitet werden, um die Website sicher und zuverlässig auszuliefern."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "This information may include technical data such as your IP address, browser information, requested pages, date and time of access, and other information necessary for the operation and security of the hosting infrastructure.",
+            "de": "Dazu können technische Daten wie Ihre IP-Adresse, Browser-Informationen, aufgerufene Seiten, Datum und Uhrzeit des Zugriffs sowie weitere Informationen gehören, die für den Betrieb und die Sicherheit der Hosting-Infrastruktur erforderlich sind."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "For information about GitHub's handling of personal data, please consult GitHub's privacy documentation.",
+            "de": "Informationen dazu, wie GitHub mit personenbezogenen Daten umgeht, finden Sie in der Datenschutzdokumentation von GitHub."
+          }
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "heading": {
+        "en": "Essential local storage",
+        "de": "Notwendiger lokaler Speicher"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "This website may store certain preferences locally in your browser. This is used to remember settings such as your selected color theme, language and cookie preference.",
+            "de": "Diese Website kann bestimmte Einstellungen lokal in Ihrem Browser speichern. Das dient dazu, Einstellungen wie Ihr gewähltes Farbschema, Ihre Sprache und Ihre Cookie-Auswahl zu merken."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "These settings are stored locally on your device and are not used for advertising or cross-site tracking.",
+            "de": "Diese Einstellungen werden lokal auf Ihrem Gerät gespeichert und weder für Werbung noch für websiteübergreifendes Tracking verwendet."
+          }
+        },
+        {
+          "type": "table",
+          "caption": {
+            "en": "Items stored in your browser",
+            "de": "Im Browser gespeicherte Einträge"
+          },
+          "headers": [
+            {
+              "en": "Storage item",
+              "de": "Speichereintrag"
+            },
+            {
+              "en": "Purpose",
+              "de": "Zweck"
+            }
+          ],
+          "rows": [
+            {
+              "a": {
+                "en": "Theme preference",
+                "de": "Farbschema"
+              },
+              "b": {
+                "en": "Remembers whether you selected light or dark mode.",
+                "de": "Merkt sich, ob Sie den hellen oder den dunklen Modus gewählt haben."
+              }
+            },
+            {
+              "a": {
+                "en": "Language preference",
+                "de": "Sprache"
+              },
+              "b": {
+                "en": "Remembers whether you selected English or German.",
+                "de": "Merkt sich, ob Sie Englisch oder Deutsch gewählt haben."
+              }
+            },
+            {
+              "a": {
+                "en": "Cookie preference",
+                "de": "Cookie-Auswahl"
+              },
+              "b": {
+                "en": "Remembers your choice regarding analytics.",
+                "de": "Merkt sich Ihre Entscheidung zu Analytics."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "analytics",
+      "heading": {
+        "en": "Google Analytics",
+        "de": "Google Analytics"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "This website uses Google Analytics to understand how visitors interact with the website and to improve its content and usability.",
+            "de": "Diese Website verwendet Google Analytics, um zu verstehen, wie Besucher mit der Website interagieren, und um Inhalte und Benutzerfreundlichkeit zu verbessern."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Google Analytics is only loaded after you explicitly choose to accept analytics. If you reject analytics, the Google Analytics script is not intentionally loaded by this website.",
+            "de": "Google Analytics wird erst geladen, nachdem Sie Analytics ausdrücklich akzeptiert haben. Wenn Sie Analytics ablehnen, wird das Google-Analytics-Skript von dieser Website nicht absichtlich geladen."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Analytics information may include information such as page views, approximate location derived from network information, device and browser information, and general interaction information.",
+            "de": "Zu den Analytics-Daten können unter anderem Seitenaufrufe, der aus Netzwerkinformationen abgeleitete ungefähre Standort, Geräte- und Browser-Informationen sowie allgemeine Interaktionsdaten gehören."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Google Analytics is provided by Google. Processing may involve the transfer of data to countries outside the European Economic Area where applicable safeguards and transfer mechanisms may be used.",
+            "de": "Google Analytics wird von Google bereitgestellt. Die Verarbeitung kann die Übermittlung von Daten in Länder außerhalb des Europäischen Wirtschaftsraums umfassen; dabei können geeignete Garantien und Übermittlungsmechanismen zum Einsatz kommen."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "You can withdraw or change your analytics preference at any time using the button below.",
+            "de": "Sie können Ihre Analytics-Auswahl jederzeit über die folgende Schaltfläche widerrufen oder ändern."
+          }
+        },
+        {
+          "type": "button",
+          "text": {
+            "en": "Manage cookie preferences",
+            "de": "Cookie-Einstellungen verwalten"
+          }
+        }
+      ]
+    },
+    {
+      "id": "email",
+      "heading": {
+        "en": "Contact by email",
+        "de": "Kontakt per E-Mail"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "This website provides an email link so that you can contact me directly. Clicking the link opens your own email application or service.",
+            "de": "Diese Website enthält einen E-Mail-Link, über den Sie mich direkt kontaktieren können. Ein Klick auf den Link öffnet Ihre eigene E-Mail-Anwendung bzw. Ihren E-Mail-Dienst."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "If you contact me by email, I process the information you provide in order to read, respond to, and manage your enquiry.",
+            "de": "Wenn Sie mich per E-Mail kontaktieren, verarbeite ich die von Ihnen übermittelten Informationen, um Ihre Anfrage zu lesen, zu beantworten und zu bearbeiten."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The personal data processed may include your name, email address, the content of your message, and any other information you choose to provide.",
+            "de": "Zu den verarbeiteten personenbezogenen Daten können Ihr Name, Ihre E-Mail-Adresse, der Inhalt Ihrer Nachricht und weitere Angaben gehören, die Sie freiwillig machen."
+          }
+        }
+      ]
+    },
+    {
+      "id": "retention",
+      "heading": {
+        "en": "How long data is retained",
+        "de": "Wie lange Daten gespeichert werden"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Local browser preferences remain on your device until you delete them, clear browser storage, or change your preference.",
+            "de": "Lokale Browser-Einstellungen bleiben auf Ihrem Gerät gespeichert, bis Sie sie löschen, den Browser-Speicher leeren oder Ihre Auswahl ändern."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Analytics data retention is subject to the configuration of the Google Analytics property and Google's applicable data processing practices.",
+            "de": "Die Speicherdauer von Analytics-Daten richtet sich nach der Konfiguration der Google-Analytics-Property und den geltenden Datenverarbeitungspraktiken von Google."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Emails and related correspondence may be retained for as long as reasonably necessary to handle the enquiry and meet applicable legal obligations.",
+            "de": "E-Mails und der zugehörige Schriftverkehr können so lange aufbewahrt werden, wie es zur Bearbeitung der Anfrage und zur Erfüllung geltender gesetzlicher Pflichten angemessen erforderlich ist."
+          }
+        }
+      ]
+    },
+    {
+      "id": "rights",
+      "heading": {
+        "en": "Your privacy rights",
+        "de": "Ihre Datenschutzrechte"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Depending on applicable data protection law, you may have rights relating to your personal data. These may include:",
+            "de": "Je nach anwendbarem Datenschutzrecht stehen Ihnen möglicherweise Rechte in Bezug auf Ihre personenbezogenen Daten zu. Dazu können gehören:"
+          }
+        },
+        {
+          "type": "list",
+          "points": [
+            {
+              "en": "The right to request access to personal data.",
+              "de": "Das Recht, Auskunft über personenbezogene Daten zu verlangen."
+            },
+            {
+              "en": "The right to request correction of inaccurate data.",
+              "de": "Das Recht, die Berichtigung unrichtiger Daten zu verlangen."
+            },
+            {
+              "en": "The right to request deletion of personal data where applicable.",
+              "de": "Das Recht, gegebenenfalls die Löschung personenbezogener Daten zu verlangen."
+            },
+            {
+              "en": "The right to request restriction of processing in certain circumstances.",
+              "de": "Das Recht, unter bestimmten Voraussetzungen die Einschränkung der Verarbeitung zu verlangen."
+            },
+            {
+              "en": "The right to object to certain processing.",
+              "de": "Das Recht, der Verarbeitung bestimmter Daten zu widersprechen."
+            },
+            {
+              "en": "The right to withdraw consent at any time where processing is based on consent.",
+              "de": "Das Recht, eine erteilte Einwilligung jederzeit zu widerrufen, sofern die Verarbeitung auf einer Einwilligung beruht."
+            },
+            {
+              "en": "The right to lodge a complaint with a competent data protection supervisory authority where applicable.",
+              "de": "Das Recht, sich gegebenenfalls bei einer zuständigen Datenschutz-Aufsichtsbehörde zu beschweren."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "changes",
+      "heading": {
+        "en": "Changes to this policy",
+        "de": "Änderungen dieser Datenschutzerklärung"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "This Privacy Policy may be updated when the website, technologies, or applicable legal requirements change.",
+            "de": "Diese Datenschutzerklärung kann aktualisiert werden, wenn sich die Website, die eingesetzten Technologien oder die geltenden rechtlichen Anforderungen ändern."
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The latest version will always be available on this page.",
+            "de": "Die jeweils aktuelle Version ist stets auf dieser Seite abrufbar."
+          }
+        }
+      ]
+    }
+  ],
+  "contact": {
+    "heading": {
+      "en": "Questions about privacy?",
+      "de": "Fragen zum Datenschutz?"
+    },
+    "text": {
+      "en": "If you have questions about this Privacy Policy or the processing of your personal data, you can contact me at:",
+      "de": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder zur Verarbeitung Ihrer personenbezogenen Daten haben, erreichen Sie mich unter:"
+    },
+    "back": {
+      "en": "← Back to website",
+      "de": "← Zurück zur Website"
+    }
+  }
+}

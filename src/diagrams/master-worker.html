@@ -1,0 +1,135 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="master-worker"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,60 L90,140"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,60 L230,140"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,60 L370,140"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,60 L510,140"
+                  />
+                  <circle class="arch-pulse pulse-mw-out-1" r="4" />
+                  <circle class="arch-pulse pulse-mw-out-2" r="4" />
+                  <circle class="arch-pulse pulse-mw-out-3" r="4" />
+                  <circle class="arch-pulse pulse-mw-out-4" r="4" />
+
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M90,140 Q150,100 260,60"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M230,140 Q250,100 280,60"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M370,140 Q350,100 320,60"
+                  />
+                  <path
+                    class="arch-line-solid arch-c-cyan"
+                    d="M510,140 Q430,100 340,60"
+                  />
+                  <circle class="arch-pulse pulse-mw-in-1" r="4" />
+                  <circle class="arch-pulse pulse-mw-in-2" r="4" />
+                  <circle class="arch-pulse pulse-mw-in-3" r="4" />
+                  <circle class="arch-pulse pulse-mw-in-4" r="4" />
+
+                  <rect
+                    class="arch-band-box arch-c-violet"
+                    x="250"
+                    y="20"
+                    width="100"
+                    height="40"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="300"
+                    y="45"
+                    text-anchor="middle"
+                  >
+                    MASTER
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="45"
+                    y="140"
+                    width="90"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="90"
+                    y="167"
+                    text-anchor="middle"
+                  >
+                    WORKER 1
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="185"
+                    y="140"
+                    width="90"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="230"
+                    y="167"
+                    text-anchor="middle"
+                  >
+                    WORKER 2
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="325"
+                    y="140"
+                    width="90"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="370"
+                    y="167"
+                    text-anchor="middle"
+                  >
+                    WORKER 3
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="465"
+                    y="140"
+                    width="90"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="510"
+                    y="167"
+                    text-anchor="middle"
+                  >
+                    WORKER 4
+                  </text>
+                </svg>

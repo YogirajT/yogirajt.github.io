@@ -1,0 +1,294 @@
+{
+  "eyebrow": {
+    "en": "Professional experience",
+    "de": "Berufserfahrung"
+  },
+  "title": {
+    "en": "Systems I've built and shipped",
+    "de": "Systeme, die ich gebaut und ausgeliefert habe"
+  },
+  "subtitle": {
+    "en": "Reverse-chronological.",
+    "de": "In umgekehrt chronologischer Reihenfolge."
+  },
+  "places": {
+    "berlin": {
+      "en": "· {{ city }}, {{ country.en }}",
+      "de": "· {{ city }}, {{ country.de }}"
+    },
+    "remote": {
+      "en": "· Remote",
+      "de": "· Remote"
+    },
+    "mumbai": {
+      "en": "· Mumbai, India",
+      "de": "· Mumbai, Indien"
+    }
+  },
+  "jobs": [
+    {
+      "id": "job1",
+      "current": true,
+      "title": "Senior Software Engineer",
+      "company": "{{ employer }}",
+      "place": "berlin",
+      "dates": {
+        "en": "Apr 2026 – Present",
+        "de": "Apr. 2026 – heute"
+      },
+      "bullets": [
+        {
+          "en": "Lead backend delivery for a 3-engineer Vehicle Procurement team, acting as the key technical authority for APIs, backend services, and event-driven systems.",
+          "de": "Leitung der Backend-Entwicklung für ein dreiköpfiges Vehicle-Procurement-Team und zentrale technische Ansprechperson für APIs, Backend-Services und ereignisgesteuerte Systeme."
+        },
+        {
+          "en": "Redesigned vehicle ingestion, auction, filtering, and rating workflows — a **~4x** increase in purchasing productivity, cutting evaluation time from 4–5 minutes to under 1 minute.",
+          "de": "Neugestaltung der Workflows für Fahrzeugimport, Auktion, Filterung und Bewertung – eine **~4-fache** Steigerung der Einkaufsproduktivität; die Bewertungszeit sank von 4–5 Minuten auf unter 1 Minute."
+        },
+        {
+          "en": "Built a high-throughput ingestion pipeline scaling from 10 to **~30 vehicles/s**, cutting decision-making time in constrained windows by **3x**.",
+          "de": "Aufbau einer Ingestion-Pipeline mit hohem Durchsatz, die von 10 auf **~30 Fahrzeuge/s** skaliert und die Entscheidungszeit in knappen Zeitfenstern um das **3-Fache** verkürzt."
+        }
+      ],
+      "tags": [
+        "NestJS",
+        "TypeScript",
+        "PostgreSQL",
+        "RabbitMQ",
+        "MongoDB",
+        "Redis",
+        "Docker Swarm"
+      ]
+    },
+    {
+      "id": "job2",
+      "title": "Software Engineer",
+      "company": "{{ employer }}",
+      "place": "berlin",
+      "dates": {
+        "en": "Aug 2023 – Mar 2026",
+        "de": "Aug. 2023 – März 2026"
+      },
+      "bullets": [
+        {
+          "en": "Led the phased migration of a legacy monolith to NestJS microservices using the Strangler Fig pattern and a database-per-service architecture.",
+          "de": "Leitung der schrittweisen Migration eines Legacy-Monolithen zu NestJS-Microservices mit dem Strangler-Fig-Pattern und einer Database-per-Service-Architektur."
+        },
+        {
+          "en": "Designed a production RabbitMQ framework spanning **8 services and 15+ exchanges, processing thousands of events/second** with generated TypeScript types.",
+          "de": "Entwurf eines produktiven RabbitMQ-Frameworks über **8 Services und 15+ Exchanges, das Tausende Events pro Sekunde verarbeitet** – mit generierten TypeScript-Typen."
+        },
+        {
+          "en": "Independently identified and delivered product improvements worth an estimated **€100K+** in annual business impact.",
+          "de": "Eigenständige Identifikation und Umsetzung von Produktverbesserungen mit einem geschätzten jährlichen Geschäftsnutzen von **100.000&nbsp;&euro;+**."
+        },
+        {
+          "en": "Mentored engineers and low-code team members integrating AI workflows into product features.",
+          "de": "Mentoring von Entwicklerinnen und Entwicklern sowie Low-Code-Teammitgliedern bei der Integration von KI-Workflows in Produktfunktionen."
+        },
+        {
+          "en": "Improved system reliability, cutting daily support tickets from **~10–20 to 2–3** and clearing a backlog of unacknowledged events.",
+          "de": "Verbesserung der Systemzuverlässigkeit: Die täglichen Support-Tickets sanken von **~10–20 auf 2–3**, und ein Rückstau nicht bestätigter Events wurde abgebaut."
+        },
+        {
+          "en": "Re-architected vehicle data access — cutting query response times **from 40+ seconds to under 4s across 1M+ vehicle records**.",
+          "de": "Neuarchitektur des Zugriffs auf Fahrzeugdaten – die Antwortzeiten von Abfragen sanken **von über 40 Sekunden auf unter 4 s bei mehr als 1&nbsp;Mio. Fahrzeugdatensätzen**."
+        }
+      ],
+      "tags": [
+        "NestJS",
+        "React/Next.js",
+        "TypeScript",
+        "PostgreSQL",
+        "RabbitMQ",
+        "MongoDB",
+        "Redis",
+        "Docker Swarm",
+        "MySQL",
+        "PHP",
+        "Golang",
+        "Docuware APIs"
+      ]
+    },
+    {
+      "id": "job3",
+      "title": "Full-Stack Engineer",
+      "company": "Morressier GmbH",
+      "place": "remote",
+      "dates": {
+        "en": "Apr 2022 – Mar 2023",
+        "de": "Apr. 2022 – März 2023"
+      },
+      "bullets": [
+        {
+          "en": "Co-architected and built a Proceedings Management product generating **~$1M ARR** — roughly one-third of total company ARR.",
+          "de": "Mitentwurf und Aufbau eines Proceedings-Management-Produkts mit **~1&nbsp;Mio.&nbsp;$ ARR** – etwa ein Drittel des gesamten Unternehmens-ARR."
+        },
+        {
+          "en": "Designed scientific publishing workflows used by organizations including IOP Publishing, ASCE, SPIE, AAAS, and SAE International.",
+          "de": "Entwurf wissenschaftlicher Publikations-Workflows, die von Organisationen wie IOP Publishing, ASCE, SPIE, AAAS und SAE International genutzt werden."
+        },
+        {
+          "en": "Built a Citation Analysis service to detect potential citation manipulation, duplicate citations, and excessive self-citation.",
+          "de": "Entwicklung eines Citation-Analysis-Services zur Erkennung möglicher Zitationsmanipulation, doppelter Zitate und übermäßiger Selbstzitation."
+        },
+        {
+          "en": "Migrated a legacy API gateway monolith into domain-focused microservices using the Strangler Fig pattern.",
+          "de": "Migration eines Legacy-API-Gateway-Monolithen in fachlich geschnittene Microservices mit dem Strangler-Fig-Pattern."
+        },
+        {
+          "en": "Improved performance by resolving N+1 query issues, achieving **order-of-magnitude gains** in key user-facing workflows.",
+          "de": "Verbesserung der Performance durch Beseitigung von N+1-Abfrageproblemen – **Zugewinne um Größenordnungen** in zentralen nutzernahen Workflows."
+        }
+      ],
+      "tags": [
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "React/Next.js",
+        "Stripe",
+        "GCP",
+        "Pub/Sub",
+        "Helm Charts",
+        "Kubernetes"
+      ]
+    },
+    {
+      "id": "job4",
+      "title": "Full-Stack Developer",
+      "company": "Finoux Solutions Pvt. Ltd.",
+      "place": "mumbai",
+      "dates": {
+        "en": "Feb 2021 – Mar 2022",
+        "de": "Feb. 2021 – März 2022"
+      },
+      "bullets": [
+        {
+          "en": "Designed and built a private payment gateway integrating three major banks — executing real-money transfers totaling **millions of USD/day**, with automated reconciliation.",
+          "de": "Entwurf und Aufbau eines privaten Payment-Gateways mit Anbindung von drei Großbanken – Echtgeldüberweisungen in Höhe von **mehreren Millionen USD pro Tag**, mit automatisiertem Abgleich."
+        },
+        {
+          "en": "Integrated secure banking APIs using mutual TLS (mTLS) with certificate-based authentication.",
+          "de": "Integration sicherer Banking-APIs mit Mutual TLS (mTLS) und zertifikatsbasierter Authentifizierung."
+        },
+        {
+          "en": "Contributed to an internal platform intended to replace a ~$1M/year third-party system.",
+          "de": "Mitarbeit an einer internen Plattform, die ein Drittsystem für ~1&nbsp;Mio.&nbsp;$ pro Jahr ersetzen sollte."
+        },
+        {
+          "en": "Built a metadata-driven React framework generating forms, CRUD operations, and validation from JSON config — cutting form development time from **~1 day to ~2 hours**.",
+          "de": "Entwicklung eines metadatengetriebenen React-Frameworks, das Formulare, CRUD-Operationen und Validierung aus JSON-Konfiguration erzeugt – die Entwicklungszeit pro Formular sank von **~1 Tag auf ~2 Stunden**."
+        },
+        {
+          "en": "Mentored three engineers on React, backend development, and database transaction concepts.",
+          "de": "Mentoring von drei Entwicklern zu React, Backend-Entwicklung und Datenbanktransaktionen."
+        }
+      ],
+      "tags": [
+        "React",
+        "Node.js",
+        "mTLS",
+        "PostgreSQL",
+        "Banking APIs"
+      ]
+    },
+    {
+      "id": "job5",
+      "title": "Software Engineer",
+      "company": "Neosoft Technologies",
+      "place": "mumbai",
+      "dates": {
+        "en": "Nov 2019 – Feb 2021",
+        "de": "Nov. 2019 – Feb. 2021"
+      },
+      "bullets": [
+        {
+          "en": "Delivered end-to-end software for a workplace analytics platform processing data from **~35,000 IoT sensors** across five continents, for customers including PwC, WTW, Rolls-Royce, and Mastercard.",
+          "de": "End-to-End-Entwicklung einer Workplace-Analytics-Plattform, die Daten von **~35.000 IoT-Sensoren** auf fünf Kontinenten verarbeitet – für Kunden wie PwC, WTW, Rolls-Royce und Mastercard."
+        },
+        {
+          "en": "Built a COVID-era office booking and space-assignment platform using AWS Lambda, API Gateway, S3, and Athena.",
+          "de": "Aufbau einer Plattform für Bürobuchung und Arbeitsplatzzuweisung aus der COVID-Zeit mit AWS Lambda, API Gateway, S3 und Athena."
+        },
+        {
+          "en": "Improved MySQL/JPA query performance **from ~10–15s to under 500ms** via query optimization and Redis caching.",
+          "de": "Verbesserung der MySQL/JPA-Abfrageperformance **von ~10–15 s auf unter 500 ms** durch Query-Optimierung und Redis-Caching."
+        },
+        {
+          "en": "Reduced AWS Athena analytics query times **from 1+ minute to ~8–9 seconds** across datasets approaching 1 billion rows/year.",
+          "de": "Reduzierung der Laufzeiten von AWS-Athena-Analyseabfragen **von über 1 Minute auf ~8–9 Sekunden** bei Datensätzen von bis zu 1&nbsp;Milliarde Zeilen pro Jahr."
+        },
+        {
+          "en": "Designed real-time WebSocket workflows and event-driven caching for live sensor tracking, occupancy, and business-rule evaluation.",
+          "de": "Entwurf von Echtzeit-WebSocket-Workflows und ereignisgesteuertem Caching für Live-Sensortracking, Belegung und die Auswertung von Geschäftsregeln."
+        }
+      ],
+      "tags": [
+        "Java",
+        "Node.js",
+        "Express",
+        "JPA",
+        "MySQL",
+        "AWS SNS/SQS",
+        "AWS API Gateway",
+        "AWS S3",
+        "AWS Lambda",
+        "WebSockets",
+        "Redis",
+        "React",
+        "GraphQL"
+      ]
+    }
+  ],
+  "earlierTitle": {
+    "en": "Earlier experience",
+    "de": "Frühere Erfahrung"
+  },
+  "earlier": [
+    {
+      "id": "e1",
+      "heading": {
+        "en": "Web Developer — Legaldocs RSE",
+        "de": "Webentwickler — Legaldocs RSE"
+      },
+      "dates": {
+        "en": "Sep 2018 – Nov 2019 · Navi Mumbai",
+        "de": "Sep. 2018 – Nov. 2019 · Navi Mumbai"
+      },
+      "summary": {
+        "en": "Legal-tech CRM, automation tooling, workflows, and Chrome extensions. Co-built the Ezo billing/accounting app — 40K+ downloads in 5 months.",
+        "de": "Legal-Tech-CRM, Automatisierungswerkzeuge, Workflows und Chrome-Erweiterungen. Mitentwicklung der Abrechnungs- und Buchhaltungs-App Ezo – über 40.000 Downloads in 5 Monaten."
+      }
+    },
+    {
+      "id": "e2",
+      "heading": {
+        "en": "Web Developer — Ahsan Alliance",
+        "de": "Webentwickler — Ahsan Alliance"
+      },
+      "dates": {
+        "en": "Jan 2018 – Aug 2018 · Mumbai",
+        "de": "Jan. 2018 – Aug. 2018 · Mumbai"
+      },
+      "summary": {
+        "en": "Sports social platform with live chat and stats tracking for 150+ sports; improved MariaDB scalability.",
+        "de": "Soziale Sportplattform mit Live-Chat und Statistik-Tracking für über 150 Sportarten; Verbesserung der MariaDB-Skalierbarkeit."
+      }
+    },
+    {
+      "id": "e3",
+      "heading": {
+        "en": "Web Dev Intern — Fierydevs",
+        "de": "Praktikant Webentwicklung — Fierydevs"
+      },
+      "dates": {
+        "en": "Oct 2017 – Jan 2018 · Thane",
+        "de": "Okt. 2017 – Jan. 2018 · Thane"
+      },
+      "summary": {
+        "en": "Responsive web interfaces and survey/form-generation tooling.",
+        "de": "Responsive Weboberflächen und Werkzeuge zur Erstellung von Umfragen und Formularen."
+      }
+    }
+  ]
+}

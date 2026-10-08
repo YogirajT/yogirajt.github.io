@@ -1,0 +1,285 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title data-i18n="privacy.meta.title">
+      ·
+    <meta content="·" data-i18n-attr="content:privacy.meta.description" name="description">
+    <meta content="·" name="author">
+    <link href="«url»/privacy.html" rel="canonical">
+    <link href="«url»/privacy.html" hreflang="en" rel="alternate">
+    <link href="«url»/privacy.html?ln=de" hreflang="de" rel="alternate">
+    <link href="«url»/privacy.html" hreflang="x-default" rel="alternate">
+    <meta content="interest-cohort=()" http-equiv="Permissions-Policy">
+    <meta content="«light»" name="theme-color">
+    <link href="assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+    <link href="assets/favicon.ico" rel="icon" type="image/x-icon">
+    <link href="assets/favicon-144x144.png" rel="icon" sizes="144x144" type="image/png">
+    <link href="assets/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="assets/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="assets/site.webmanifest" rel="manifest">
+    <link as="font" crossorigin="" href="assets/fonts/Tektur-Medium.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/Outfit-Regular.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/Outfit-Bold.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/JetBrainsMono-Regular.woff" rel="preload" type="font/woff">
+    <link as="font" crossorigin="" href="assets/fonts/JetBrainsMono-Bold.woff" rel="preload" type="font/woff">
+    <script>
+      ‹(function () { var root = document.documentElement; var theme = "light"; try { var saved = localStorage.getItem("theme"); if (saved === "dark" || saved === "light") theme = saved; } catch (e) {} root.setAttribute("data-theme", theme); var bar = document.querySelector('meta[name="theme-color"]'); if (bar) bar.setAttribute("content", theme === "dark" ? "«dark»" : "«light»"); try { var asked = new URLSearchParams(location.search).get("ln"); var stored = null; try { stored = localStorage.getItem("lang"); } catch (e) {} var lang = asked === "de" || asked === "en" ? asked : stored === "de" ? "de" : "en"; if (lang === "de") { root.classList.add("i18n-pending"); setTimeout(function () { root.classList.remove("i18n-pending"); }, 3000); } } catch (e) {} })();›
+    <link href="styles.css?v=HASH" rel="stylesheet">
+    <script defer="" src="privacy-i18n.js?v=HASH">
+    <script defer="" src="scripts.js?v=HASH">
+  <body>
+    <div aria-describedby="cookie-description" aria-labelledby="cookie-title" aria-modal="false" class="cookie-banner" hidden="" id="cookie-banner" role="dialog">
+      <div class="cookie-banner__content">
+        <p aria-hidden="true" class="cookie-banner__eyebrow" data-i18n="ui.cookie.eyebrow">
+          ·
+        <h2 data-i18n="ui.cookie.title" id="cookie-title">
+          ·
+        <p data-i18n="ui.cookie.desc" id="cookie-description">
+          ·
+        <div class="cookie-banner__actions">
+          <button class="cookie-btn cookie-btn--secondary" data-i18n="ui.cookie.reject" id="cookie-reject" type="button">
+            ·
+          <button class="cookie-btn cookie-btn--primary" data-i18n="ui.cookie.accept" id="cookie-accept" type="button">
+            ·
+        <a class="cookie-settings-link" data-i18n="ui.cookie.policy" href="#policy">
+          ·
+    <div aria-hidden="true" class="theme-transition-overlay">
+    <div aria-hidden="true" class="ambient-layer">
+      <div class="ambient-rain">
+      <div class="ambient-leaves">
+      <div class="ambient-glow">
+      <div class="ambient-lightning">
+      <svg class="ambient-bolt" focusable="false" preserveaspectratio="none">
+    <header class="nav">
+      <div class="wrap">
+        <a class="nav-brand" href="index.html#top">
+          <svg aria-hidden="true" class="brand-mark" focusable="false" viewbox="0 0 32 32">
+          <span class="brand-name">
+            <span class="brand-first">
+              ·
+            <span class="brand-last">
+              ·
+        <div class="nav-desktop">
+          <nav aria-label="·" data-i18n-attr="aria-label:ui.aria.navPrimary">
+            <ul class="nav-links">
+              <li>
+                <a data-i18n="ui.nav.about" href="index.html#about">
+                  ·
+              <li>
+                <a data-i18n="ui.nav.experience" href="index.html#experience">
+                  ·
+              <li>
+                <a data-i18n="ui.nav.skills" href="index.html#skills">
+                  ·
+              <li>
+                <a data-i18n="ui.nav.contact" href="index.html#contact">
+                  ·
+          <div aria-label="·" class="lang-switch" data-i18n-attr="aria-label:ui.aria.langGroup" role="group">
+            <span aria-hidden="true" class="globe">
+              <i style="--l: 15deg">
+              <i style="--l: 45deg">
+              <i style="--l: 75deg">
+              <i style="--l: 105deg">
+              <i style="--l: 135deg">
+              <i style="--l: 165deg">
+              <i style="--l: 195deg">
+              <i style="--l: 225deg">
+              <i style="--l: 255deg">
+              <i style="--l: 285deg">
+              <i style="--l: 315deg">
+              <i style="--l: 345deg">
+            <a aria-current="true" aria-label="·" data-lang="en" href="privacy.html" hreflang="en" lang="en" title="·">
+              ·
+            <a aria-label="·" data-lang="de" href="?ln=de" hreflang="de" lang="de" title="·">
+              ·
+          <div class="theme-switch" id="theme-switch">
+            <div class="bulb-switch">
+              <input aria-label="·" data-i18n-attr="aria-label:ui.aria.themeDark" id="theme-toggle" role="switch" type="checkbox">
+              <label for="theme-toggle">
+                <svg aria-hidden="true" class="bulb-icon bulb-icon-sun" focusable="false" viewbox="0 0 24 24">
+                <svg aria-hidden="true" class="bulb-icon bulb-icon-moon" focusable="false" viewbox="0 0 24 24">
+                <i aria-hidden="true" class="bulb">
+                  <span class="bulb-center">
+                  <span class="filament-1">
+                  <span class="filament-2">
+                  <span class="reflections">
+                    <span>
+                  <span class="sparks">
+                    <i class="spark1">
+                    <i class="spark2">
+                    <i class="spark3">
+                    <i class="spark4">
+        <div class="nav-toggle-wrap">
+          <details class="nav-toggle">
+            <summary aria-label="·" data-i18n-attr="aria-label:ui.aria.menu">
+              <svg aria-hidden="true" class="icon-burger" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewbox="0 0 24 24">
+              <svg aria-hidden="true" class="icon-close" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewbox="0 0 24 24">
+            <nav aria-label="·" class="nav-toggle-panel" data-i18n-attr="aria-label:ui.aria.navPrimary">
+              <a data-i18n="ui.nav.about" href="index.html#about">
+                ·
+              <a data-i18n="ui.nav.experience" href="index.html#experience">
+                ·
+              <a data-i18n="ui.nav.skills" href="index.html#skills">
+                ·
+              <a data-i18n="ui.nav.contact" href="index.html#contact">
+                ·
+    <main id="main" tabindex="-1">
+      <section aria-labelledby="privacy-title" class="hero privacy-hero" id="top">
+        <div class="wrap">
+          <div class="privacy-hero-copy">
+            <p class="eyebrow hero-eyebrow" data-i18n="privacy.hero.eyebrow">
+              ·
+            <h1 data-i18n="privacy.hero.title" id="privacy-title">
+              ·
+            <p class="privacy-intro" data-i18n="privacy.hero.intro">
+              ·
+            <p class="privacy-updated" data-i18n="privacy.hero.updated">
+              ·
+          <aside aria-label="·" class="facts privacy-facts" data-i18n-attr="aria-label:privacy.glance.ariaLabel">
+            <dl>
+              <div>
+                <dt data-i18n="privacy.glance.controller">
+                  ·
+                <dd>
+                  ·
+              <div>
+                <dt data-i18n="privacy.glance.analytics">
+                  ·
+                <dd data-i18n="privacy.glance.analyticsValue">
+                  ·
+              <div>
+                <dt data-i18n="privacy.glance.contact">
+                  ·
+                <dd>
+                  <a href="mailto:«email»">
+                    ·
+      <section aria-label="·" class="privacy-body" data-i18n-attr="aria-label:privacy.hero.title" id="policy">
+        <div class="wrap">
+          <div class="timeline privacy-timeline">
+            <article class="job" id="controller">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+                  <div class="policy-panel">
+                    <p>
+                      <strong>
+                        ·
+                    <p data-i18n="privacy.sections.*.blocks.*.role">
+                      ·
+                    <p>
+                      <span data-i18n="privacy.sections.*.blocks.*.emailLabel">
+                        ·
+                      <a href="mailto:«email»">
+                        ·
+            <article class="job" id="hosting">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+            <article class="job" id="storage">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+                  <div class="policy-table-wrap">
+                    <table class="policy-table">
+                      <caption class="sr-only" data-i18n="privacy.sections.*.blocks.*.caption">
+                        ·
+                      <thead>
+                        <tr>
+                          <th data-i18n="privacy.sections.*.blocks.*.headers.*" scope="col">
+                            ·
+                      <tbody>
+                        <tr>
+                          <td data-i18n="privacy.sections.*.blocks.*.rows.*.a">
+                            ·
+            <article class="job" id="analytics">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+                  <div class="policy-actions">
+                    <button class="btn btn-ghost" data-i18n="privacy.sections.*.blocks.*.text" id="privacy-cookie-settings" type="button">
+                      ·
+            <article class="job" id="email">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+            <article class="job" id="rights">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+                  <ul class="job-bullets">
+                    <li data-i18n="privacy.sections.*.blocks.*.points.*">
+                      ·
+            <article class="job" id="changes">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="privacy.sections.*.heading">
+                    ·
+                  <span aria-hidden="true" class="job-dates">
+                    ·
+                <div class="policy-text">
+                  <p data-i18n="privacy.sections.*.blocks.*.text">
+                    ·
+      <section aria-labelledby="contact-title" class="contact reveal" id="contact">
+        <div class="wrap">
+          <p class="eyebrow" data-i18n="contact.eyebrow" style="justify-content: center">
+            ·
+          <h2 data-i18n="privacy.contact.heading" id="contact-title" style="margin-top: 0.8rem">
+            ·
+          <p class="privacy-contact-text" data-i18n="privacy.contact.text">
+            ·
+          <a class="contact-mail" href="mailto:«email»">
+            ·
+          <div class="contact-cta">
+            <a class="btn btn-ghost" data-i18n="privacy.contact.back" href="index.html">
+              ·
+          <footer class="wrap site-footer" style="padding-inline: 0">
+            <span>
+              ·
+              <span id="year">
+                ·
+              ·
+            <span>
+              <a href="mailto:«email»">
+                ·
+              ·
+            <a aria-current="page" data-i18n="ui.footer.privacy" href="privacy.html">
+              ·
+            <button class="footer-cookie-settings" data-i18n="ui.footer.cookies" id="footer-cookie-settings" type="button">
+              ·

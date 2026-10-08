@@ -1,0 +1,26 @@
+{
+  "title": {
+    "en": "{{ name }} | {{ role.seoTitle }}, {{ city }}",
+    "de": "{{ name }} | {{ role.seoTitle }}, {{ city }}"
+  },
+  "description": {
+    "en": "{{ name }}, {{ role.seoTitle }} in {{ city }}. {{ years }}+ years building distributed systems and event-driven APIs with Node.js, TypeScript and NestJS.",
+    "de": "{{ name }}, {{ role.seoTitle }} in {{ city }}. {{ years }}+ Jahre Erfahrung mit verteilten Systemen und ereignisgesteuerten APIs (Node.js, TypeScript)."
+  },
+  "ogTitle": {
+    "en": "{{ name }} | {{ role.seoTitle }}, {{ city }}",
+    "de": "{{ name }} | {{ role.seoTitle }}, {{ city }}"
+  },
+  "ogDescription": {
+    "en": "{{ role.seoTitle }} with {{ years }}+ years building distributed systems, event-driven APIs and high-performance data platforms.",
+    "de": "{{ role.seoTitle }} mit über {{ years }} Jahren Erfahrung in verteilten Systemen, ereignisgesteuerten APIs und leistungsstarken Datenplattformen."
+  },
+  "ogImageAlt": {
+    "en": "{{ name }}, {{ role.seoTitle }} in {{ city }}",
+    "de": "{{ name }}, {{ role.seoTitle }} in {{ city }}"
+  },
+  "locale": {
+    "en": "en_US",
+    "de": "de_DE"
+  }
+}

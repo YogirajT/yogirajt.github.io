@@ -29,19 +29,36 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # Full history so the generator can date sitemap.xml <lastmod> entries
+          # from the last commit that touched each page (see build.mjs).
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
           node-version: 22
 
-      # Speeds up repeat runs: npx normally re-downloads terser/lightningcss
-      # on every run since there's no package.json/lockfile here.
-      - name: Cache npx downloads
+      # Speeds up repeat runs: npx re-downloads terser/lightningcss, and the
+      # generator's dependency (nunjucks) comes from package.json.
+      - name: Cache npm downloads
         uses: actions/cache@v5
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npx-terser-lightningcss
+          key: ${{ runner.os }}-npm-${{ hashFiles('package.json', 'package-lock.json') }}-terser-lightningcss
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install generator dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi
+
+      # Snapshot tests (tests/): block the deploy when anything other than
+      # wording changed by accident (markup, links, SEO tags, key wiring,
+      # sitemap, language scripts). After an INTENDED structural change run
+      # `npm run test:update` locally and commit tests/__snapshots__.
+      - name: Test generated output
+        run: npm test
 
       - name: Assemble the site
         run: |
@@ -53,8 +70,23 @@ jobs:
             --exclude '.git/' \
             --exclude 'README.md' \
             --exclude 'LICENSE' \
+            --exclude 'src/' \
+            --exclude 'content/' \
+            --exclude 'tests/' \
+            --exclude 'node_modules/' \
+            --exclude 'package.json' \
+            --exclude 'package-lock.json' \
             . dist
           ls -la dist
+
+      # Generates index.html, privacy.html, 404.html, i18n.js, privacy-i18n.js,
+      # sitemap.xml, robots.txt and assets/site.webmanifest from content/*.json
+      # + src/ templates (Nunjucks). Runs BEFORE minification so the generated
+      # scripts are minified like the rest, and fails the build on missing
+      # translations, unresolved tokens or unknown translation keys. Stale-wording warnings show up as annotations
+      # on the run; append --strict to make them fail the build too.
+      - name: Generate pages from content
+        run: node .github/scripts/build.mjs dist
 
       # Minifies every .js file in place. --compress --mangle only renames
       # LOCAL variable/function names; it leaves global (top-level) names,

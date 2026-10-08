@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /assets/fonts/
 Allow: /
 
-Sitemap: https://yogirajt.github.io/sitemap.xml
+Sitemap: «url»/sitemap.xml

@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Page not found | Yogiraj Tawde</title>
+    <title>{{ notFound.title | e }}</title>
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="assets/apple-touch-icon.png"
+      href="/assets/apple-touch-icon.png"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="assets/favicon-32x32.png"
+      href="/assets/favicon-32x32.png"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="16x16"
-      href="assets/favicon-16x16.png"
+      href="/assets/favicon-16x16.png"
     />
-    <link rel="manifest" href="assets/site.webmanifest" />
+    <link rel="manifest" href="/assets/site.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
     <style>
       body {
@@ -38,7 +38,7 @@
             rgba(255, 46, 196, 0.14),
             transparent 60%
           ),
-          #070812;
+          {{ site.theme.dark }};
         color: #eaf6f1;
         min-height: 100vh;
         display: flex;
@@ -90,12 +90,12 @@
   </head>
   <body>
     <div>
-      <p class="nf-code">[ Error 404 ]</p>
-      <h1 class="nf-title">Page not found</h1>
+      <p class="nf-code">{{ notFound.code | e }}</p>
+      <h1 class="nf-title">{{ notFound.heading | e }}</h1>
       <p class="nf-sub">
-        This route doesn't exist &mdash; but the rest of the profile does.
+        {{ notFound.text | e }}
       </p>
-      <a class="nf-home" href="/">Back to the homepage</a>
+      <a class="nf-home" href="/">{{ notFound.home | e }}</a>
     </div>
   </body>
 </html>

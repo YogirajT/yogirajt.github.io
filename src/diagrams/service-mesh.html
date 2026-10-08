@@ -1,0 +1,153 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="service-mesh"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,51 L160,110"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,51 L350,110"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-violet"
+                    d="M300,51 L540,110"
+                  />
+                  <circle class="arch-pulse pulse-mesh-cp-1" r="4" />
+                  <circle class="arch-pulse pulse-mesh-cp-2" r="4" />
+                  <circle class="arch-pulse pulse-mesh-cp-3" r="4" />
+
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M160,110 L350,110"
+                  />
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M350,110 L540,110"
+                  />
+                  <circle class="arch-pulse pulse-mesh-ab" r="4" />
+                  <circle class="arch-pulse pulse-mesh-bc" r="4" />
+
+                  <rect
+                    class="arch-band-box arch-c-violet"
+                    x="250"
+                    y="15"
+                    width="100"
+                    height="36"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title arch-band-title-sm"
+                    x="300"
+                    y="38"
+                    text-anchor="middle"
+                  >
+                    CONTROL PLANE
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="60"
+                    y="110"
+                    width="100"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="110"
+                    y="136"
+                    text-anchor="middle"
+                  >
+                    SERVICE A
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="250"
+                    y="110"
+                    width="100"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="300"
+                    y="136"
+                    text-anchor="middle"
+                  >
+                    SERVICE B
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="440"
+                    y="110"
+                    width="100"
+                    height="44"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="490"
+                    y="136"
+                    text-anchor="middle"
+                  >
+                    SERVICE C
+                  </text>
+
+                  <rect
+                    class="arch-node-circle arch-c-cyan"
+                    x="148"
+                    y="98"
+                    width="24"
+                    height="24"
+                    rx="5"
+                  />
+                  <rect
+                    class="arch-node-circle arch-c-cyan"
+                    x="338"
+                    y="98"
+                    width="24"
+                    height="24"
+                    rx="5"
+                  />
+                  <rect
+                    class="arch-node-circle arch-c-cyan"
+                    x="528"
+                    y="98"
+                    width="24"
+                    height="24"
+                    rx="5"
+                  />
+                  <text
+                    class="arch-band-sub"
+                    x="110"
+                    y="182"
+                    text-anchor="middle"
+                  >
+                    + sidecar proxy
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="300"
+                    y="182"
+                    text-anchor="middle"
+                  >
+                    + sidecar proxy
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="490"
+                    y="182"
+                    text-anchor="middle"
+                  >
+                    + sidecar proxy
+                  </text>
+                </svg>

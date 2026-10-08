@@ -1,0 +1,22 @@
+{
+  "eyebrow": {
+    "en": "Get in touch",
+    "de": "Kontakt aufnehmen"
+  },
+  "title": {
+    "en": "Hiring, or just want business consultation?",
+    "de": "Sie suchen Verstärkung oder brauchen einfach fachliche Beratung?"
+  },
+  "sub": {
+    "en": "Based in {{ city }}, {{ country.en }}",
+    "de": "Ansässig in {{ city }}, {{ country.de }}"
+  },
+  "ctaDownload": {
+    "en": "Download resume",
+    "de": "Lebenslauf herunterladen"
+  },
+  "ctaLinkedin": {
+    "en": "Connect on LinkedIn",
+    "de": "Auf LinkedIn vernetzen"
+  }
+}

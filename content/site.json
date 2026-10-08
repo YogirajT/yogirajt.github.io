@@ -1,0 +1,69 @@
+{
+  "firstName": "Yogiraj",
+  "lastName": "Tawde",
+  "alternateName": "Yogi",
+  "url": "https://yogirajt.github.io",
+  "email": "ld.yogiraj@gmail.com",
+  "level": {
+    "en": "Senior",
+    "de": "Senior"
+  },
+  "discipline": {
+    "en": "Full-Stack",
+    "de": "Full-Stack"
+  },
+  "role": {
+    "title": {
+      "en": "{{ level }} {{ discipline }} Engineer",
+      "de": "{{ level }} {{ discipline }}-Entwickler"
+    },
+    "seoTitle": {
+      "en": "{{ level }} {{ discipline }} & Backend Engineer",
+      "de": "{{ level }} Backend- & {{ discipline }}-Entwickler"
+    }
+  },
+  "city": {
+    "en": "Berlin",
+    "de": "Berlin"
+  },
+  "country": {
+    "code": "DE",
+    "en": "Germany",
+    "de": "Deutschland"
+  },
+  "years": 8,
+  "employer": "Autohaus Royal GmbH",
+  "social": {
+    "github": "https://github.com/yogirajt",
+    "linkedin": "https://www.linkedin.com/in/yogirajt/"
+  },
+  "knowsAbout": [
+    "Node.js",
+    "TypeScript",
+    "NestJS",
+    "PostgreSQL",
+    "RabbitMQ",
+    "Distributed Systems",
+    "Microservices",
+    "Event-Driven Architecture",
+    "React",
+    "AWS",
+    "GCP"
+  ],
+  "theme": {
+    "light": "#eef4ef",
+    "dark": "#070812"
+  },
+  "guard": {
+    "stale": [
+      "Full-Stack",
+      "Full Stack",
+      "Fullstack"
+    ],
+    "allowIn": [
+      "experience.jobs",
+      "experience.earlier"
+    ]
+  },
+  "googleSiteVerification": "1jKffjytHASxyo8HSjW6WnKIiJsZArVpu8MvlUPLCKA"
+}

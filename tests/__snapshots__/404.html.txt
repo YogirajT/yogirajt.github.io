@@ -1,0 +1,25 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="noindex" name="robots">
+    <title>
+      ·
+    <link href="/assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+    <link href="/assets/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/assets/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/assets/site.webmanifest" rel="manifest">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+      ‹body { background: radial-gradient( 700px 400px at 15% 10%, rgba(57, 255, 136, 0.14), transparent 60% ), radial-gradient( 700px 400px at 85% 90%, rgba(255, 46, 196, 0.14), transparent 60% ), «dark»; color: #eaf6f1; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem; } .nf-code { font-family: var(--font-mono); color: #39ff88; letter-spacing: 0.2em; font-size: 0.85rem; text-transform: uppercase; } .nf-title { font-family: var(--font-display); font-size: clamp(3rem, 10vw, 6rem); margin: 0.6rem 0 0.75rem; text-shadow: 0 0 24px rgba(34, 232, 255, 0.45); } .nf-sub { color: #93a8ab; max-width: 32rem; margin-inline: auto; font-size: 1.05rem; } .nf-home { display: inline-flex; margin-top: 2rem; font-family: var(--font-mono); font-size: 0.9rem; padding: 0.85rem 1.5rem; border-radius: 8px; background: #22e8ff; color: #041018; font-weight: 700; text-decoration: none; transition: box-shadow 0.15s ease, transform 0.15s ease; box-shadow: 0 0 14px rgba(34, 232, 255, 0.55); } .nf-home:hover { transform: translateY(-2px); box-shadow: 0 0 22px rgba(34, 232, 255, 0.75); }›
+  <body>
+    <div>
+      <p class="nf-code">
+        ·
+      <h1 class="nf-title">
+        ·
+      <p class="nf-sub">
+        ·
+      <a class="nf-home" href="/">
+        ·

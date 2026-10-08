@@ -1,0 +1,104 @@
+{
+  "eyebrow": {
+    "en": "Toolbox",
+    "de": "Werkzeugkasten"
+  },
+  "title": {
+    "en": "Skills & technologies",
+    "de": "Skills und Technologien"
+  },
+  "groups": [
+    {
+      "id": "g1",
+      "title": {
+        "en": "Backend & Architecture",
+        "de": "Backend und Architektur"
+      },
+      "tags": [
+        "TypeScript",
+        "Node.js",
+        "NestJS",
+        "Express",
+        "REST",
+        "GraphQL",
+        "Microservices",
+        "Event-Driven Architecture",
+        "DDD"
+      ]
+    },
+    {
+      "id": "g2",
+      "title": {
+        "en": "Messaging & Async",
+        "de": "Messaging und Asynchronität"
+      },
+      "tags": [
+        "RabbitMQ",
+        "GCP Pub/Sub",
+        "AWS SNS/SQS",
+        "WebSockets"
+      ]
+    },
+    {
+      "id": "g3",
+      "title": {
+        "en": "Databases & Performance",
+        "de": "Datenbanken und Performance"
+      },
+      "tags": [
+        "PostgreSQL",
+        "MySQL",
+        "AWS Athena",
+        "MongoDB",
+        "Redis",
+        "MariaDB",
+        "SQLite",
+        "Query Optimization"
+      ]
+    },
+    {
+      "id": "g4",
+      "title": {
+        "en": "Cloud & Infrastructure",
+        "de": "Cloud und Infrastruktur"
+      },
+      "tags": [
+        "AWS",
+        "S3",
+        "GCP",
+        "Docker Swarm",
+        "Kubernetes",
+        "GitLab CI/CD",
+        "Jenkins"
+      ]
+    },
+    {
+      "id": "g5",
+      "title": {
+        "en": "Frontend",
+        "de": "Frontend"
+      },
+      "tags": [
+        "React",
+        "Next.js",
+        "Redux",
+        "HTML",
+        "CSS"
+      ]
+    },
+    {
+      "id": "g6",
+      "title": {
+        "en": "Other Languages",
+        "de": "Weitere Programmiersprachen"
+      },
+      "tags": [
+        "Java",
+        "Golang",
+        "Rust",
+        "PHP",
+        "SQL"
+      ]
+    }
+  ]
+}

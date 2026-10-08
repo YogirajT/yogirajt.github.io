@@ -1,0 +1,144 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="pipeline"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <circle class="arch-pulse pulse-pf-through" r="5" />
+
+                  <path class="arch-line-solid" d="M115,135 L142,135" />
+                  <circle class="arch-pulse pulse-pf-1" r="4" />
+                  <path class="arch-line-solid" d="M232,135 L259,135" />
+                  <circle class="arch-pulse pulse-pf-2" r="4" />
+                  <path class="arch-line-solid" d="M349,135 L376,135" />
+                  <circle class="arch-pulse pulse-pf-3" r="4" />
+                  <path class="arch-line-solid" d="M466,135 L500,135" />
+                  <circle class="arch-pulse pulse-pf-4" r="4" />
+
+                  <rect
+                    class="arch-band-box arch-c-cyan"
+                    x="25"
+                    y="110"
+                    width="90"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="70"
+                    y="132"
+                    text-anchor="middle"
+                  >
+                    SOURCE
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="70"
+                    y="148"
+                    text-anchor="middle"
+                  >
+                    Raw Input
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="142"
+                    y="110"
+                    width="90"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="187"
+                    y="132"
+                    text-anchor="middle"
+                  >
+                    PARSE
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="187"
+                    y="148"
+                    text-anchor="middle"
+                  >
+                    Tokenize
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-violet"
+                    x="259"
+                    y="110"
+                    width="90"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="304"
+                    y="132"
+                    text-anchor="middle"
+                  >
+                    VALIDATE
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="304"
+                    y="148"
+                    text-anchor="middle"
+                  >
+                    Schema Check
+                  </text>
+
+                  <rect
+                    class="arch-band-box arch-c-magenta"
+                    x="376"
+                    y="110"
+                    width="90"
+                    height="50"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="421"
+                    y="132"
+                    text-anchor="middle"
+                  >
+                    TRANSFORM
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="421"
+                    y="148"
+                    text-anchor="middle"
+                  >
+                    Enrich · Map
+                  </text>
+
+                  <g class="arch-db arch-c-cyan">
+                    <ellipse
+                      class="arch-db-cyl"
+                      cx="530"
+                      cy="125"
+                      rx="30"
+                      ry="10"
+                    />
+                    <path
+                      class="arch-db-cyl-body"
+                      d="M500,125 L500,145 A30,10 0 0 0 560,145 L560,125"
+                    />
+                  </g>
+                  <text
+                    class="arch-band-sub"
+                    x="530"
+                    y="170"
+                    text-anchor="middle"
+                  >
+                    SINK
+                  </text>
+                </svg>

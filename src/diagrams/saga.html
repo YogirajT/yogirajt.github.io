@@ -1,0 +1,124 @@
+<svg
+                  class="arch-diagram{% if a._first %} is-active{% endif %}"
+                  data-arch-panel="saga"
+                  viewBox="0 0 600 260"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  focusable="false"
+                  aria-label="{{ a.description.enText | e }}"
+                  data-i18n-attr="aria-label:{{ a.description.key }}"
+                  {% if not a._first %}aria-hidden="true"{% endif %}
+                >
+                  <path
+                    class="arch-line-solid arch-c-green"
+                    d="M140,98 L180,98"
+                  />
+                  <circle class="arch-pulse pulse-saga-fwd-1" r="4" />
+                  <path
+                    class="arch-line-solid arch-c-green"
+                    d="M280,98 L320,98"
+                  />
+                  <circle class="arch-pulse pulse-saga-fwd-2" r="4" />
+                  <path
+                    class="arch-line-solid arch-c-green"
+                    d="M420,98 L460,98"
+                  />
+                  <circle class="arch-pulse pulse-saga-fwd-3" r="4" />
+
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M180,128 L140,128"
+                  />
+                  <circle class="arch-pulse pulse-saga-rev-1" r="4" />
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M320,128 L280,128"
+                  />
+                  <circle class="arch-pulse pulse-saga-rev-2" r="4" />
+                  <path
+                    class="arch-line-dash arch-c-magenta"
+                    d="M460,128 L420,128"
+                  />
+                  <circle class="arch-pulse pulse-saga-rev-3" r="4" />
+
+                  <rect
+                    class="arch-band-box arch-c-cyan"
+                    x="40"
+                    y="90"
+                    width="100"
+                    height="46"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="90"
+                    y="118"
+                    text-anchor="middle"
+                  >
+                    ORDER
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-green"
+                    x="180"
+                    y="90"
+                    width="100"
+                    height="46"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="230"
+                    y="118"
+                    text-anchor="middle"
+                  >
+                    PAYMENT
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-violet"
+                    x="320"
+                    y="90"
+                    width="100"
+                    height="46"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="370"
+                    y="118"
+                    text-anchor="middle"
+                  >
+                    INVENTORY
+                  </text>
+                  <rect
+                    class="arch-band-box arch-c-magenta"
+                    x="460"
+                    y="90"
+                    width="100"
+                    height="46"
+                    rx="8"
+                  />
+                  <text
+                    class="arch-band-title"
+                    x="510"
+                    y="118"
+                    text-anchor="middle"
+                  >
+                    SHIPPING
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="300"
+                    y="70"
+                    text-anchor="middle"
+                  >
+                    local transactions
+                  </text>
+                  <text
+                    class="arch-band-sub"
+                    x="300"
+                    y="165"
+                    text-anchor="middle"
+                  >
+                    compensating actions on failure
+                  </text>
+                </svg>

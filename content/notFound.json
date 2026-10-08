@@ -1,0 +1,7 @@
+{
+  "title": "Page not found | {{ name }}",
+  "code": "[ Error 404 ]",
+  "heading": "Page not found",
+  "text": "This route doesn't exist — but the rest of the profile does.",
+  "home": "Back to the homepage"
+}

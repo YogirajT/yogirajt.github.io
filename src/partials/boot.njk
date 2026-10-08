@@ -1,0 +1,39 @@
+    <script>
+      // Runs before first paint.
+      //  1. Theme: light is the default; a visitor's saved choice wins.
+      //  2. Language: only when German is requested (?ln=de or a saved choice) is the page held back
+      //     for a split second so the English text never flashes. English is the default and is
+      //     never touched by scripts.
+      (function () {
+        var root = document.documentElement;
+        var theme = "light";
+        try {
+          var saved = localStorage.getItem("theme");
+          if (saved === "dark" || saved === "light") theme = saved;
+        } catch (e) {}
+        root.setAttribute("data-theme", theme);
+        var bar = document.querySelector('meta[name="theme-color"]');
+        if (bar)
+          bar.setAttribute("content", theme === "dark" ? "{{ site.theme.dark }}" : "{{ site.theme.light }}");
+
+        try {
+          var asked = new URLSearchParams(location.search).get("ln");
+          var stored = null;
+          try {
+            stored = localStorage.getItem("lang");
+          } catch (e) {}
+          var lang =
+            asked === "de" || asked === "en"
+              ? asked
+              : stored === "de"
+                ? "de"
+                : "en";
+          if (lang === "de") {
+            root.classList.add("i18n-pending");
+            setTimeout(function () {
+              root.classList.remove("i18n-pending");
+            }, 3000);
+          }
+        } catch (e) {}
+      })();
+    </script>

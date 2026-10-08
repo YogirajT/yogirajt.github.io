@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "about": {
+      "en": "About",
+      "de": "Über mich"
+    },
+    "experience": {
+      "en": "Experience",
+      "de": "Erfahrung"
+    },
+    "skills": {
+      "en": "Skills",
+      "de": "Skills"
+    },
+    "contact": {
+      "en": "Contact",
+      "de": "Kontakt"
+    }
+  },
+  "a11y": {
+    "newtab": {
+      "en": "(opens in a new tab)",
+      "de": "(öffnet in neuem Tab)"
+    },
+    "pdfnewtab": {
+      "en": "(PDF, opens in a new tab)",
+      "de": "(PDF, öffnet in neuem Tab)"
+    }
+  },
+  "social": {
+    "email": {
+      "en": "Email",
+      "de": "E-Mail"
+    }
+  },
+  "cookie": {
+    "eyebrow": {
+      "en": "PRIVACY_SETTINGS",
+      "de": "DATENSCHUTZ_EINSTELLUNGEN"
+    },
+    "title": {
+      "en": "Your privacy, your choice.",
+      "de": "Ihre Privatsphäre, Ihre Entscheidung."
+    },
+    "desc": {
+      "en": "This website uses essential browser storage to remember your preferences. With your permission, Google Analytics helps me understand how the website is used and improve it.",
+      "de": "Diese Website nutzt notwendigen Browser-Speicher, um Ihre Einstellungen zu speichern. Mit Ihrer Erlaubnis hilft mir Google Analytics zu verstehen, wie die Website genutzt wird, und sie zu verbessern."
+    },
+    "reject": {
+      "en": "Reject analytics",
+      "de": "Analyse ablehnen"
+    },
+    "accept": {
+      "en": "Accept analytics",
+      "de": "Analyse akzeptieren"
+    },
+    "policy": {
+      "en": "Read Privacy Policy",
+      "de": "Datenschutzerklärung lesen"
+    }
+  },
+  "footer": {
+    "privacy": {
+      "en": "Privacy Policy",
+      "de": "Datenschutzerklärung"
+    },
+    "cookies": {
+      "en": "Cookie settings",
+      "de": "Cookie-Einstellungen"
+    }
+  },
+  "aria": {
+    "navPrimary": {
+      "en": "Primary",
+      "de": "Hauptnavigation"
+    },
+    "langGroup": {
+      "en": "Language",
+      "de": "Sprache"
+    },
+    "themeDark": {
+      "en": "Dark mode",
+      "de": "Dunkelmodus"
+    },
+    "socialGroup": {
+      "en": "Social links",
+      "de": "Soziale Netzwerke"
+    },
+    "socialEmail": {
+      "en": "Email",
+      "de": "E-Mail"
+    },
+    "facts": {
+      "en": "Quick facts",
+      "de": "Kurzfakten"
+    },
+    "copyEmail": {
+      "en": "Copy email address",
+      "de": "E-Mail-Adresse kopieren"
+    },
+    "tech": {
+      "en": "Technologies used",
+      "de": "Eingesetzte Technologien"
+    },
+    "archRegion": {
+      "en": "Backend architecture diagrams",
+      "de": "Diagramme zu Backend-Architekturen"
+    },
+    "archRoledesc": {
+      "en": "carousel",
+      "de": "Karussell"
+    },
+    "archGroup": {
+      "en": "Choose an architecture diagram",
+      "de": "Architekturdiagramm auswählen"
+    },
+    "menu": {
+      "en": "Open menu",
+      "de": "Menü öffnen"
+    }
+  },
+  "messages": {
+    "archPause": {
+      "en": "Pause diagram rotation",
+      "de": "Diagramm-Rotation anhalten"
+    },
+    "archPlay": {
+      "en": "Resume diagram rotation",
+      "de": "Diagramm-Rotation fortsetzen"
+    },
+    "archStatus": {
+      "en": "Diagram {n} of {total}: {name}",
+      "de": "Diagramm {n} von {total}: {name}"
+    },
+    "toastCopied": {
+      "en": "Email copied to clipboard",
+      "de": "E-Mail-Adresse in die Zwischenablage kopiert"
+    },
+    "langChanged": {
+      "en": "Language changed to English.",
+      "de": "Sprache auf Deutsch umgestellt."
+    }
+  }
+}

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="{{ privacy.meta.title.key }}">{{ privacy.meta.title.en }}</title>
+    <meta
+      name="description"
+      content="{{ privacy.meta.description.enText | e }}"
+      data-i18n-attr="content:{{ privacy.meta.description.key }}"
+    />
+    <meta name="author" content="{{ site.name | e }}" />
+    <link rel="canonical" href="{{ site.url }}/privacy.html" />
+
+    <!-- Language versions. English is the default and is fully present in this HTML. German is
+       switched on by privacy-i18n.js (?ln=de or the EN/DE globe), same as the home page. -->
+    <link rel="alternate" hreflang="en" href="{{ site.url }}/privacy.html" />
+    <link rel="alternate" hreflang="de" href="{{ site.url }}/privacy.html?ln=de" />
+    <link rel="alternate" hreflang="x-default" href="{{ site.url }}/privacy.html" />
+
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+    <meta name="theme-color" content="{{ site.theme.light }}" />
+
+    {% include "partials/head-assets.njk" %}
+    {% include "partials/boot.njk" %}
+    <link rel="stylesheet" href="styles.css?v={{ hash.styles }}" />
+    <!-- defer: fetched in parallel with everything else above, instead of only
+         being discovered once the parser reaches the bottom of the document. -->
+    <script src="privacy-i18n.js?v={{ hash.privacyI18n }}" defer></script>
+    <script src="scripts.js?v={{ hash.scripts }}" defer></script>
+  </head>
+
+
+  <body>
+    <!-- ================================================================
+     COOKIE CONSENT (first in the DOM so keyboard users reach it first)
+     ================================================================ -->
+    {% include "partials/chrome.njk" %}
+
+    <main id="main" tabindex="-1">
+      <!-- ============ TITLE (a .hero, so the rain, foliage, fireflies and cursor glow all apply) ============ -->
+      <section
+        class="hero privacy-hero"
+        id="top"
+        aria-labelledby="privacy-title"
+      >
+        <div class="wrap">
+          <div class="privacy-hero-copy">
+            <p class="eyebrow hero-eyebrow" data-i18n="{{ privacy.hero.eyebrow.key }}">{{ privacy.hero.eyebrow.en }}</p>
+            <h1 id="privacy-title" data-i18n="{{ privacy.hero.title.key }}">{{ privacy.hero.title.en }}</h1>
+            <p class="privacy-intro" data-i18n="{{ privacy.hero.intro.key }}">{{ privacy.hero.intro.en }}</p>
+            <p class="privacy-updated" data-i18n="{{ privacy.hero.updated.key }}">{{ privacy.hero.updated.en }}</p>
+          </div>
+
+          <aside
+            class="facts privacy-facts"
+            aria-label="{{ privacy.glance.ariaLabel.enText | e }}"
+            data-i18n-attr="aria-label:{{ privacy.glance.ariaLabel.key }}"
+          >
+            <dl>
+              <div>
+                <dt data-i18n="{{ privacy.glance.controller.key }}">{{ privacy.glance.controller.en }}</dt>
+                <dd>{{ site.name | e }}</dd>
+              </div>
+              <div>
+                <dt data-i18n="{{ privacy.glance.hosting.key }}">{{ privacy.glance.hosting.en }}</dt>
+                <dd>{{ privacy.glance.hostingValue.en }}</dd>
+              </div>
+              <div>
+                <dt data-i18n="{{ privacy.glance.analytics.key }}">{{ privacy.glance.analytics.en }}</dt>
+                <dd data-i18n="{{ privacy.glance.analyticsValue.key }}">{{ privacy.glance.analyticsValue.en }}</dd>
+              </div>
+              <div>
+                <dt data-i18n="{{ privacy.glance.contact.key }}">{{ privacy.glance.contact.en }}</dt>
+                <dd>
+                  <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+                </dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ============ POLICY (the same timeline of cards the Experience section uses) ============ -->
+      <section
+        class="privacy-body"
+        id="policy"
+        aria-label="{{ privacy.hero.title.enText | e }}"
+        data-i18n-attr="aria-label:{{ privacy.hero.title.key }}"
+      >
+        <div class="wrap">
+          <div class="timeline privacy-timeline">
+            {% for s in privacy.sections %}
+            <article class="job" id="{{ s.id }}">
+              <div class="job-card">
+                <div class="job-head">
+                  <h2 class="job-title" data-i18n="{{ s.heading.key }}">{{ s.heading.en }}</h2>
+                  <span class="job-dates" aria-hidden="true">{{ s._num }}</span>
+                </div>
+                <div class="policy-text">
+                  {% for b in s.blocks %}
+                  {% if b.type == "p" %}
+                  <p data-i18n="{{ b.text.key }}">{{ b.text.en }}</p>
+                  {% elif b.type == "panel" %}
+                  <div class="policy-panel">
+                    <p><strong>{{ site.name | e }}</strong></p>
+                    <p data-i18n="{{ b.role.key }}">{{ b.role.en }}</p>
+                    <p>
+                      <span data-i18n="{{ b.emailLabel.key }}">{{ b.emailLabel.en }}</span>
+                      <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+                    </p>
+                  </div>
+                  {% elif b.type == "list" %}
+                  <ul class="job-bullets">
+                    {% for item in b.points %}
+                    <li data-i18n="{{ item.key }}">{{ item.en }}</li>
+                    {% endfor %}
+                  </ul>
+                  {% elif b.type == "table" %}
+                  <div class="policy-table-wrap">
+                    <table class="policy-table">
+                      <caption class="sr-only" data-i18n="{{ b.caption.key }}">{{ b.caption.en }}</caption>
+                      <thead>
+                        <tr>
+                          {% for h in b.headers %}
+                          <th scope="col" data-i18n="{{ h.key }}">{{ h.en }}</th>
+                          {% endfor %}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for r in b.rows %}
+                        <tr>
+                          <td data-i18n="{{ r.a.key }}">{{ r.a.en }}</td>
+                          <td data-i18n="{{ r.b.key }}">{{ r.b.en }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  {% elif b.type == "button" %}
+                  <div class="policy-actions">
+                    <button class="btn btn-ghost" id="privacy-cookie-settings" type="button" data-i18n="{{ b.text.key }}">{{ b.text.en }}</button>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT (same block and footer as the home page) ============ -->
+      <section
+        class="contact reveal"
+        id="contact"
+        aria-labelledby="contact-title"
+      >
+        <div class="wrap">
+          <p
+            class="eyebrow"
+            style="justify-content: center"
+            data-i18n="{{ contact.eyebrow.key }}"
+          >{{ contact.eyebrow.en }}</p>
+          <h2
+            id="contact-title"
+            style="margin-top: 0.8rem"
+            data-i18n="{{ privacy.contact.heading.key }}"
+          >{{ privacy.contact.heading.en }}</h2>
+          <p class="privacy-contact-text" data-i18n="{{ privacy.contact.text.key }}">{{ privacy.contact.text.en }}</p>
+          <a class="contact-mail" href="mailto:{{ site.email }}"
+            >{{ site.email }}</a
+          >
+          <div class="contact-cta">
+            <a class="btn btn-ghost" href="index.html" data-i18n="{{ privacy.contact.back.key }}"
+              >{{ privacy.contact.back.en }}</a
+            >
+          </div>
+
+          {% include "partials/footer.njk" %}
+        </div>
+      </section>
+    </main>
+
+  </body>
+</html>

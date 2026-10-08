@@ -90,7 +90,7 @@
         bulb.setAttribute("aria-checked", String(!light));
         bulb.setAttribute(
           "aria-label",
-          t("a.theme.dark", "Dark mode"),
+          t("ui.aria.themeDark", "Dark mode"),
         );
       }
       buttons.forEach((button) => {
@@ -374,21 +374,6 @@
      Auto-advances, pauses on hover / focus / while off-screen, can be driven
      by the dots, and supports swipe left/right on touch screens. */
 
-  const ARCH_ORDER = [
-    "layered",
-    "hexagonal",
-    "event-driven",
-    "microservices",
-    "cqrs",
-    "pipeline",
-    "service-mesh",
-    "actor-model",
-    "peer-to-peer",
-    "saga",
-    "master-worker",
-    "serverless",
-    "active-passive",
-  ];
   const ARCH_DELAY_MS = 5200;
   // Mobile viewers glance at the diagrams mid-scroll, so give them longer.
   const ARCH_DELAY_MOBILE_MS = 7500;
@@ -401,6 +386,8 @@
 
     const panels = cycler.querySelectorAll("[data-arch-panel]");
     const dots = cycler.querySelectorAll("[data-arch-target]");
+    // Order = the order of the dots, which the build generates from content/hero.json.
+    const ARCH_ORDER = Array.from(dots, (dot) => dot.getAttribute("data-arch-target"));
     const pauseButton = cycler.querySelector("[data-arch-pause]");
     const statusEl = cycler.querySelector("[data-arch-status]");
 
@@ -435,7 +422,7 @@
       // that label in the current language already.
       const dot = cycler.querySelector(`[data-arch-target="${key}"]`);
       const name = dot ? dot.textContent.trim() : key;
-      const message = t("arch.status", "Diagram {n} of {total}: {name}", {
+      const message = t("ui.messages.archStatus", "Diagram {n} of {total}: {name}", {
         n,
         total: ARCH_ORDER.length,
         name,
@@ -522,8 +509,8 @@
       pauseButton.setAttribute(
         "aria-label",
         paused
-          ? t("arch.play", "Resume diagram rotation")
-          : t("arch.pause", "Pause diagram rotation"),
+          ? t("ui.messages.archPlay", "Resume diagram rotation")
+          : t("ui.messages.archPause", "Pause diagram rotation"),
       );
     };
 
@@ -1030,7 +1017,7 @@
     copyButton.style.marginLeft = "0.5rem";
     copyButton.addEventListener("click", () => {
       navigator.clipboard.writeText(CONTACT_EMAIL).then(() => {
-        showToast(t("toast.copied", "Email copied to clipboard"));
+        showToast(t("ui.messages.toastCopied", "Email copied to clipboard"));
       });
     });
   }
