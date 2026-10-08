@@ -6,10 +6,10 @@ import { spawnSync } from "node:child_process";
 export const REPO = path.resolve(import.meta.dirname, "..", "..");
 const BUILD_SCRIPT = path.join(REPO, ".github", "scripts", "build.mjs");
 
-/** Copies what the generator reads (content/, src/, scripts.js, styles.css) to a temp dir, so tests can edit content freely. */
+/** Copies what the generator reads (content/, src/, assets/, scripts.js, styles.css) to a temp dir, so tests can edit content freely. */
 export function copyProject() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "site-test-"));
-  for (const entry of ["content", "src", "scripts.js", "styles.css"]) fs.cpSync(path.join(REPO, entry), path.join(dir, entry), { recursive: true });
+  for (const entry of ["content", "src", "assets", "scripts.js", "styles.css"]) fs.cpSync(path.join(REPO, entry), path.join(dir, entry), { recursive: true });
   return dir;
 }
 

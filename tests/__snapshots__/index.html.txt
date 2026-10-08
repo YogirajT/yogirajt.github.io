@@ -33,11 +33,12 @@
     <meta content="·" name="twitter:description">
     <meta content="«url»/assets/og-image.png" name="twitter:image">
     <meta content="·" name="twitter:image:alt">
-    <link href="assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
-    <link href="assets/favicon.ico" rel="icon" type="image/x-icon">
-    <link href="assets/favicon-144x144.png" rel="icon" sizes="144x144" type="image/png">
-    <link href="assets/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
-    <link href="assets/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="assets/apple-touch-icon.png?v=HASH" rel="apple-touch-icon" sizes="180x180">
+    <link href="assets/favicon.svg?v=HASH" rel="icon" sizes="any" type="image/svg+xml">
+    <link href="assets/favicon.ico?v=HASH" rel="icon" type="image/x-icon">
+    <link href="assets/favicon-144x144.png?v=HASH" rel="icon" sizes="144x144" type="image/png">
+    <link href="assets/favicon-32x32.png?v=HASH" rel="icon" sizes="32x32" type="image/png">
+    <link href="assets/favicon-16x16.png?v=HASH" rel="icon" sizes="16x16" type="image/png">
     <link href="assets/site.webmanifest" rel="manifest">
     <link as="font" crossorigin="" href="assets/fonts/Tektur-Medium.woff" rel="preload" type="font/woff">
     <link as="font" crossorigin="" href="assets/fonts/Outfit-Regular.woff" rel="preload" type="font/woff">
@@ -154,8 +155,9 @@
             <p class="eyebrow hero-eyebrow" data-i18n="hero.eyebrow">
               ·
             <h1 id="hero-title">
-              <span aria-hidden="true">
+              <span aria-hidden="true" class="glitch" data-text="·">
                 ·
+                <i class="glitch-scan">
               <span class="sr-only">
                 ·
             <p class="hero-role">

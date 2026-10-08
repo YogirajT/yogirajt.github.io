@@ -15,7 +15,8 @@
           <div class="hero-text">
             <p class="eyebrow hero-eyebrow" data-i18n="{{ hero.eyebrow.key }}">{{ hero.eyebrow.en }}</p>
             <h1 id="hero-title">
-              <span aria-hidden="true">{{ site.alternateName | e }}</span
+              <span class="glitch" aria-hidden="true" data-text="{{ site.alternateName | e }}"
+                >{{ site.alternateName | e }}<i class="glitch-scan"></i></span
               ><span class="sr-only">{{ site.name | e }}</span>
             </h1>
             <p class="hero-role">

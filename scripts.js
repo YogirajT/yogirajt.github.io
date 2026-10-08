@@ -871,6 +871,48 @@
     sections.forEach((section) => spy.observe(section));
   }
 
+  /* --- Hero title: old-TV signal interference ------------------------------- */
+
+  // styles.css does the drawing (.glitch.is-glitching); this only decides *when*: a
+  // "signal locks in" burst shortly after load, then a short burst every few seconds
+  // while the title is on screen and the tab is visible. Tapping/clicking the title
+  // triggers one too. With reduced motion nothing is scheduled (the CSS hides the layers).
+  function initHeroGlitch() {
+    const glitch = document.querySelector(".glitch");
+    if (!glitch || reduceMotion) return;
+
+    let busy = false;
+    let visible = true;
+    const burst = (ms) => {
+      if (busy) return;
+      busy = true;
+      glitch.style.setProperty("--glitch-ms", `${Math.round(ms)}ms`);
+      glitch.classList.add("is-glitching");
+      window.setTimeout(() => {
+        glitch.classList.remove("is-glitching");
+        busy = false;
+      }, ms + 40);
+    };
+    const scheduleNext = () => {
+      window.setTimeout(
+        () => {
+          if (visible && !document.hidden) burst(380 + Math.random() * 360);
+          scheduleNext();
+        },
+        3200 + Math.random() * 5200,
+      );
+    };
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+      }).observe(glitch);
+    }
+    window.setTimeout(() => burst(950), 500);
+    scheduleNext();
+    glitch.closest("h1")?.addEventListener("pointerdown", () => burst(520));
+  }
+
   /* --- Typewriter effect for the hero role line (runs once, on load) --------- */
 
   const TYPEWRITER_CHAR_MS = 18; // quick, not gimmicky
@@ -1726,6 +1768,7 @@
   initScrollReveal();
   initScrollSpy();
   initTypewriter();
+  initHeroGlitch();
   initSpotlight();
   initHeroFireflies();
   initAvatarTilt();

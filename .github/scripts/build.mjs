@@ -176,6 +176,12 @@ const contentBlob = Object.keys(raw).map((n) => read(path.join(CONTENT, `${n}.js
 const hash = {
   styles: sha(fs.readFileSync(path.join(ROOT, "styles.css"))),
   scripts: sha(fs.readFileSync(path.join(ROOT, "scripts.js"))),
+  // Changes whenever an icon file changes, so browsers (which cache favicons very hard) fetch the new one.
+  icons: sha(
+    ...["favicon.svg", "favicon.ico", "favicon-16x16.png", "favicon-32x32.png", "favicon-144x144.png", "apple-touch-icon.png"].map((f) =>
+      fs.readFileSync(path.join(ROOT, "assets", f)),
+    ),
+  ),
   i18n: sha(read(path.join(SRC, "i18n.js")), contentBlob),
   privacyI18n: sha(read(path.join(SRC, "privacy-i18n.js")), contentBlob),
 };

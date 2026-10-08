@@ -13,7 +13,7 @@
 
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
 const RAW_TEXT = new Set(["script", "style"]);
-const TEXT_ATTRS = new Set(["aria-label", "alt", "title", "placeholder", "aria-description", "aria-roledescription"]);
+const TEXT_ATTRS = new Set(["aria-label", "alt", "title", "placeholder", "aria-description", "aria-roledescription", "data-text"]);
 const TEXT_META = new Set([
   "description", "author", "twitter:title", "twitter:description", "twitter:image:alt",
   "og:title", "og:description", "og:image:alt", "og:site_name", "profile:first_name", "profile:last_name",
