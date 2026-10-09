@@ -10,7 +10,8 @@
  *
  *   1. Shared helpers
  *   2. Page features      theme toggle, footer year, hero diagrams, mobile
- *                         nav, scroll reveal, scroll-spy, typewriter, pointer
+ *                         nav, scroll reveal, scroll-spy, power-bus timeline,
+ *                         typewriter, pointer
  *                         effects, hero fireflies, copy-email
  *   3. Ambient scene      rain, foliage, lightning, scroll-driven atmosphere
  *   4. Cookie consent     consent-gated Google Analytics
@@ -869,6 +870,195 @@
       { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
     );
     sections.forEach((section) => spy.observe(section));
+  }
+
+  /* --- Power bus: the experience timeline as a live circuit ----------------
+     styles.css draws everything; this builds the (aria-hidden) parts and
+     decides *when* things light up.
+       - A twin-rail bus runs beside the cards. An "energy front" sits at
+         BUS_FRONT_LINE of the viewport height; the bus fills down to it and
+         every job whose junction it has passed gets .is-live (switch closes,
+         current runs through the logic gate, the card powers up). Scrolling
+         back up opens the switches again.
+       - Tapping/clicking a card sends a magenta surge down the bus into it.
+     Only transforms and class toggles happen per frame. With reduced motion
+     the finished (fully powered) state is shown and nothing moves. Also runs
+     on privacy.html, whose policy sections are the same .timeline/.job. */
+
+  const BUS_FRONT_LINE = 0.66; // share of the viewport height where the front sits
+  // One gate per job, top to bottom; the current role is a plain buffer (amplifier).
+  const BUS_GATES = ["buf", "and", "or", "xor", "nand", "not"];
+
+  /** Inline SVG (34x20) of a logic gate: input wires, body, output wire. */
+  function busGateSvg(kind) {
+    const gates = {
+      buf: { body: "M7 1L24 10L7 19Z", inX: 7, outX: 24, inputs: 1 },
+      not: { body: "M7 1L24 10L7 19Z", inX: 7, outX: 24, inputs: 1, bubble: 26 },
+      and: { body: "M7 1H15A9 9 0 0 1 15 19H7Z", inX: 7, outX: 24, inputs: 2 },
+      nand: { body: "M7 1H14A9 9 0 0 1 14 19H7Z", inX: 7, outX: 23, inputs: 2, bubble: 25 },
+      or: { body: "M7 1H13Q23 1 26 10Q23 19 13 19H7Q11 10 7 1Z", inX: 8, outX: 26, inputs: 2 },
+      xor: {
+        body: "M10 1H16Q26 1 29 10Q26 19 16 19H10Q14 10 10 1Z",
+        inX: 7.3,
+        outX: 29,
+        inputs: 2,
+        extra: "M6 1Q10 10 6 19",
+      },
+    };
+    const g = gates[kind] || gates.buf;
+    const outStart = g.bubble ? g.bubble + 2 : g.outX;
+    // Wires first, so the filled body (and its outline) sits on top of them.
+    const wires =
+      g.inputs === 2
+        ? `<path d="M1 5V15M1 5H${g.inX}M1 15H${g.inX}"/>`
+        : `<path d="M1 10H${g.inX}"/>`;
+    const out = `<path d="M${outStart} 10H33"/>`;
+    const bubble = g.bubble ? `<circle cx="${g.bubble}" cy="10" r="2"/>` : "";
+    const extra = g.extra ? `<path d="${g.extra}"/>` : "";
+    return (
+      `<svg class="jn-gate" viewBox="0 0 34 20" aria-hidden="true" focusable="false">` +
+      `${wires}${out}<path class="g-body" d="${g.body}"/>${extra}${bubble}</svg>`
+    );
+  }
+
+  /** Distance from `ancestor`'s top edge to `el`'s top edge (ignores transforms). */
+  const offsetWithin = (el, ancestor) => {
+    let y = 0;
+    while (el && el !== ancestor) {
+      y += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return y;
+  };
+
+  function setupPowerBus(timeline) {
+    const jobs = [...timeline.querySelectorAll(".job")];
+    if (!jobs.length) return;
+
+    const make = (tag, className) => {
+      const el = document.createElement(tag);
+      el.className = className;
+      el.setAttribute("aria-hidden", "true");
+      return el;
+    };
+
+    // prepend, never append: styles.css still relies on `.job:last-child`.
+    const fill = make("i", "bus-fill");
+    const head = make("i", "bus-head");
+    const source = make("i", "bus-source");
+    const ground = make("i", "bus-ground");
+    timeline.prepend(fill, head, source, ground);
+
+    const entries = jobs.map((job, i) => {
+      const node = make("span", "job-node");
+      node.innerHTML =
+        '<span class="jn-switch"><i class="jn-blade"></i><i class="jn-spark jn-spark--sw"></i></span>' +
+        `<span class="jn-trace">${busGateSvg(BUS_GATES[i % BUS_GATES.length])}</span>` +
+        '<span class="jn-pad"><i class="jn-spark jn-spark--pad"></i></span>';
+      job.prepend(node);
+      return { job, node, live: false, timer: 0 };
+    });
+
+    // Reduced motion: show the finished circuit, fully powered, and stop here.
+    if (reduceMotion) {
+      entries.forEach((e) => e.job.classList.add("is-live"));
+      timeline.classList.add("is-fed", "is-closed");
+      fill.style.transform = "scaleY(1)";
+      return;
+    }
+
+    let frame = 0;
+    let visible = !hasIntersectionObserver;
+
+    function update() {
+      frame = 0;
+      const height = timeline.offsetHeight;
+      if (!height) return;
+      const front = window.innerHeight * BUS_FRONT_LINE - timeline.getBoundingClientRect().top;
+      const clamped = Math.min(Math.max(front, 0), height);
+
+      fill.style.transform = `scaleY(${(clamped / height).toFixed(4)})`;
+      head.style.transform = `translateY(${clamped.toFixed(1)}px)`;
+      timeline.classList.toggle("is-running", front > 0 && front < height);
+      timeline.classList.toggle("is-fed", front > 0);
+      timeline.classList.toggle("is-closed", front >= height);
+
+      entries.forEach((entry) => {
+        const live = offsetWithin(entry.node, timeline) <= front;
+        if (live === entry.live) return;
+        entry.live = live;
+        entry.job.classList.toggle("is-live", live);
+      });
+    }
+
+    const schedule = () => {
+      if (visible && !frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    if (hasIntersectionObserver) {
+      new IntersectionObserver(
+        ([entry]) => {
+          visible = entry.isIntersecting;
+          schedule();
+        },
+        { rootMargin: "240px 0px 240px 0px" },
+      ).observe(timeline);
+    }
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(schedule).observe(timeline); // e.g. a language switch reflows the cards
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+    schedule();
+
+    /* Tap / click a card: a surge runs down the bus into it. */
+    function surge(entry) {
+      const flash = () => {
+        const job = entry.job;
+        job.classList.remove("is-surging");
+        void job.offsetWidth; // restart the CSS animations
+        job.classList.add("is-surging");
+        clearTimeout(entry.timer);
+        entry.timer = setTimeout(() => job.classList.remove("is-surging"), 1000);
+      };
+      if (typeof timeline.animate !== "function") {
+        flash();
+        return;
+      }
+      const y = offsetWithin(entry.node, timeline);
+      const pulse = make("i", "bus-pulse");
+      timeline.prepend(pulse);
+      const run = pulse.animate(
+        [
+          { transform: "translateY(0px)", opacity: 1 },
+          { transform: `translateY(${y}px)`, opacity: 1 },
+        ],
+        {
+          duration: Math.round(Math.min(Math.max(240 + y * 0.55, 320), 1100)),
+          easing: "cubic-bezier(0.55, 0, 0.85, 0.5)", // accelerates, like a spike
+          fill: "forwards",
+        },
+      );
+      run.onfinish = () => {
+        pulse.remove();
+        flash();
+      };
+      run.oncancel = () => pulse.remove();
+    }
+
+    timeline.addEventListener("click", (event) => {
+      const card = event.target.closest(".job-card");
+      if (!card || event.target.closest("a, button, summary, input, label")) return;
+      const selection = window.getSelection && window.getSelection();
+      if (selection && !selection.isCollapsed) return; // the visitor is selecting text
+      const entry = entries.find((e) => e.job.contains(card));
+      if (entry) surge(entry);
+    });
+  }
+
+  function initPowerBus() {
+    document.querySelectorAll(".timeline").forEach(setupPowerBus);
   }
 
   /* --- Hero title: old-TV signal interference ------------------------------- */
@@ -1767,6 +1957,7 @@
   initLangSwitch();
   initScrollReveal();
   initScrollSpy();
+  initPowerBus();
   initTypewriter();
   initHeroGlitch();
   initSpotlight();

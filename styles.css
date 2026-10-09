@@ -2580,74 +2580,536 @@ text.arch-fn-3 {
 .experience {
   background: color-mix(in srgb, var(--bg-2) 95%, transparent);
 }
+/* ---------- The timeline is a live power bus ----------
+   A twin-conductor "ladder line" runs down the section. As you scroll, an
+   energy front travels down it (scripts.js: initPowerBus). Every job hangs off
+   the bus through a knife switch -> trace -> logic gate -> solder pad. When the
+   front passes a junction its switch snaps shut, current flows through the
+   gate into the card and the card's circuitry powers up. Tapping/clicking a card
+   fires a magenta surge down the bus into that card.
+   All decoration is injected by scripts.js (aria-hidden) and animates only
+   transform/opacity, so it stays cheap on older phones. Without JS the bus is a
+   dim, static ladder and the cards look as before. */
 .timeline {
+  --rail-left: 4px; /* left edge of the two rails */
+  --rail-w: 10px; /* outer width of the rail pair */
+  --branch-start: 14px; /* where branches leave the bus (right rail edge) */
+  --job-pad: 5.25rem; /* gutter between the bus and the cards */
+  --sw-len: 14px; /* knife switch length */
+  /* Vertical centre of the first line of a card (padding + half a title line). */
+  --node-y: calc(clamp(1.4rem, 3vw, 1.9rem) + 0.9rem);
+  --node-bg: var(--bg-2); /* what gates / pads are "cut out" of */
+  --bus-dim: color-mix(in srgb, var(--ink-soft) 38%, var(--node-bg));
+  --bus-rung: color-mix(in srgb, var(--ink-soft) 20%, var(--node-bg));
+  --bus-aura: color-mix(in srgb, var(--green) 20%, transparent);
   position: relative;
 }
+[data-theme="light"] .timeline {
+  --bus-aura: transparent;
+}
+
+/* Unpowered bus: two rails with rungs between them. */
 .timeline::before {
   content: "";
   position: absolute;
-  left: 9px;
-  top: 0.6rem;
-  bottom: 0.6rem;
-  width: 2px;
-  background: var(--line);
+  top: 0;
+  bottom: 0;
+  left: var(--rail-left);
+  width: var(--rail-w);
+  pointer-events: none;
+  background:
+    linear-gradient(var(--bus-dim), var(--bus-dim)) left top / 2px 100% no-repeat,
+    linear-gradient(var(--bus-dim), var(--bus-dim)) right top / 2px 100% no-repeat,
+    repeating-linear-gradient(180deg, var(--bus-rung) 0 1px, transparent 1px 12px) 2px top / calc(100% - 4px) 100% no-repeat;
 }
-@media (max-width: 700px) {
-  .timeline::before {
-    left: 5px;
-  }
+
+/* Powered bus: same drawing in neon green, revealed top-down by scaleY. It is
+   16px wider than the rails so it can carry a soft aura (dark theme only). */
+.bus-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--rail-left) - 8px);
+  width: calc(var(--rail-w) + 16px);
+  pointer-events: none;
+  transform-origin: 50% 0;
+  transform: scaleY(0);
+  will-change: transform;
+  background:
+    linear-gradient(var(--green), var(--green)) 8px top / 2px 100% no-repeat,
+    linear-gradient(var(--green), var(--green)) calc(100% - 8px) top / 2px 100% no-repeat,
+    repeating-linear-gradient(180deg, color-mix(in srgb, var(--green) 55%, transparent) 0 1px, transparent 1px 12px) 10px top / calc(100% - 20px) 100% no-repeat,
+    linear-gradient(90deg, transparent, var(--bus-aura) 50%, transparent) 0 0 / 100% 100% no-repeat;
+}
+
+/* The energy front (green) and a user-triggered surge (magenta). */
+.bus-head,
+.bus-pulse {
+  position: absolute;
+  top: -5px;
+  left: calc(var(--rail-left) + var(--rail-w) / 2 - 5px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+}
+.bus-head::before,
+.bus-pulse::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 8px;
+  width: 4px;
+  height: 36px;
+  border-radius: 2px;
+}
+.bus-head {
+  background: var(--green);
+  box-shadow:
+    var(--glow-green),
+    0 0 0 3px color-mix(in srgb, var(--green) 25%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+.bus-head::before {
+  background: linear-gradient(to top, color-mix(in srgb, var(--green) 70%, transparent), transparent);
+}
+.timeline.is-running .bus-head {
+  opacity: 1;
+}
+.bus-pulse {
+  background: var(--magenta);
+  box-shadow:
+    var(--glow-mag),
+    0 0 0 4px color-mix(in srgb, var(--magenta) 28%, transparent);
+}
+.bus-pulse::before {
+  background: linear-gradient(to top, color-mix(in srgb, var(--magenta) 75%, transparent), transparent);
+}
+
+/* Power in at the top (a screw terminal), ground at the bottom (the circuit
+   closes when the front reaches the end). */
+.bus-source {
+  position: absolute;
+  top: -9px;
+  left: calc(var(--rail-left) - 4px);
+  width: calc(var(--rail-w) + 8px);
+  height: 8px;
+  box-sizing: border-box;
+  border: 2px solid var(--bus-dim);
+  border-radius: 2px;
+  background: var(--node-bg);
+  pointer-events: none;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.timeline.is-fed .bus-source {
+  border-color: var(--green);
+  box-shadow: var(--glow-green);
+}
+.bus-ground {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: calc(var(--rail-left) + var(--rail-w) / 2 - 9px);
+  width: 18px;
+  height: 20px;
+  color: var(--bus-dim);
+  pointer-events: none;
+  transition: color 0.4s ease;
+  background:
+    linear-gradient(currentColor, currentColor) calc(9px - var(--rail-w) / 2) 0 / var(--rail-w) 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 8px 2px / 2px 6px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 8px / 18px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 13px / 12px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 6px 18px / 6px 2px no-repeat;
+}
+.timeline.is-closed .bus-ground {
+  color: var(--green);
 }
 
 .job {
   position: relative;
-  padding-left: 2.75rem;
+  padding-left: var(--job-pad);
   padding-bottom: clamp(2rem, 4vw, 2.75rem);
 }
 .job:last-child {
   padding-bottom: 0;
 }
-.job::before {
+
+/* The branch: switch -> trace (with a logic gate on it) -> pad on the card edge. */
+.job-node {
+  position: absolute;
+  top: var(--node-y);
+  left: var(--branch-start);
+  width: calc(var(--job-pad) - var(--branch-start));
+  height: 0;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Knife switch: two contact posts and a blade that lifts while the line is dead. */
+.jn-switch {
+  position: relative;
+  flex: 0 0 var(--sw-len);
+  height: 2px;
+}
+.jn-switch::before,
+.jn-switch::after {
   content: "";
   position: absolute;
-  left: -3px;
-  top: 0.4rem;
-  width: 20px;
-  height: 20px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  box-sizing: border-box;
+  border: 2px solid var(--bus-dim);
   border-radius: 50%;
-  background: var(--bg-2);
-  border: 3px solid var(--green);
+  background: var(--node-bg);
+  transition: border-color 0.25s ease;
 }
-.job.job-current::before {
-  background: var(--green);
-  border-color: var(--green);
-  box-shadow:
-    0 0 0 5px color-mix(in srgb, var(--green) 22%, transparent),
-    var(--glow-green);
+.jn-switch::before {
+  left: -4px;
 }
-@media (max-width: 700px) {
-  .job {
-    padding-left: 1.9rem;
+.jn-switch::after {
+  right: -4px;
+}
+.jn-blade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--bus-dim);
+  transform-origin: 0 50%;
+  transform: rotate(-34deg);
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.jn-trace {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  background: var(--bus-dim);
+}
+.jn-trace::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  box-shadow: var(--glow-green);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.2s ease;
+}
+
+/* Logic gate sitting on the trace (hidden on phones, where the gutter is tight). */
+.jn-gate {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: 32px;
+  height: 19px;
+  overflow: visible;
+  transform: translate(-50%, -50%);
+  color: var(--bus-dim);
+  transition: color 0.2s ease;
+}
+.jn-gate * {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.jn-gate .g-body {
+  fill: var(--node-bg);
+  transition: fill 0.4s ease;
+}
+
+.jn-pad {
+  position: relative;
+  flex: 0 0 10px;
+  height: 10px;
+  margin-right: -5px; /* half the pad sits on the card's border */
+  box-sizing: border-box;
+  border: 2px solid var(--bus-dim);
+  border-radius: 50%;
+  background: var(--node-bg);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.jn-pad::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--green);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+/* Sparks: one 2px dot whose box-shadows fly outwards when it animates. */
+.jn-spark {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  margin: -1px 0 0 -1px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+.jn-spark--sw {
+  top: 50%;
+  right: 0;
+  color: var(--green);
+}
+.jn-spark--pad {
+  top: 50%;
+  left: 50%;
+  color: var(--magenta);
+}
+@keyframes bus-sparks {
+  0% {
+    opacity: 1;
+    box-shadow:
+      0 0 0 0 currentColor,
+      0 0 0 0 currentColor,
+      0 0 0 0 currentColor,
+      0 0 0 0 currentColor,
+      0 0 0 0 currentColor,
+      0 0 0 0 currentColor;
   }
-  .job::before {
-    width: 12px;
-    height: 12px;
+  100% {
+    opacity: 0;
+    box-shadow:
+      -9px -7px 0 0 currentColor,
+      8px -9px 0 0 currentColor,
+      12px 3px 0 0 currentColor,
+      -4px 10px 0 0 currentColor,
+      7px 8px 0 0 currentColor,
+      -12px 2px 0 0 currentColor;
+  }
+}
+@keyframes bus-ping {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.6);
+  }
+}
+@keyframes bus-led {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
   }
 }
 
+/* ---- Live: the front has passed this junction. Each stage waits for the one
+   before it (switch, trace, gate, pad, card), so the current visibly travels. */
+.job.is-live .jn-switch::before,
+.job.is-live .jn-switch::after {
+  border-color: var(--green);
+}
+.job.is-live .jn-switch::after {
+  transition-delay: 0.12s;
+}
+.job.is-live .jn-blade {
+  background: var(--green);
+  transform: rotate(0deg);
+  transition:
+    transform 0.38s cubic-bezier(0.34, 1.7, 0.5, 1),
+    background-color 0.2s ease;
+}
+.job.is-live .jn-trace::after {
+  transform: scaleX(1);
+  transition: transform 0.5s cubic-bezier(0.3, 0.7, 0.3, 1) 0.14s;
+}
+.job.is-live .jn-gate {
+  color: var(--cyan);
+  transition-delay: 0.34s;
+}
+.job.is-live .jn-gate .g-body {
+  fill: color-mix(in srgb, var(--cyan) 14%, var(--node-bg));
+  transition-delay: 0.34s;
+}
+.job.is-live .jn-pad {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 35%, var(--node-bg));
+  transition-delay: 0.55s;
+}
+.job.is-live .jn-spark--sw {
+  animation: bus-sparks 0.6s ease-out 0.1s;
+}
+/* The current role is the one live LED on the board. */
+.job-current.is-live .jn-pad {
+  background: var(--green);
+  box-shadow: var(--glow-green);
+}
+.job-current.is-live .jn-pad::before {
+  animation: bus-led 2.8s ease-out 1s infinite;
+}
+
+/* ---- Surge: a card was tapped/clicked ---- */
+@keyframes bus-surge-trace {
+  0% {
+    opacity: 1;
+    transform: scaleX(1);
+    background: var(--magenta);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+    background: linear-gradient(90deg, var(--green), var(--cyan));
+  }
+}
+@keyframes bus-surge-trace-dead {
+  0% {
+    opacity: 1;
+    transform: scaleX(1);
+    background: var(--magenta);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+    background: var(--magenta);
+  }
+}
+@keyframes bus-surge-card {
+  0% {
+    border-color: var(--magenta);
+    box-shadow:
+      0 0 0 1px var(--magenta),
+      var(--glow-mag);
+  }
+}
+.job.is-surging .jn-trace::after {
+  animation: bus-surge-trace 0.9s ease-out;
+}
+.job.is-surging:not(.is-live) .jn-trace::after {
+  animation-name: bus-surge-trace-dead;
+}
+.job.is-surging .jn-pad::before {
+  border-color: var(--magenta);
+  animation: bus-ping 0.8s ease-out;
+}
+.job.is-surging .jn-spark--pad {
+  animation: bus-sparks 0.7s ease-out;
+}
+.job.is-surging .job-card {
+  animation: bus-surge-card 0.9s ease-out;
+}
+
+/* ---- The card itself ---- */
 .job-card {
+  position: relative;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius-m);
   padding: clamp(1.4rem, 3vw, 1.9rem) clamp(1.4rem, 3vw, 2rem);
   transition:
-    transform 0.25s ease,
     box-shadow 0.25s ease,
     border-color 0.25s ease;
 }
-.job-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-  border-color: var(--cyan);
+/* Circuitry that traces in from the card's bottom-right edge once it's powered
+   (flipped upside-down so it stays clear of the dates in the header). */
+.job-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: scaleY(-1);
+  z-index: -1;
+  width: 160px;
+  height: 100px;
+  background: var(--cyan);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='100' viewBox='0 0 160 100' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square'%3E%3Cpath d='M160 14H118L104 28H70'/%3E%3Cpath d='M160 34H132L120 46H96V70'/%3E%3Cpath d='M160 58H140L128 70'/%3E%3Cpath d='M160 82H108L96 94'/%3E%3Ccircle cx='66' cy='28' r='3.5'/%3E%3Ccircle cx='96' cy='74' r='3.5'/%3E%3Ccircle cx='128' cy='74' r='3.5'/%3E%3Ccircle cx='96' cy='94' r='3'/%3E%3C/svg%3E") bottom right / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='100' viewBox='0 0 160 100' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square'%3E%3Cpath d='M160 14H118L104 28H70'/%3E%3Cpath d='M160 34H132L120 46H96V70'/%3E%3Cpath d='M160 58H140L128 70'/%3E%3Cpath d='M160 82H108L96 94'/%3E%3Ccircle cx='66' cy='28' r='3.5'/%3E%3Ccircle cx='96' cy='74' r='3.5'/%3E%3Ccircle cx='128' cy='74' r='3.5'/%3E%3Ccircle cx='96' cy='94' r='3'/%3E%3C/svg%3E") bottom right / contain no-repeat;
+}
+.job.is-live .job-card {
+  border-color: color-mix(in srgb, var(--green) 42%, var(--line));
+  transition-delay: 0s, 0.55s;
+}
+.job.is-live .job-card::after {
+  opacity: 0.2;
+  transition-delay: 0.6s;
+}
+/* No lift: the card is soldered to the bus. It lights up instead. */
+.job .job-card:hover {
+  border-color: var(--green);
+  box-shadow:
+    var(--shadow),
+    var(--glow-green);
+}
+
+@media (max-width: 700px) {
+  .timeline {
+    --rail-left: 2px;
+    --rail-w: 8px;
+    --branch-start: 10px;
+    --job-pad: 2.4rem;
+    --sw-len: 11px;
+  }
+  .jn-gate {
+    display: none;
+  }
+  .job-card::after {
+    width: 110px;
+    height: 69px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* scripts.js shows the finished state (everything powered) and never animates. */
+  .bus-head,
+  .bus-source,
+  .bus-ground,
+  .jn-blade,
+  .jn-trace::after,
+  .jn-gate,
+  .jn-gate .g-body,
+  .jn-switch::before,
+  .jn-switch::after,
+  .jn-pad,
+  .job-card,
+  .job-card::after {
+    transition: none !important;
+  }
+  .job.is-live .jn-spark--sw,
+  .job-current.is-live .jn-pad::before {
+    animation: none;
+  }
+}
+@media print {
+  .job-node,
+  .bus-fill,
+  .bus-head,
+  .bus-pulse,
+  .bus-source,
+  .bus-ground {
+    display: none;
+  }
 }
 
 .job-head {
@@ -4009,6 +4471,8 @@ html.theme-shifting-to-dark .ambient-glow {
   /* Keeps lines of text at a comfortable reading length. */
   max-width: 46rem;
   margin-inline: auto;
+  /* This section sits on --bg, not --bg-2: gates and pads are cut out of it. */
+  --node-bg: var(--bg);
 }
 .privacy-timeline .job-title {
   font-size: clamp(1.15rem, 2.4vw, 1.4rem);
