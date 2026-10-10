@@ -38,9 +38,9 @@
     "de": "Gesprochene Sprachen"
   },
   "levels": {
-    "professional": {
-      "en": "Professional Working Proficiency",
-      "de": "Fließend im beruflichen Kontext"
+    "fluent": {
+      "en": "Fluent",
+      "de": "Fließend"
     },
     "a2": {
       "text": "A2"
@@ -56,7 +56,7 @@
         "en": "English",
         "de": "Englisch"
       },
-      "level": "professional"
+      "level": "fluent"
     },
     {
       "name": {

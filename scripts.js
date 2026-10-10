@@ -10,7 +10,8 @@
  *
  *   1. Shared helpers
  *   2. Page features      theme toggle, footer year, hero diagrams, mobile
- *                         nav, scroll reveal, scroll-spy, typewriter, pointer
+ *                         nav, scroll reveal, scroll-spy, power-bus timeline,
+ *                         toolbox chips, section effects (see SECTION_FX), typewriter, pointer
  *                         effects, hero fireflies, copy-email
  *   3. Ambient scene      rain, foliage, lightning, scroll-driven atmosphere
  *   4. Cookie consent     consent-gated Google Analytics
@@ -32,6 +33,43 @@
   const reduceMotion = reducedMotionQuery.matches;
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const hasIntersectionObserver = "IntersectionObserver" in window;
+
+  /** SECTION EFFECTS. List the sections (by id) that get each effect, or set a
+      list to [] to switch that effect off everywhere.
+        doodle     hand-drawn line under the section heading
+        mesh       growing node graph behind the section
+        education  timing diagrams for the degrees + LED level meters for the
+                   languages (true / false)
+        facts      status LEDs on the About facts card (true / false)
+      To compare combinations without editing the file, add ?fx=... to the page URL:
+        ?fx=doodle,mesh      only those two effects (in their configured sections)
+        ?fx=doodle:skills    the doodle in the Toolbox section only
+        ?fx=education        only the Education effect
+        ?fx=all  ?fx=none    everything / nothing
+      (?journey=... works too.) */
+  const SECTION_FX = (() => {
+    const fx = {
+      doodle: ["about", "experience", "skills"],
+      mesh: ["about"],
+      education: true,
+      facts: true,
+    };
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("fx") ?? params.get("journey");
+    if (query !== null) {
+      const wanted = query.toLowerCase().split(",").map((token) => token.trim());
+      const all = wanted.includes("all");
+      ["doodle", "mesh"].forEach((name) => {
+        fx[name] =
+          all || wanted.includes(name)
+            ? fx[name]
+            : fx[name].filter((id) => wanted.includes(`${name}:${id}`));
+      });
+      fx.education = all || wanted.includes("education");
+      fx.facts = !wanted.includes("none"); // LEDs stay unless everything is off
+    }
+    return fx;
+  })();
 
   const isLightTheme = () => root.getAttribute("data-theme") === "light";
   const currentTheme = () => (isLightTheme() ? "light" : "dark");
@@ -869,6 +907,929 @@
       { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
     );
     sections.forEach((section) => spy.observe(section));
+  }
+
+  /* --- Power bus: the experience timeline as a live circuit ----------------
+     styles.css draws everything; this builds the (aria-hidden) parts and
+     decides *when* things light up.
+       - A twin-rail bus runs beside the cards. An "energy front" sits at
+         BUS_FRONT_LINE of the viewport height; the bus fills down to it and
+         every job whose junction it has passed gets .is-live (switch closes,
+         current runs through the logic gate, the card powers up). Scrolling
+         back up opens the switches again.
+       - Tapping/clicking a card sends a magenta surge down the bus into it.
+     Only transforms and class toggles happen per frame. With reduced motion
+     the finished (fully powered) state is shown and nothing moves. Also runs
+     on privacy.html, whose policy sections are the same .timeline/.job. */
+
+  const BUS_FRONT_LINE = 0.66; // share of the viewport height where the front sits
+  // One gate per job, top to bottom; the current role is a plain buffer (amplifier).
+  const BUS_GATES = ["buf", "and", "or", "xor", "nand", "not"];
+
+  /** Inline SVG (34x20) of a logic gate: input wires, body, output wire. */
+  function busGateSvg(kind) {
+    const gates = {
+      buf: { body: "M7 1L24 10L7 19Z", inX: 7, outX: 24, inputs: 1 },
+      not: { body: "M7 1L24 10L7 19Z", inX: 7, outX: 24, inputs: 1, bubble: 26 },
+      and: { body: "M7 1H15A9 9 0 0 1 15 19H7Z", inX: 7, outX: 24, inputs: 2 },
+      nand: { body: "M7 1H14A9 9 0 0 1 14 19H7Z", inX: 7, outX: 23, inputs: 2, bubble: 25 },
+      or: { body: "M7 1H13Q23 1 26 10Q23 19 13 19H7Q11 10 7 1Z", inX: 8, outX: 26, inputs: 2 },
+      xor: {
+        body: "M10 1H16Q26 1 29 10Q26 19 16 19H10Q14 10 10 1Z",
+        inX: 7.3,
+        outX: 29,
+        inputs: 2,
+        extra: "M6 1Q10 10 6 19",
+      },
+    };
+    const g = gates[kind] || gates.buf;
+    const outStart = g.bubble ? g.bubble + 2 : g.outX;
+    // Wires first, so the filled body (and its outline) sits on top of them.
+    const wires =
+      g.inputs === 2
+        ? `<path d="M1 5V15M1 5H${g.inX}M1 15H${g.inX}"/>`
+        : `<path d="M1 10H${g.inX}"/>`;
+    const out = `<path d="M${outStart} 10H33"/>`;
+    const bubble = g.bubble ? `<circle cx="${g.bubble}" cy="10" r="2"/>` : "";
+    const extra = g.extra ? `<path d="${g.extra}"/>` : "";
+    return (
+      `<svg class="jn-gate" viewBox="0 0 34 20" aria-hidden="true" focusable="false">` +
+      `${wires}${out}<path class="g-body" d="${g.body}"/>${extra}${bubble}</svg>`
+    );
+  }
+
+  /** Distance from `ancestor`'s top edge to `el`'s top edge (ignores transforms). */
+  const offsetWithin = (el, ancestor) => {
+    let y = 0;
+    while (el && el !== ancestor) {
+      y += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return y;
+  };
+
+  function setupPowerBus(timeline) {
+    const jobs = [...timeline.querySelectorAll(".job")];
+    if (!jobs.length) return;
+
+    const make = (tag, className) => {
+      const el = document.createElement(tag);
+      el.className = className;
+      el.setAttribute("aria-hidden", "true");
+      return el;
+    };
+
+    // prepend, never append: styles.css still relies on `.job:last-child`.
+    const fill = make("i", "bus-fill");
+    const head = make("i", "bus-head");
+    const source = make("i", "bus-source");
+    const ground = make("i", "bus-ground");
+    timeline.prepend(fill, head, source, ground);
+
+    const entries = jobs.map((job, i) => {
+      const node = make("span", "job-node");
+      node.innerHTML =
+        '<span class="jn-switch"><i class="jn-blade"></i><i class="jn-spark jn-spark--sw"></i></span>' +
+        `<span class="jn-trace">${busGateSvg(BUS_GATES[i % BUS_GATES.length])}</span>` +
+        '<span class="jn-pad"><i class="jn-spark jn-spark--pad"></i></span>';
+      job.prepend(node);
+      return { job, node, live: false, timer: 0 };
+    });
+
+    // Reduced motion: show the finished circuit, fully powered, and stop here.
+    if (reduceMotion) {
+      entries.forEach((e) => e.job.classList.add("is-live"));
+      timeline.classList.add("is-fed", "is-closed");
+      fill.style.transform = "scaleY(1)";
+      return;
+    }
+
+    let frame = 0;
+    let visible = !hasIntersectionObserver;
+
+    function update() {
+      frame = 0;
+      const height = timeline.offsetHeight;
+      if (!height) return;
+      const front = window.innerHeight * BUS_FRONT_LINE - timeline.getBoundingClientRect().top;
+      const clamped = Math.min(Math.max(front, 0), height);
+
+      fill.style.transform = `scaleY(${(clamped / height).toFixed(4)})`;
+      head.style.transform = `translateY(${clamped.toFixed(1)}px)`;
+      timeline.classList.toggle("is-running", front > 0 && front < height);
+      timeline.classList.toggle("is-fed", front > 0);
+      timeline.classList.toggle("is-closed", front >= height);
+
+      entries.forEach((entry) => {
+        const live = offsetWithin(entry.node, timeline) <= front;
+        if (live === entry.live) return;
+        entry.live = live;
+        entry.job.classList.toggle("is-live", live);
+      });
+    }
+
+    const schedule = () => {
+      if (visible && !frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    if (hasIntersectionObserver) {
+      new IntersectionObserver(
+        ([entry]) => {
+          visible = entry.isIntersecting;
+          schedule();
+        },
+        { rootMargin: "240px 0px 240px 0px" },
+      ).observe(timeline);
+    }
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(schedule).observe(timeline); // e.g. a language switch reflows the cards
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+    schedule();
+
+    /* Tap / click a card: a surge runs down the bus into it. */
+    function surge(entry) {
+      const flash = () => {
+        const job = entry.job;
+        job.classList.remove("is-surging");
+        void job.offsetWidth; // restart the CSS animations
+        job.classList.add("is-surging");
+        clearTimeout(entry.timer);
+        entry.timer = setTimeout(() => job.classList.remove("is-surging"), 1000);
+      };
+      if (typeof timeline.animate !== "function") {
+        flash();
+        return;
+      }
+      const y = offsetWithin(entry.node, timeline);
+      const pulse = make("i", "bus-pulse");
+      timeline.prepend(pulse);
+      const run = pulse.animate(
+        [
+          { transform: "translateY(0px)", opacity: 1 },
+          { transform: `translateY(${y}px)`, opacity: 1 },
+        ],
+        {
+          duration: Math.round(Math.min(Math.max(240 + y * 0.55, 320), 1100)),
+          easing: "cubic-bezier(0.55, 0, 0.85, 0.5)", // accelerates, like a spike
+          fill: "forwards",
+        },
+      );
+      run.onfinish = () => {
+        pulse.remove();
+        flash();
+      };
+      run.oncancel = () => pulse.remove();
+    }
+
+    timeline.addEventListener("click", (event) => {
+      const card = event.target.closest(".job-card");
+      if (!card || event.target.closest("a, button, summary, input, label")) return;
+      const selection = window.getSelection && window.getSelection();
+      if (selection && !selection.isCollapsed) return; // the visitor is selecting text
+      const entry = entries.find((e) => e.job.contains(card));
+      if (entry) surge(entry);
+    });
+  }
+
+  function initPowerBus() {
+    document.querySelectorAll(".timeline").forEach(setupPowerBus);
+  }
+
+  /* --- Toolbox: skill groups as ICs on a board ------------------------------
+     styles.css draws it. This adds the (aria-hidden) notch, LED, pins and traces,
+     and boots a chip each time it scrolls into view (.is-booted: pins light top
+     to bottom, the LED flickers on, the tags self-test in turn and their traces
+     light up). Tags are laid out in two columns (.is-routed) so each one has a
+     clear run to a pin on its own side, and a PCB-style trace joins every tag to
+     its pin. Tap/click a tag and a pulse runs along that trace into the pin,
+     which flashes and throws sparks. With reduced motion every chip is shown
+     booted, traces lit, and pulses are off. */
+
+  // Must match the pin pattern in styles.css (.cp): 3px pins every 12px, 10px inset.
+  const CHIP_PIN_TOP = 10;
+  const CHIP_PIN_PITCH = 12;
+  const CHIP_PIN_THICK = 3;
+  const CHIP_PIN_LEN = 7;
+
+  function initToolboxChips() {
+    const groups = [...document.querySelectorAll(".skill-group")];
+    if (!groups.length) return;
+
+    const make = (tag, className) => {
+      const el = document.createElement(tag);
+      el.className = className;
+      el.setAttribute("aria-hidden", "true");
+      return el;
+    };
+
+    groups.forEach((group) => {
+      // prepend, never append: the CSS may rely on :last-child.
+      group.prepend(
+        make("i", "chip-notch"),
+        make("i", "chip-dot"),
+        make("i", "cp cp-l"),
+        make("i", "cp cp-r"),
+        make("i", "cp cp-l cp-lit"),
+        make("i", "cp cp-r cp-lit"),
+      );
+      group.querySelectorAll(".tag").forEach((tag, i) => {
+        tag.style.setProperty("--i", i);
+      });
+    });
+
+    // Boot at 30% visible; power down only once fully off-screen, so a chip
+    // never blinks off while you can still see it. With reduced motion (or no
+    // IntersectionObserver) chips are simply shown booted.
+    const bootObserver = !reduceMotion && hasIntersectionObserver
+      ? new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.intersectionRatio >= 0.3) {
+                entry.target.classList.add("is-booted");
+              } else if (!entry.isIntersecting) {
+                entry.target.classList.remove("is-booted");
+              }
+            });
+          },
+          { threshold: [0, 0.3] },
+        )
+      : null;
+    groups.forEach((group) => {
+      if (bootObserver) bootObserver.observe(group);
+      else group.classList.add("is-booted");
+    });
+
+    /* ---- Routing: a trace from every tag to a pin on its own side ---- */
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const routes = new WeakMap(); // tag -> { d, py, tipX, side }
+    const svgEl = (tag, attrs) => {
+      const el = document.createElementNS(SVG_NS, tag);
+      Object.keys(attrs).forEach((name) => el.setAttribute(name, attrs[name]));
+      return el;
+    };
+
+    function route(group) {
+      const box = group.querySelector(".skill-tags");
+      const tags = [...group.querySelectorAll(".tag")];
+      if (!box || !tags.length) return;
+      group.classList.add("is-routed");
+
+      // 1. Two columns; any tag too wide for a column takes a full row.
+      const gap = parseFloat(getComputedStyle(box).columnGap) || 0;
+      const column = (box.clientWidth - gap) / 2;
+      tags.forEach((tag) => tag.classList.toggle("is-wide", tag.offsetWidth > column + 0.5));
+
+      // 2. Lay a trace from each tag's outer edge to the nearest free pin on that side.
+      const g = group.getBoundingClientRect();
+      const pw = group.clientWidth;
+      const ph = group.clientHeight;
+      let svg = group.querySelector(".chip-traces");
+      if (!svg) {
+        svg = svgEl("svg", { class: "chip-traces", "aria-hidden": "true", focusable: "false" });
+        group.prepend(svg);
+      }
+      svg.replaceChildren();
+      svg.setAttribute("width", String(pw));
+      svg.setAttribute("height", String(ph));
+      svg.setAttribute("viewBox", `0 0 ${pw} ${ph}`);
+
+      const maxIndex = Math.max(
+        0,
+        Math.floor((ph - 2 * CHIP_PIN_TOP - CHIP_PIN_THICK) / CHIP_PIN_PITCH),
+      );
+      const used = { L: new Set(), R: new Set() };
+      let wideCount = 0;
+
+      tags.forEach((tag, i) => {
+        const r = tag.getBoundingClientRect();
+        const x0 = r.left - g.left - group.clientLeft;
+        const x1 = x0 + r.width;
+        const yc = r.top - g.top - group.clientTop + r.height / 2;
+
+        // Left-column tags go left, right-column tags go right; full-row tags alternate.
+        const side = tag.classList.contains("is-wide")
+          ? wideCount++ % 2
+            ? "R"
+            : "L"
+          : x0 + r.width / 2 < pw / 2
+            ? "L"
+            : "R";
+
+        // Nearest pin on that side that isn't taken yet.
+        const want = Math.min(
+          maxIndex,
+          Math.max(0, Math.round((yc - CHIP_PIN_TOP - CHIP_PIN_THICK / 2) / CHIP_PIN_PITCH)),
+        );
+        let index = want;
+        for (let offset = 1; used[side].has(index) && offset <= maxIndex; offset++) {
+          if (want + offset <= maxIndex && !used[side].has(want + offset)) index = want + offset;
+          else if (want - offset >= 0 && !used[side].has(want - offset)) index = want - offset;
+        }
+        used[side].add(index);
+
+        const py = CHIP_PIN_TOP + index * CHIP_PIN_PITCH + CHIP_PIN_THICK / 2;
+        const dir = side === "L" ? -1 : 1;
+        const startX = side === "L" ? x0 : x1;
+        const tipX = side === "L" ? -CHIP_PIN_LEN : pw + CHIP_PIN_LEN;
+        const jog = Math.abs(py - yc); // the 45-degree step onto the pin's height
+        const run = Math.max(2, Math.min(6, Math.abs(tipX - startX) - jog - 2));
+        const d =
+          `M${startX.toFixed(1)} ${yc.toFixed(1)}` +
+          `H${(startX + dir * run).toFixed(1)}` +
+          `L${(startX + dir * (run + jog)).toFixed(1)} ${py}` +
+          `H${tipX}`;
+
+        const lit = svgEl("path", { class: "ct-lit", d, pathLength: "1" });
+        lit.style.setProperty("--i", i);
+        svg.append(svgEl("path", { class: "ct-base", d }), lit);
+        routes.set(tag, { d, py, tipX, side });
+      });
+    }
+
+    groups.forEach((group) => {
+      route(group);
+      let lastWidth = group.clientWidth;
+      if ("ResizeObserver" in window) {
+        let timer = 0;
+        new ResizeObserver(() => {
+          if (group.clientWidth === lastWidth) return; // our own layout changes don't need a re-route
+          lastWidth = group.clientWidth;
+          clearTimeout(timer);
+          timer = setTimeout(() => route(group), 120);
+        }).observe(group);
+      }
+    });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => groups.forEach(route));
+    }
+
+    /* ---- Tap/click a tag: pulse along its trace into the pin ---- */
+    function probe(group, tag) {
+      tag.classList.add("is-pressed");
+      setTimeout(() => tag.classList.remove("is-pressed"), 180);
+
+      const path = routes.get(tag);
+      const svg = group.querySelector(".chip-traces");
+      const arrive = () => {
+        if (path) {
+          const pw = group.clientWidth;
+          const flash = make("i", "chip-flash");
+          flash.style.cssText = `left:${path.side === "R" ? pw : -CHIP_PIN_LEN}px;top:${path.py - CHIP_PIN_THICK / 2}px;animation-delay:0s`;
+          const spark = make("i", "chip-spark");
+          spark.style.cssText = `left:${path.tipX}px;top:${path.py}px;animation-delay:0s`;
+          group.prepend(flash, spark);
+          setTimeout(() => {
+            flash.remove();
+            spark.remove();
+          }, 900);
+        }
+        group.classList.remove("is-probed");
+        void group.offsetWidth; // restart the border flash
+        group.classList.add("is-probed");
+        setTimeout(() => group.classList.remove("is-probed"), 900);
+      };
+
+      if (!path || !svg || typeof svg.animate !== "function") {
+        arrive();
+        return;
+      }
+      const head = svgEl("path", { class: "ct-pulse", d: path.d, pathLength: "1" });
+      const glow = svgEl("path", { class: "ct-pulse ct-pulse--glow", d: path.d, pathLength: "1" });
+      svg.append(glow, head);
+      const timing = { duration: 520, easing: "cubic-bezier(0.45, 0, 0.75, 0.55)", fill: "forwards" };
+      glow.animate(
+        [
+          { strokeDashoffset: 0.2, opacity: 0.3 },
+          { strokeDashoffset: -1, opacity: 0.3 },
+        ],
+        timing,
+      );
+      const run = head.animate(
+        [
+          { strokeDashoffset: 0.16, opacity: 1 },
+          { strokeDashoffset: -1, opacity: 1 },
+        ],
+        timing,
+      );
+      run.onfinish = () => {
+        head.remove();
+        glow.remove();
+        arrive();
+      };
+      run.oncancel = () => {
+        head.remove();
+        glow.remove();
+      };
+    }
+
+    if (reduceMotion) return; // no pulses
+    groups.forEach((group) => {
+      group.addEventListener("click", (event) => {
+        const tag = event.target.closest(".tag");
+        if (!tag || event.target.closest("a, button")) return;
+        probe(group, tag);
+      });
+    });
+  }
+
+  /* --- Section effects: heading doodles, node meshes, facts LEDs --------------
+     styles.css draws them; this builds the (aria-hidden) parts and decides when
+     they play. Which sections get which effect is set in SECTION_FX (top of this
+     file). Everything is decorative. With reduced motion each effect shows its
+     finished state and nothing animates.
+       doodle  a hand-drawn line under a section heading that straightens into a
+               circuit trace and ends in a pad (draws in when scrolled to)
+       mesh    a node graph framing the section's content that grows as you scroll
+               in; tap an About fact and a message hops node to node across it
+       education  timing diagrams for the degrees, LED level meters for the languages
+       facts   status LEDs on the About facts card (tap a fact to strobe its LED) */
+
+  /** Small seeded PRNG so generated shapes are identical on every visit. */
+  const seededRandom = (seed) => () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let r = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+  const smoothstep = (a, b, x) => {
+    const k = Math.min(Math.max((x - a) / (b - a), 0), 1);
+    return k * k * (3 - 2 * k);
+  };
+
+  /** Adds `className` while `element` is visible; removes it once fully off-screen
+      so the effect replays on the next visit. */
+  function replayWhenVisible(element, className, ratio) {
+    if (reduceMotion || !hasIntersectionObserver) {
+      element.classList.add(className);
+      return;
+    }
+    new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.intersectionRatio >= ratio) element.classList.add(className);
+          else if (!entry.isIntersecting) element.classList.remove(className);
+        });
+      },
+      { threshold: [0, ratio] },
+    ).observe(element);
+  }
+
+  /* doodle: wobbly hand-drawn line -> straight trace with a pad on the end. */
+  function setupHeadingDoodle(sectionId) {
+    const heading = document.querySelector(`#${sectionId} h2`);
+    if (!heading) return;
+    const gradientId = `jd-grad-${sectionId}`; // one gradient per doodle: ids must be unique
+    const holder = document.createElement("div");
+    holder.className = "jd";
+    holder.setAttribute("aria-hidden", "true");
+    holder.innerHTML =
+      `<svg focusable="false"><defs><linearGradient id="${gradientId}" gradientUnits="userSpaceOnUse" y1="0" y2="0">` +
+      '<stop offset="0" style="stop-color:var(--magenta)"/>' +
+      '<stop offset="0.55" style="stop-color:var(--cyan)"/>' +
+      '<stop offset="1" style="stop-color:var(--green)"/>' +
+      "</linearGradient></defs>" +
+      '<path class="jd-glow" pathLength="1"/><path class="jd-line" pathLength="1"/>' +
+      '<circle class="jd-pad" r="4"/></svg>';
+    // After the heading, not inside it: translations rewrite the heading's content.
+    heading.insertAdjacentElement("afterend", holder);
+
+    const svg = holder.querySelector("svg");
+    const glow = holder.querySelector(".jd-glow");
+    const line = holder.querySelector(".jd-line");
+    const pad = holder.querySelector(".jd-pad");
+    const grad = holder.querySelector("linearGradient");
+    glow.style.stroke = `url(#${gradientId})`;
+    line.style.stroke = `url(#${gradientId})`;
+
+    function build() {
+      const width = holder.clientWidth;
+      const height = holder.clientHeight;
+      if (!width || !height) return;
+      const rand = seededRandom(5);
+      const mid = height / 2;
+      const end = width - 10; // where the trace meets the pad
+      const count = Math.max(40, Math.round(width / 3));
+      let d = "";
+      for (let i = 0; i <= count; i++) {
+        const t = i / count;
+        const wobble = 1 - smoothstep(0.08, 0.62, t); // 1 = doodle, 0 = clean line
+        const y =
+          mid +
+          wobble *
+            (5.5 * Math.sin(2 * Math.PI * 3.4 * t + 1.7 * Math.sin(2 * Math.PI * 9 * t)) +
+              (rand() - 0.5) * 4.5);
+        d += `${i ? "L" : "M"}${(t * end).toFixed(1)} ${y.toFixed(1)}`;
+      }
+      glow.setAttribute("d", d);
+      line.setAttribute("d", d);
+      pad.setAttribute("cx", String(end + 4));
+      pad.setAttribute("cy", String(mid));
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      grad.setAttribute("x1", "0");
+      grad.setAttribute("x2", String(width));
+    }
+    build();
+    window.addEventListener("resize", build, { passive: true });
+    replayWhenVisible(holder, "is-drawn", 0.6);
+  }
+
+  /* mesh: a node graph that frames a section's content, grows as you scroll in,
+     and relays a message when spread() is called (the About facts do that).
+       contentSelector  the blocks the mesh must keep clear of
+     Returns { spread(element, anchorClientX) } or null. */
+  function setupSectionMesh(sectionId, contentSelector) {
+    const section = document.getElementById(sectionId);
+    if (!section) return null;
+
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "jm-mesh");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    section.prepend(svg);
+
+    const HOP = 230; // ms per hop of a relayed message
+    let nodes = [];
+    let links = [];
+    let adjacency = [];
+    let shown = -1;
+
+    const rectWithin = (el, box, pad) => {
+      const r = el.getBoundingClientRect();
+      return { l: r.left - box.left - pad, t: r.top - box.top - pad, r: r.right - box.left + pad, b: r.bottom - box.top + pad };
+    };
+    const inside = (blocks, x, y) => blocks.some((b) => x > b.l && x < b.r && y > b.t && y < b.b);
+    const crosses = (blocks, a, b) => {
+      for (let k = 1; k < 14; k++) {
+        const t = k / 14;
+        if (inside(blocks, a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)) return true;
+      }
+      return false;
+    };
+    const make = (tag, attrs) => {
+      const el = document.createElementNS(NS, tag);
+      Object.keys(attrs).forEach((name) => el.setAttribute(name, attrs[name]));
+      return el;
+    };
+    const contentBlocks = () => {
+      const found = [...section.querySelectorAll(contentSelector)].filter((el) => el.offsetWidth && el.offsetHeight);
+      const wrap = section.querySelector(".wrap");
+      return found.length ? found : wrap ? [wrap] : [];
+    };
+
+    function build() {
+      svg.replaceChildren();
+      nodes = [];
+      links = [];
+      adjacency = [];
+      shown = -1;
+      const width = section.clientWidth;
+      const height = section.clientHeight;
+      if (width < 320 || !height) return;
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+      const box = section.getBoundingClientRect();
+      const blocks = contentBlocks().map((el) => rectWithin(el, box, 18));
+      if (!blocks.length) return;
+
+      // Jittered grid, minus anything that would sit under the content.
+      const rand = seededRandom(11);
+      const cols = Math.max(4, Math.round(width / 140));
+      const rows = Math.max(3, Math.round(height / 120));
+      const cw = width / cols;
+      const ch = height / rows;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = (c + 0.5 + (rand() - 0.5) * 0.76) * cw;
+          const y = (r + 0.5 + (rand() - 0.5) * 0.76) * ch;
+          if (x < 10 || y < 10 || x > width - 10 || y > height - 10) continue;
+          if (inside(blocks, x, y)) continue;
+          nodes.push({ x, y });
+        }
+      }
+      if (nodes.length < 5) {
+        nodes = [];
+        return;
+      }
+
+      // The first node sits by the top-left of the content and the mesh grows from it.
+      const origin = { x: blocks[0].l - 6, y: blocks[0].t + 24 };
+      const dist = (n, p) => Math.hypot(n.x - p.x, n.y - p.y);
+      nodes.sort((a, b) => dist(a, origin) - dist(b, origin));
+      nodes.forEach((n, i) => (n.rank = i));
+
+      // Each node links to its nearest few neighbours, never through the content.
+      const maxLink = Math.max(width, height) * 0.3;
+      const seen = new Set();
+      adjacency = nodes.map(() => []);
+      nodes.forEach((a, i) => {
+        nodes
+          .map((b, j) => ({ j, d: dist(a, b) }))
+          .filter((o) => o.j !== i && o.d < maxLink)
+          .sort((p, q) => p.d - q.d)
+          .slice(0, 3)
+          .forEach(({ j }) => {
+            const key = i < j ? `${i}-${j}` : `${j}-${i}`;
+            if (seen.has(key) || crosses(blocks, a, nodes[j])) return;
+            seen.add(key);
+            const b = nodes[j];
+            const el = make("path", {
+              class: "jm-link",
+              pathLength: "1",
+              d: `M${a.x.toFixed(1)} ${a.y.toFixed(1)}L${b.x.toFixed(1)} ${b.y.toFixed(1)}`,
+            });
+            links.push({ a: i, b: j, rank: Math.max(i, j), el });
+            adjacency[i].push(j);
+            adjacency[j].push(i);
+          });
+      });
+      links.forEach((l) => svg.append(l.el));
+      nodes.forEach((n, i) => {
+        n.el = make("circle", {
+          class: i === 0 ? "jm-node jm-seed" : "jm-node",
+          cx: n.x.toFixed(1),
+          cy: n.y.toFixed(1),
+          r: i === 0 ? "4" : "2.6",
+        });
+        svg.append(n.el);
+      });
+    }
+
+    function grow(count) {
+      if (count === shown) return;
+      shown = count;
+      nodes.forEach((n) => {
+        const on = n.rank < count;
+        n.on = on;
+        n.el.classList.toggle("on", on);
+      });
+      links.forEach((l) => l.el.classList.toggle("on", l.rank < count));
+    }
+
+    build();
+    if (reduceMotion) {
+      grow(nodes.length);
+    } else {
+      let frame = 0;
+      let visible = !hasIntersectionObserver;
+      const update = () => {
+        frame = 0;
+        if (!nodes.length) return;
+        const r = section.getBoundingClientRect();
+        const p = Math.min(Math.max((window.innerHeight * 0.9 - r.top) / (r.height * 0.75), 0), 1);
+        grow(p <= 0 ? 0 : Math.max(1, Math.ceil(p * nodes.length)));
+      };
+      const schedule = () => {
+        if (visible && !frame) frame = requestAnimationFrame(update);
+      };
+      window.addEventListener("scroll", schedule, { passive: true });
+      if (hasIntersectionObserver) {
+        new IntersectionObserver(
+          ([entry]) => {
+            visible = entry.isIntersecting;
+            schedule();
+          },
+          { rootMargin: "200px 0px 200px 0px" },
+        ).observe(section);
+      }
+      if ("ResizeObserver" in window) {
+        let timer = 0;
+        new ResizeObserver(() => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            build();
+            schedule();
+          }, 150);
+        }).observe(section);
+      }
+      schedule();
+    }
+
+    function hit(node) {
+      node.el.classList.remove("jm-hit");
+      void node.el.getBoundingClientRect(); // restart the animation
+      node.el.classList.add("jm-hit");
+      setTimeout(() => node.el.classList.remove("jm-hit"), 850);
+    }
+
+    /** Relay a message into the mesh at the node nearest `fromElement` (or nearest
+        the viewport x `anchorClientX`, if given), then let it hop outwards across
+        every visible link. */
+    function spread(fromElement, anchorClientX) {
+      if (reduceMotion || !nodes.length || typeof svg.animate !== "function") return;
+      const box = section.getBoundingClientRect();
+      const from = fromElement.getBoundingClientRect();
+      const px = (anchorClientX !== undefined ? anchorClientX : from.left + from.width / 2) - box.left;
+      const py = from.top + from.height / 2 - box.top;
+
+      let source = -1;
+      let best = Infinity;
+      nodes.forEach((n, i) => {
+        if (!n.on) return;
+        const d = Math.hypot(n.x - px, n.y - py);
+        if (d < best) {
+          best = d;
+          source = i;
+        }
+      });
+      if (source < 0) return;
+
+      const depth = new Map([[source, 0]]);
+      const queue = [source];
+      const hops = [];
+      while (queue.length) {
+        const u = queue.shift();
+        adjacency[u].forEach((v) => {
+          if (!nodes[v].on || depth.has(v)) return;
+          depth.set(v, depth.get(u) + 1);
+          hops.push([u, v]);
+          queue.push(v);
+        });
+      }
+
+      hit(nodes[source]);
+      hops.forEach(([u, v]) => {
+        const dot = make("circle", { class: "jm-dot", r: "2.8" });
+        svg.append(dot);
+        const a = `translate(${nodes[u].x}px, ${nodes[u].y}px)`;
+        const b = `translate(${nodes[v].x}px, ${nodes[v].y}px)`;
+        const run = dot.animate(
+          [
+            { transform: a, opacity: 0 },
+            { transform: a, opacity: 1, offset: 0.1 },
+            { transform: b, opacity: 1, offset: 0.9 },
+            { transform: b, opacity: 0 },
+          ],
+          { duration: HOP, delay: depth.get(u) * HOP, easing: "ease-in-out", fill: "both" },
+        );
+        run.onfinish = () => {
+          dot.remove();
+          hit(nodes[v]);
+        };
+        run.oncancel = () => dot.remove();
+      });
+    }
+
+    return { spread };
+  }
+
+  /* education: the section as instrument readouts. Each degree gets a logic
+     timing diagram on a shared 2006-2018 axis (the signal is high while you were
+     studying, so the 2012-2017 gap shows honestly); each language gets an LED level
+     meter (Native fills every segment, A2 only two). Both draw in when scrolled to
+     and replay on revisit; tap a degree to re-run its signal, a language to hit
+     its peak. Years and levels are read from the page, so nothing is hard-coded. */
+  function setupEducationSignals() {
+    const section = document.getElementById("education");
+    if (!section) return;
+
+    /* -- degrees: timing diagrams -- */
+    const items = [...section.querySelectorAll(".edu-list li")]
+      .map((li) => {
+        const m = li.textContent.match(/(\d{4})\s*[\u2013\u2014-]\s*(\d{4})/);
+        return m ? { li, from: +m[1], to: +m[2] } : null;
+      })
+      .filter(Boolean);
+    if (items.length) {
+      const axisFrom = Math.min(...items.map((i) => i.from));
+      const axisTo = Math.max(...items.map((i) => i.to));
+      const HIGH = 4;
+      const LOW = 14;
+
+      items.forEach((item) => {
+        const holder = document.createElement("div"); // a div: ".edu-list span" styles must not apply
+        holder.className = "je-wave";
+        holder.setAttribute("aria-hidden", "true");
+        holder.innerHTML =
+          '<svg focusable="false"><path class="je-axis"/><path class="je-glow" pathLength="1"/>' +
+          '<path class="je-sig" pathLength="1"/></svg>';
+        item.li.append(holder);
+        item.holder = holder;
+        item.svg = holder.querySelector("svg");
+        item.axis = holder.querySelector(".je-axis");
+        item.glow = holder.querySelector(".je-glow");
+        item.sig = holder.querySelector(".je-sig");
+      });
+
+      const build = () => {
+        items.forEach((item) => {
+          const width = item.holder.clientWidth;
+          const height = item.holder.clientHeight;
+          if (!width || !height) return;
+          const x = (year) => ((year - axisFrom) / (axisTo - axisFrom)) * (width - 2) + 1;
+          // The axis: a baseline with a tick for every year.
+          let axis = `M0 ${LOW}H${width}`;
+          for (let year = axisFrom; year <= axisTo; year++) axis += `M${x(year).toFixed(1)} ${LOW}v3`;
+          // The signal: low, high from the first year to the last, low again.
+          const sig = `M0 ${LOW}H${x(item.from).toFixed(1)}V${HIGH}H${x(item.to).toFixed(1)}V${LOW}H${width}`;
+          item.axis.setAttribute("d", axis);
+          item.glow.setAttribute("d", sig);
+          item.sig.setAttribute("d", sig);
+          item.svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        });
+      };
+      build();
+      window.addEventListener("resize", build, { passive: true });
+      items.forEach((item) => replayWhenVisible(item.holder, "is-drawn", 0.6));
+
+      if (!reduceMotion) {
+        items.forEach((item) => {
+          item.li.addEventListener("click", () => {
+            item.holder.classList.remove("is-drawn");
+            void item.holder.offsetWidth; // restart the sweep
+            item.holder.classList.add("is-drawn");
+          });
+        });
+      }
+    }
+
+    /* -- languages: LED level meters -- */
+    const list = section.querySelector(".lang-list");
+    const rows = [...section.querySelectorAll(".lang-row")];
+    if (list && rows.length) {
+      const cefr = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
+      const levelOf = (row) => {
+        const label = (row.querySelector("span:last-child") || row).textContent;
+        const grade = label.match(/\b([ABC][12])\b/i);
+        if (grade) return cefr[grade[1].toUpperCase()];
+        if (/native|mutter|mother|fluent|fließend/i.test(label)) return 5;
+        return 4; // other
+      };
+      rows.forEach((row, i) => {
+        const meter = document.createElement("i");
+        meter.className = "jl-meter";
+        meter.setAttribute("aria-hidden", "true");
+        meter.style.setProperty("--lvl", levelOf(row));
+        meter.innerHTML = '<i class="jl-lit"></i><i class="jl-peak"></i>';
+        row.style.setProperty("--i", i);
+        // prepend: the level text must stay the row's :last-child (styles.css targets it)
+        row.prepend(meter);
+      });
+      replayWhenVisible(list, "is-live", 0.35);
+
+      if (!reduceMotion) {
+        rows.forEach((row) => {
+          row.addEventListener("click", () => {
+            const peak = row.querySelector(".jl-peak");
+            if (!peak || typeof peak.animate !== "function") return;
+            peak.animate(
+              [
+                { clipPath: "inset(0 100% 0 0)", opacity: 1 },
+                { clipPath: "inset(0 0% 0 0)", opacity: 1, offset: 0.5, easing: "steps(5, end)" },
+                { clipPath: "inset(0 0% 0 0)", opacity: 0 },
+              ],
+              { duration: 900, easing: "steps(5, end)" },
+            );
+          });
+        });
+      }
+    }
+  }
+
+  /* facts: status LEDs that come on one after another; tap a fact to strobe one
+     (and, when the About section has a mesh, to relay a message across it). */
+  function setupAboutFacts(mesh) {
+    const facts = document.querySelector("#about .facts");
+    if (!facts) return;
+
+    facts.querySelectorAll("dt").forEach((dt, i) => dt.style.setProperty("--i", i));
+    replayWhenVisible(facts, "is-live", 0.35);
+    if (reduceMotion) return;
+
+    facts.addEventListener("click", (event) => {
+      const cell = event.target.closest("dt, dd");
+      if (!cell) return;
+      const dt =
+        cell.tagName === "DT"
+          ? cell
+          : cell.previousElementSibling && cell.previousElementSibling.tagName === "DT"
+            ? cell.previousElementSibling
+            : cell.parentElement.querySelector("dt");
+      if (!dt) return;
+      dt.classList.remove("is-ping");
+      void dt.offsetWidth; // restart the strobe
+      dt.classList.add("is-ping");
+      setTimeout(() => dt.classList.remove("is-ping"), 750);
+      // Messages enter the mesh from the facts card's left edge.
+      if (mesh) mesh.spread(dt, facts.getBoundingClientRect().left - 10);
+    });
+  }
+
+  function initSectionFx() {
+    SECTION_FX.doodle.forEach(setupHeadingDoodle);
+
+    const meshes = {};
+    SECTION_FX.mesh.forEach((id) => {
+      // The About mesh keeps clear of the copy and the facts card; any other section
+      // listed here keeps clear of everything inside its .wrap.
+      meshes[id] = setupSectionMesh(id, id === "about" ? ".about-copy, .facts" : ".wrap > *");
+    });
+
+    if (SECTION_FX.education) setupEducationSignals();
+    if (SECTION_FX.facts) setupAboutFacts(meshes.about || null);
   }
 
   /* --- Hero title: old-TV signal interference ------------------------------- */
@@ -1767,6 +2728,9 @@
   initLangSwitch();
   initScrollReveal();
   initScrollSpy();
+  initPowerBus();
+  initToolboxChips();
+  initSectionFx();
   initTypewriter();
   initHeroGlitch();
   initSpotlight();

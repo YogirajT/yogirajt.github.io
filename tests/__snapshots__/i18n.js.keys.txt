@@ -11,8 +11,8 @@ contact.title
 education.degrees.*.title
 education.languages.*.name
 education.languagesTitle
+education.levels.fluent
 education.levels.native
-education.levels.professional
 education.srTitle
 education.title
 experience.earlier.*.dates
