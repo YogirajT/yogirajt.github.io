@@ -11,7 +11,7 @@
  *   1. Shared helpers
  *   2. Page features      theme toggle, footer year, hero diagrams, mobile
  *                         nav, scroll reveal, scroll-spy, power-bus timeline,
- *                         typewriter, pointer
+ *                         toolbox chips, section effects (see SECTION_FX), typewriter, pointer
  *                         effects, hero fireflies, copy-email
  *   3. Ambient scene      rain, foliage, lightning, scroll-driven atmosphere
  *   4. Cookie consent     consent-gated Google Analytics
@@ -33,6 +33,39 @@
   const reduceMotion = reducedMotionQuery.matches;
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const hasIntersectionObserver = "IntersectionObserver" in window;
+
+  /** SECTION EFFECTS. List the sections (by id) that get each effect, or set a
+      list to [] to switch that effect off everywhere.
+        doodle  hand-drawn line under the section heading
+        mesh    growing node graph behind the section
+        facts   status LEDs on the About facts card (true / false)
+      To compare combinations without editing the file, add ?fx=... to the page URL:
+        ?fx=doodle,mesh      only those two effects (in their configured sections)
+        ?fx=doodle:skills    the doodle in the Toolbox section only
+        ?fx=mesh:education   the mesh in the Education section only
+        ?fx=all  ?fx=none    everything / nothing
+      (?journey=... works too.) */
+  const SECTION_FX = (() => {
+    const fx = {
+      doodle: ["about", "experience", "skills"],
+      mesh: ["about", "education"],
+      facts: true,
+    };
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("fx") ?? params.get("journey");
+    if (query !== null) {
+      const wanted = query.toLowerCase().split(",").map((token) => token.trim());
+      const all = wanted.includes("all");
+      ["doodle", "mesh"].forEach((name) => {
+        fx[name] =
+          all || wanted.includes(name)
+            ? fx[name]
+            : fx[name].filter((id) => wanted.includes(`${name}:${id}`));
+      });
+      fx.facts = !wanted.includes("none"); // LEDs stay unless everything is off
+    }
+    return fx;
+  })();
 
   const isLightTheme = () => root.getAttribute("data-theme") === "light";
   const currentTheme = () => (isLightTheme() ? "light" : "dark");
@@ -1061,6 +1094,528 @@
     document.querySelectorAll(".timeline").forEach(setupPowerBus);
   }
 
+  /* --- Toolbox: skill groups as ICs on a board ------------------------------
+     styles.css draws it. This adds the (aria-hidden) notch, LED and pins, boots
+     a chip each time it scrolls into view (.is-booted: pins light top to bottom,
+     the LED flickers on, the tags self-test in turn), and turns a tap/click on a
+     tag into a probe: a magenta trace runs from the tag to the nearest pin on
+     the chip's edge, which flashes and throws sparks. With reduced motion every
+     chip is simply shown booted and probes are off. */
+
+  // Must match the pin pattern in styles.css (.cp): 3px pins every 12px, 10px inset.
+  const CHIP_PIN_TOP = 10;
+  const CHIP_PIN_PITCH = 12;
+  const CHIP_PIN_THICK = 3;
+  const CHIP_PIN_LEN = 7;
+
+  function initToolboxChips() {
+    const groups = [...document.querySelectorAll(".skill-group")];
+    if (!groups.length) return;
+
+    const make = (tag, className) => {
+      const el = document.createElement(tag);
+      el.className = className;
+      el.setAttribute("aria-hidden", "true");
+      return el;
+    };
+
+    groups.forEach((group) => {
+      // prepend, never append: the CSS may rely on :last-child.
+      group.prepend(
+        make("i", "chip-notch"),
+        make("i", "chip-dot"),
+        make("i", "cp cp-l"),
+        make("i", "cp cp-r"),
+        make("i", "cp cp-l cp-lit"),
+        make("i", "cp cp-r cp-lit"),
+      );
+      group.querySelectorAll(".tag").forEach((tag, i) => {
+        tag.style.setProperty("--i", i);
+      });
+    });
+
+    if (reduceMotion) {
+      groups.forEach((group) => group.classList.add("is-booted"));
+      return;
+    }
+
+    // Boot at 30% visible; power down only once fully off-screen, so a chip
+    // never blinks off while you can still see it.
+    const bootObserver = hasIntersectionObserver
+      ? new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.intersectionRatio >= 0.3) {
+                entry.target.classList.add("is-booted");
+              } else if (!entry.isIntersecting) {
+                entry.target.classList.remove("is-booted");
+              }
+            });
+          },
+          { threshold: [0, 0.3] },
+        )
+      : null;
+    groups.forEach((group) => {
+      if (bootObserver) bootObserver.observe(group);
+      else group.classList.add("is-booted");
+    });
+
+    function probe(group, tag) {
+      const g = group.getBoundingClientRect();
+      const t = tag.getBoundingClientRect();
+      // Absolute children are positioned from the padding box (inside the border).
+      const pw = group.clientWidth;
+      const ph = group.clientHeight;
+      const cx = t.left - g.left - group.clientLeft + t.width / 2;
+      const cy = t.top - g.top - group.clientTop + t.height / 2;
+
+      const maxIndex = Math.max(
+        0,
+        Math.floor((ph - 2 * CHIP_PIN_TOP - CHIP_PIN_THICK) / CHIP_PIN_PITCH),
+      );
+      const index = Math.min(
+        maxIndex,
+        Math.max(0, Math.round((cy - CHIP_PIN_TOP - CHIP_PIN_THICK / 2) / CHIP_PIN_PITCH)),
+      );
+      const py = CHIP_PIN_TOP + index * CHIP_PIN_PITCH + CHIP_PIN_THICK / 2;
+
+      const right = cx > pw / 2; // leave through whichever side is closer
+      const tipX = right ? pw + CHIP_PIN_LEN : -CHIP_PIN_LEN;
+
+      const trace = make("i", right ? "chip-probe" : "chip-probe chip-probe--l");
+      trace.style.cssText =
+        `left:${Math.min(cx, tipX)}px;top:${py - 1}px;width:${Math.abs(tipX - cx)}px;` +
+        `transform-origin:${right ? "0" : "100%"} 50%`;
+      const flash = make("i", "chip-flash");
+      flash.style.cssText = `left:${right ? pw : -CHIP_PIN_LEN}px;top:${py - CHIP_PIN_THICK / 2}px`;
+      const spark = make("i", "chip-spark");
+      spark.style.cssText = `left:${tipX}px;top:${py}px`;
+      group.prepend(trace, flash, spark);
+
+      if (typeof trace.animate === "function") {
+        trace.animate(
+          [
+            { transform: "scaleX(0)", opacity: 1 },
+            { transform: "scaleX(1)", opacity: 1, offset: 0.45 },
+            { transform: "scaleX(1)", opacity: 0 },
+          ],
+          { duration: 900, easing: "ease-out" },
+        );
+      }
+      setTimeout(() => {
+        trace.remove();
+        flash.remove();
+        spark.remove();
+      }, 1100);
+
+      tag.classList.add("is-pressed");
+      setTimeout(() => tag.classList.remove("is-pressed"), 180);
+      group.classList.remove("is-probed");
+      void group.offsetWidth; // restart the border flash
+      group.classList.add("is-probed");
+      setTimeout(() => group.classList.remove("is-probed"), 900);
+    }
+
+    groups.forEach((group) => {
+      group.addEventListener("click", (event) => {
+        const tag = event.target.closest(".tag");
+        if (!tag || event.target.closest("a, button")) return;
+        probe(group, tag);
+      });
+    });
+  }
+
+  /* --- Section effects: heading doodles, node meshes, facts LEDs --------------
+     styles.css draws them; this builds the (aria-hidden) parts and decides when
+     they play. Which sections get which effect is set in SECTION_FX (top of this
+     file). Everything is decorative. With reduced motion each effect shows its
+     finished state and nothing animates.
+       doodle  a hand-drawn line under a section heading that straightens into a
+               circuit trace and ends in a pad (draws in when scrolled to)
+       mesh    a node graph framing the section's content that grows as you scroll
+               in; tap an item and a message hops node to node across it
+       facts   status LEDs on the About facts card (tap a fact to strobe its LED) */
+
+  /** Small seeded PRNG so generated shapes are identical on every visit. */
+  const seededRandom = (seed) => () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let r = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+  const smoothstep = (a, b, x) => {
+    const k = Math.min(Math.max((x - a) / (b - a), 0), 1);
+    return k * k * (3 - 2 * k);
+  };
+
+  /** Adds `className` while `element` is visible; removes it once fully off-screen
+      so the effect replays on the next visit. */
+  function replayWhenVisible(element, className, ratio) {
+    if (reduceMotion || !hasIntersectionObserver) {
+      element.classList.add(className);
+      return;
+    }
+    new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.intersectionRatio >= ratio) element.classList.add(className);
+          else if (!entry.isIntersecting) element.classList.remove(className);
+        });
+      },
+      { threshold: [0, ratio] },
+    ).observe(element);
+  }
+
+  /* doodle: wobbly hand-drawn line -> straight trace with a pad on the end. */
+  function setupHeadingDoodle(sectionId) {
+    const heading = document.querySelector(`#${sectionId} h2`);
+    if (!heading) return;
+    const gradientId = `jd-grad-${sectionId}`; // one gradient per doodle: ids must be unique
+    const holder = document.createElement("div");
+    holder.className = "jd";
+    holder.setAttribute("aria-hidden", "true");
+    holder.innerHTML =
+      `<svg focusable="false"><defs><linearGradient id="${gradientId}" gradientUnits="userSpaceOnUse" y1="0" y2="0">` +
+      '<stop offset="0" style="stop-color:var(--magenta)"/>' +
+      '<stop offset="0.55" style="stop-color:var(--cyan)"/>' +
+      '<stop offset="1" style="stop-color:var(--green)"/>' +
+      "</linearGradient></defs>" +
+      '<path class="jd-glow" pathLength="1"/><path class="jd-line" pathLength="1"/>' +
+      '<circle class="jd-pad" r="4"/></svg>';
+    // After the heading, not inside it: translations rewrite the heading's content.
+    heading.insertAdjacentElement("afterend", holder);
+
+    const svg = holder.querySelector("svg");
+    const glow = holder.querySelector(".jd-glow");
+    const line = holder.querySelector(".jd-line");
+    const pad = holder.querySelector(".jd-pad");
+    const grad = holder.querySelector("linearGradient");
+    glow.style.stroke = `url(#${gradientId})`;
+    line.style.stroke = `url(#${gradientId})`;
+
+    function build() {
+      const width = holder.clientWidth;
+      const height = holder.clientHeight;
+      if (!width || !height) return;
+      const rand = seededRandom(5);
+      const mid = height / 2;
+      const end = width - 10; // where the trace meets the pad
+      const count = Math.max(40, Math.round(width / 3));
+      let d = "";
+      for (let i = 0; i <= count; i++) {
+        const t = i / count;
+        const wobble = 1 - smoothstep(0.08, 0.62, t); // 1 = doodle, 0 = clean line
+        const y =
+          mid +
+          wobble *
+            (5.5 * Math.sin(2 * Math.PI * 3.4 * t + 1.7 * Math.sin(2 * Math.PI * 9 * t)) +
+              (rand() - 0.5) * 4.5);
+        d += `${i ? "L" : "M"}${(t * end).toFixed(1)} ${y.toFixed(1)}`;
+      }
+      glow.setAttribute("d", d);
+      line.setAttribute("d", d);
+      pad.setAttribute("cx", String(end + 4));
+      pad.setAttribute("cy", String(mid));
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      grad.setAttribute("x1", "0");
+      grad.setAttribute("x2", String(width));
+    }
+    build();
+    window.addEventListener("resize", build, { passive: true });
+    replayWhenVisible(holder, "is-drawn", 0.6);
+  }
+
+  /* mesh: a node graph that frames a section's content, grows as you scroll in,
+     and relays a message when an item is tapped.
+       contentSelector  the blocks the mesh must keep clear of
+       triggerSelector  items that start a relay when tapped (optional)
+     Returns { spread(element, anchorClientX) } or null. */
+  function setupSectionMesh(sectionId, contentSelector, triggerSelector) {
+    const section = document.getElementById(sectionId);
+    if (!section) return null;
+
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "jm-mesh");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    section.prepend(svg);
+
+    const HOP = 230; // ms per hop of a relayed message
+    let nodes = [];
+    let links = [];
+    let adjacency = [];
+    let shown = -1;
+
+    const rectWithin = (el, box, pad) => {
+      const r = el.getBoundingClientRect();
+      return { l: r.left - box.left - pad, t: r.top - box.top - pad, r: r.right - box.left + pad, b: r.bottom - box.top + pad };
+    };
+    const inside = (blocks, x, y) => blocks.some((b) => x > b.l && x < b.r && y > b.t && y < b.b);
+    const crosses = (blocks, a, b) => {
+      for (let k = 1; k < 14; k++) {
+        const t = k / 14;
+        if (inside(blocks, a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)) return true;
+      }
+      return false;
+    };
+    const make = (tag, attrs) => {
+      const el = document.createElementNS(NS, tag);
+      Object.keys(attrs).forEach((name) => el.setAttribute(name, attrs[name]));
+      return el;
+    };
+    const contentBlocks = () => {
+      const found = [...section.querySelectorAll(contentSelector)].filter((el) => el.offsetWidth && el.offsetHeight);
+      const wrap = section.querySelector(".wrap");
+      return found.length ? found : wrap ? [wrap] : [];
+    };
+
+    function build() {
+      svg.replaceChildren();
+      nodes = [];
+      links = [];
+      adjacency = [];
+      shown = -1;
+      const width = section.clientWidth;
+      const height = section.clientHeight;
+      if (width < 320 || !height) return;
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+      const box = section.getBoundingClientRect();
+      const blocks = contentBlocks().map((el) => rectWithin(el, box, 18));
+      if (!blocks.length) return;
+
+      // Jittered grid, minus anything that would sit under the content.
+      const rand = seededRandom(11);
+      const cols = Math.max(4, Math.round(width / 140));
+      const rows = Math.max(3, Math.round(height / 120));
+      const cw = width / cols;
+      const ch = height / rows;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = (c + 0.5 + (rand() - 0.5) * 0.76) * cw;
+          const y = (r + 0.5 + (rand() - 0.5) * 0.76) * ch;
+          if (x < 10 || y < 10 || x > width - 10 || y > height - 10) continue;
+          if (inside(blocks, x, y)) continue;
+          nodes.push({ x, y });
+        }
+      }
+      if (nodes.length < 5) {
+        nodes = [];
+        return;
+      }
+
+      // The first node sits by the top-left of the content and the mesh grows from it.
+      const origin = { x: blocks[0].l - 6, y: blocks[0].t + 24 };
+      const dist = (n, p) => Math.hypot(n.x - p.x, n.y - p.y);
+      nodes.sort((a, b) => dist(a, origin) - dist(b, origin));
+      nodes.forEach((n, i) => (n.rank = i));
+
+      // Each node links to its nearest few neighbours, never through the content.
+      const maxLink = Math.max(width, height) * 0.3;
+      const seen = new Set();
+      adjacency = nodes.map(() => []);
+      nodes.forEach((a, i) => {
+        nodes
+          .map((b, j) => ({ j, d: dist(a, b) }))
+          .filter((o) => o.j !== i && o.d < maxLink)
+          .sort((p, q) => p.d - q.d)
+          .slice(0, 3)
+          .forEach(({ j }) => {
+            const key = i < j ? `${i}-${j}` : `${j}-${i}`;
+            if (seen.has(key) || crosses(blocks, a, nodes[j])) return;
+            seen.add(key);
+            const b = nodes[j];
+            const el = make("path", {
+              class: "jm-link",
+              pathLength: "1",
+              d: `M${a.x.toFixed(1)} ${a.y.toFixed(1)}L${b.x.toFixed(1)} ${b.y.toFixed(1)}`,
+            });
+            links.push({ a: i, b: j, rank: Math.max(i, j), el });
+            adjacency[i].push(j);
+            adjacency[j].push(i);
+          });
+      });
+      links.forEach((l) => svg.append(l.el));
+      nodes.forEach((n, i) => {
+        n.el = make("circle", {
+          class: i === 0 ? "jm-node jm-seed" : "jm-node",
+          cx: n.x.toFixed(1),
+          cy: n.y.toFixed(1),
+          r: i === 0 ? "4" : "2.6",
+        });
+        svg.append(n.el);
+      });
+    }
+
+    function grow(count) {
+      if (count === shown) return;
+      shown = count;
+      nodes.forEach((n) => {
+        const on = n.rank < count;
+        n.on = on;
+        n.el.classList.toggle("on", on);
+      });
+      links.forEach((l) => l.el.classList.toggle("on", l.rank < count));
+    }
+
+    build();
+    if (reduceMotion) {
+      grow(nodes.length);
+    } else {
+      let frame = 0;
+      let visible = !hasIntersectionObserver;
+      const update = () => {
+        frame = 0;
+        if (!nodes.length) return;
+        const r = section.getBoundingClientRect();
+        const p = Math.min(Math.max((window.innerHeight * 0.9 - r.top) / (r.height * 0.75), 0), 1);
+        grow(p <= 0 ? 0 : Math.max(1, Math.ceil(p * nodes.length)));
+      };
+      const schedule = () => {
+        if (visible && !frame) frame = requestAnimationFrame(update);
+      };
+      window.addEventListener("scroll", schedule, { passive: true });
+      if (hasIntersectionObserver) {
+        new IntersectionObserver(
+          ([entry]) => {
+            visible = entry.isIntersecting;
+            schedule();
+          },
+          { rootMargin: "200px 0px 200px 0px" },
+        ).observe(section);
+      }
+      if ("ResizeObserver" in window) {
+        let timer = 0;
+        new ResizeObserver(() => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            build();
+            schedule();
+          }, 150);
+        }).observe(section);
+      }
+      schedule();
+    }
+
+    function hit(node) {
+      node.el.classList.remove("jm-hit");
+      void node.el.getBoundingClientRect(); // restart the animation
+      node.el.classList.add("jm-hit");
+      setTimeout(() => node.el.classList.remove("jm-hit"), 850);
+    }
+
+    /** Relay a message into the mesh at the node nearest `fromElement` (or nearest
+        the viewport x `anchorClientX`, if given), then let it hop outwards across
+        every visible link. */
+    function spread(fromElement, anchorClientX) {
+      if (reduceMotion || !nodes.length || typeof svg.animate !== "function") return;
+      const box = section.getBoundingClientRect();
+      const from = fromElement.getBoundingClientRect();
+      const px = (anchorClientX !== undefined ? anchorClientX : from.left + from.width / 2) - box.left;
+      const py = from.top + from.height / 2 - box.top;
+
+      let source = -1;
+      let best = Infinity;
+      nodes.forEach((n, i) => {
+        if (!n.on) return;
+        const d = Math.hypot(n.x - px, n.y - py);
+        if (d < best) {
+          best = d;
+          source = i;
+        }
+      });
+      if (source < 0) return;
+
+      const depth = new Map([[source, 0]]);
+      const queue = [source];
+      const hops = [];
+      while (queue.length) {
+        const u = queue.shift();
+        adjacency[u].forEach((v) => {
+          if (!nodes[v].on || depth.has(v)) return;
+          depth.set(v, depth.get(u) + 1);
+          hops.push([u, v]);
+          queue.push(v);
+        });
+      }
+
+      hit(nodes[source]);
+      hops.forEach(([u, v]) => {
+        const dot = make("circle", { class: "jm-dot", r: "2.8" });
+        svg.append(dot);
+        const a = `translate(${nodes[u].x}px, ${nodes[u].y}px)`;
+        const b = `translate(${nodes[v].x}px, ${nodes[v].y}px)`;
+        const run = dot.animate(
+          [
+            { transform: a, opacity: 0 },
+            { transform: a, opacity: 1, offset: 0.1 },
+            { transform: b, opacity: 1, offset: 0.9 },
+            { transform: b, opacity: 0 },
+          ],
+          { duration: HOP, delay: depth.get(u) * HOP, easing: "ease-in-out", fill: "both" },
+        );
+        run.onfinish = () => {
+          dot.remove();
+          hit(nodes[v]);
+        };
+        run.oncancel = () => dot.remove();
+      });
+    }
+
+    if (triggerSelector && !reduceMotion) {
+      section.addEventListener("click", (event) => {
+        const item = event.target.closest(triggerSelector);
+        if (item && section.contains(item)) spread(item);
+      });
+    }
+
+    return { spread };
+  }
+
+  /* facts: status LEDs that come on one after another; tap a fact to strobe one
+     (and, when the About section has a mesh, to relay a message across it). */
+  function setupAboutFacts(mesh) {
+    const facts = document.querySelector("#about .facts");
+    if (!facts) return;
+
+    facts.querySelectorAll("dt").forEach((dt, i) => dt.style.setProperty("--i", i));
+    replayWhenVisible(facts, "is-live", 0.35);
+    if (reduceMotion) return;
+
+    facts.addEventListener("click", (event) => {
+      const cell = event.target.closest("dt, dd");
+      if (!cell) return;
+      const dt =
+        cell.tagName === "DT"
+          ? cell
+          : cell.previousElementSibling && cell.previousElementSibling.tagName === "DT"
+            ? cell.previousElementSibling
+            : cell.parentElement.querySelector("dt");
+      if (!dt) return;
+      dt.classList.remove("is-ping");
+      void dt.offsetWidth; // restart the strobe
+      dt.classList.add("is-ping");
+      setTimeout(() => dt.classList.remove("is-ping"), 750);
+      // Messages enter the mesh from the facts card's left edge.
+      if (mesh) mesh.spread(dt, facts.getBoundingClientRect().left - 10);
+    });
+  }
+
+  function initSectionFx() {
+    SECTION_FX.doodle.forEach(setupHeadingDoodle);
+
+    const meshes = {};
+    SECTION_FX.mesh.forEach((id) => {
+      if (id === "about") meshes.about = setupSectionMesh("about", ".about-copy, .facts", null);
+      else if (id === "education")
+        meshes.education = setupSectionMesh("education", ".edu-block", ".edu-list li, .lang-row");
+      else meshes[id] = setupSectionMesh(id, ".wrap > *", null); // any other section: keep clear of its content
+    });
+
+    if (SECTION_FX.facts) setupAboutFacts(meshes.about || null);
+  }
+
   /* --- Hero title: old-TV signal interference ------------------------------- */
 
   // styles.css does the drawing (.glitch.is-glitching); this only decides *when*: a
@@ -1958,6 +2513,8 @@
   initScrollReveal();
   initScrollSpy();
   initPowerBus();
+  initToolboxChips();
+  initSectionFx();
   initTypewriter();
   initHeroGlitch();
   initSpotlight();
