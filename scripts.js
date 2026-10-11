@@ -2440,23 +2440,44 @@
   // Everything is visible by default without this class.
   root.classList.add("js-anim");
 
+  /* Runs `callback` after the browser has painted the first frame, in its own
+     idle slot. Everything below the fold or purely decorative goes through here
+     so it can't sit in front of the first paint (and so the hero's LCP) -- on a
+     slow phone the init work below adds up to hundreds of milliseconds.
+     Callbacks queue in call order, and each gets its own task rather than
+     forming one long one. */
+  const afterFirstPaint = (callback) => {
+    const run = () => {
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(callback, { timeout: 2000 });
+      } else {
+        window.setTimeout(callback, 1); // Safari: no idle callbacks
+      }
+    };
+    // rAF fires just before the first paint; the timeout lands just after it.
+    window.requestAnimationFrame(() => window.setTimeout(run, 0));
+  };
+
+  // Critical: cheap, and the first frame depends on them (theme, language, nav,
+  // hero copy + diagrams, scroll-reveal starting state).
   initThemeToggle();
   initFooterYear();
   initArchCycler();
   initMobileNav();
   initLangSwitch();
   initScrollReveal();
-  initScrollSpy();
-  initPowerBus();
-  initToolboxLoadout();
-  initSectionFx();
   initTypewriter();
-  initHeroGlitch();
-  initSpotlight();
-  initHeroFireflies();
-  initAvatarTilt();
-  initCopyEmail();
 
-  onReady(initAmbientScene);
-  onReady(initCookieConsent);
+  // Deferred: below-the-fold effects and hero decoration. Order is kept.
+  afterFirstPaint(initScrollSpy);
+  afterFirstPaint(initPowerBus);
+  afterFirstPaint(initToolboxLoadout);
+  afterFirstPaint(initSectionFx);
+  afterFirstPaint(initHeroGlitch);
+  afterFirstPaint(initSpotlight);
+  afterFirstPaint(initHeroFireflies);
+  afterFirstPaint(initAvatarTilt);
+  afterFirstPaint(initCopyEmail);
+  afterFirstPaint(initAmbientScene);
+  afterFirstPaint(initCookieConsent);
 })();
