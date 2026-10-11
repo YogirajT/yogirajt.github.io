@@ -431,7 +431,7 @@ if (errors.length || (STRICT && warnings.length)) {
 fs.mkdirSync(OUT, { recursive: true });
 if (WITH_STATIC) {
   // Local preview: copy everything that is not source/tooling next to the generated files.
-  const skip = new Set(["src", "content", "tests", "node_modules", "dist", ".git", ".github", ".gitignore", "package.json", "package-lock.json", "README.md", "LICENSE", ".DS_Store"]);
+  const skip = new Set(["src", "content", "node_modules", "dist", ".git", ".github", ".gitignore", "package.json", "package-lock.json", "README.md", "LICENSE", ".DS_Store"]);
   for (const entry of fs.readdirSync(ROOT)) if (!skip.has(entry) && path.resolve(ROOT, entry) !== OUT) fs.cpSync(path.join(ROOT, entry), path.join(OUT, entry), { recursive: true });
 }
 for (const page of PAGES) {

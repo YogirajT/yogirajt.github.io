@@ -10,11 +10,21 @@
   "degrees": [
     {
       "title": {
+        "en": "Web Development Training",
+        "de": "Weiterbildung Webentwicklung"
+      },
+      "institution": "Itvedant Education Pvt. Ltd.",
+      "years": "2017–2018",
+      "icon": "heart"
+    },
+    {
+      "title": {
         "text": "M.S. Clinical Research & Regulatory Affairs"
       },
       "institution": "Sikkim Manipal University",
       "years": "2010–2012",
-      "alumni": true
+      "alumni": true,
+      "icon": "brain"
     },
     {
       "title": {
@@ -22,15 +32,8 @@
       },
       "institution": "University of Mumbai",
       "years": "2006–2010",
-      "alumni": true
-    },
-    {
-      "title": {
-        "en": "Web Development Training",
-        "de": "Weiterbildung Webentwicklung"
-      },
-      "institution": "Itvedant Education Pvt. Ltd.",
-      "years": "2017–2018"
+      "alumni": true,
+      "icon": "arm"
     }
   ],
   "languagesTitle": {

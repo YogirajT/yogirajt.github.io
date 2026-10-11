@@ -11,7 +11,7 @@
  *   1. Shared helpers
  *   2. Page features      theme toggle, footer year, hero diagrams, mobile
  *                         nav, scroll reveal, scroll-spy, power-bus timeline,
- *                         toolbox chips, section effects (see SECTION_FX), typewriter, pointer
+ *                         toolbox loadout, section effects (see SECTION_FX), typewriter, pointer
  *                         effects, hero fireflies, copy-email
  *   3. Ambient scene      rain, foliage, lightning, scroll-driven atmosphere
  *   4. Cookie consent     consent-gated Google Analytics
@@ -38,8 +38,7 @@
       list to [] to switch that effect off everywhere.
         doodle     hand-drawn line under the section heading
         mesh       growing node graph behind the section
-        education  timing diagrams for the degrees + LED level meters for the
-                   languages (true / false)
+        education  level meters for the languages (true / false)
         facts      status LEDs on the About facts card (true / false)
       To compare combinations without editing the file, add ?fx=... to the page URL:
         ?fx=doodle,mesh      only those two effects (in their configured sections)
@@ -915,7 +914,7 @@
        - A twin-rail bus runs beside the cards. An "energy front" sits at
          BUS_FRONT_LINE of the viewport height; the bus fills down to it and
          every job whose junction it has passed gets .is-live (switch closes,
-         current runs through the logic gate, the card powers up). Scrolling
+         current runs along the trace, the card powers up). Scrolling
          back up opens the switches again.
        - Tapping/clicking a card sends a magenta surge down the bus into it.
      Only transforms and class toggles happen per frame. With reduced motion
@@ -923,40 +922,6 @@
      on privacy.html, whose policy sections are the same .timeline/.job. */
 
   const BUS_FRONT_LINE = 0.66; // share of the viewport height where the front sits
-  // One gate per job, top to bottom; the current role is a plain buffer (amplifier).
-  const BUS_GATES = ["buf", "and", "or", "xor", "nand", "not"];
-
-  /** Inline SVG (34x20) of a logic gate: input wires, body, output wire. */
-  function busGateSvg(kind) {
-    const gates = {
-      buf: { body: "M7 1L24 10L7 19Z", inX: 7, outX: 24, inputs: 1 },
-      not: { body: "M7 1L24 10L7 19Z", inX: 7, outX: 24, inputs: 1, bubble: 26 },
-      and: { body: "M7 1H15A9 9 0 0 1 15 19H7Z", inX: 7, outX: 24, inputs: 2 },
-      nand: { body: "M7 1H14A9 9 0 0 1 14 19H7Z", inX: 7, outX: 23, inputs: 2, bubble: 25 },
-      or: { body: "M7 1H13Q23 1 26 10Q23 19 13 19H7Q11 10 7 1Z", inX: 8, outX: 26, inputs: 2 },
-      xor: {
-        body: "M10 1H16Q26 1 29 10Q26 19 16 19H10Q14 10 10 1Z",
-        inX: 7.3,
-        outX: 29,
-        inputs: 2,
-        extra: "M6 1Q10 10 6 19",
-      },
-    };
-    const g = gates[kind] || gates.buf;
-    const outStart = g.bubble ? g.bubble + 2 : g.outX;
-    // Wires first, so the filled body (and its outline) sits on top of them.
-    const wires =
-      g.inputs === 2
-        ? `<path d="M1 5V15M1 5H${g.inX}M1 15H${g.inX}"/>`
-        : `<path d="M1 10H${g.inX}"/>`;
-    const out = `<path d="M${outStart} 10H33"/>`;
-    const bubble = g.bubble ? `<circle cx="${g.bubble}" cy="10" r="2"/>` : "";
-    const extra = g.extra ? `<path d="${g.extra}"/>` : "";
-    return (
-      `<svg class="jn-gate" viewBox="0 0 34 20" aria-hidden="true" focusable="false">` +
-      `${wires}${out}<path class="g-body" d="${g.body}"/>${extra}${bubble}</svg>`
-    );
-  }
 
   /** Distance from `ancestor`'s top edge to `el`'s top edge (ignores transforms). */
   const offsetWithin = (el, ancestor) => {
@@ -986,11 +951,11 @@
     const ground = make("i", "bus-ground");
     timeline.prepend(fill, head, source, ground);
 
-    const entries = jobs.map((job, i) => {
+    const entries = jobs.map((job) => {
       const node = make("span", "job-node");
       node.innerHTML =
         '<span class="jn-switch"><i class="jn-blade"></i><i class="jn-spark jn-spark--sw"></i></span>' +
-        `<span class="jn-trace">${busGateSvg(BUS_GATES[i % BUS_GATES.length])}</span>` +
+        '<span class="jn-trace"></span>' +
         '<span class="jn-pad"><i class="jn-spark jn-spark--pad"></i></span>';
       job.prepend(node);
       return { job, node, live: false, timer: 0 };
@@ -1098,239 +1063,56 @@
     document.querySelectorAll(".timeline").forEach(setupPowerBus);
   }
 
-  /* --- Toolbox: skill groups as ICs on a board ------------------------------
-     styles.css draws it. This adds the (aria-hidden) notch, LED, pins and traces,
-     and boots a chip each time it scrolls into view (.is-booted: pins light top
-     to bottom, the LED flickers on, the tags self-test in turn and their traces
-     light up). Tags are laid out in two columns (.is-routed) so each one has a
-     clear run to a pin on its own side, and a PCB-style trace joins every tag to
-     its pin. Tap/click a tag and a pulse runs along that trace into the pin,
-     which flashes and throws sparks. With reduced motion every chip is shown
-     booted, traces lit, and pulses are off. */
+  /* --- Toolbox: skill groups as a loadout ------------------------------------
+     styles.css draws it (HUD-framed panels, a socket gem and a loading bar on each
+     heading, every tag an item slot). This only decides when it plays:
+       - a panel "equips" each time it scrolls into view (.is-booted): the gem
+         lights, the bar loads, then the slots pop up one after another, each
+         throwing a loot beam
+       - tap/click a slot to cast it: a cooldown sweep runs round it while a ring
+         and a burst of sparks fly out, and it can't be cast again until the
+         cooldown is over
+     With reduced motion every panel is shown equipped and casting is off. */
 
-  // Must match the pin pattern in styles.css (.cp): 3px pins every 12px, 10px inset.
-  const CHIP_PIN_TOP = 10;
-  const CHIP_PIN_PITCH = 12;
-  const CHIP_PIN_THICK = 3;
-  const CHIP_PIN_LEN = 7;
+  const CAST_COOLDOWN_MS = 900; // keep in step with sk-cooldown in styles.css
+  const CAST_SPARKS = 6;
 
-  function initToolboxChips() {
+  function initToolboxLoadout() {
     const groups = [...document.querySelectorAll(".skill-group")];
     if (!groups.length) return;
 
-    const make = (tag, className) => {
-      const el = document.createElement(tag);
-      el.className = className;
-      el.setAttribute("aria-hidden", "true");
-      return el;
-    };
-
     groups.forEach((group) => {
-      // prepend, never append: the CSS may rely on :last-child.
-      group.prepend(
-        make("i", "chip-notch"),
-        make("i", "chip-dot"),
-        make("i", "cp cp-l"),
-        make("i", "cp cp-r"),
-        make("i", "cp cp-l cp-lit"),
-        make("i", "cp cp-r cp-lit"),
-      );
-      group.querySelectorAll(".tag").forEach((tag, i) => {
-        tag.style.setProperty("--i", i);
-      });
+      group.querySelectorAll(".tag").forEach((tag, i) => tag.style.setProperty("--i", i));
+      replayWhenVisible(group, "is-booted", 0.3);
     });
+    if (reduceMotion) return;
 
-    // Boot at 30% visible; power down only once fully off-screen, so a chip
-    // never blinks off while you can still see it. With reduced motion (or no
-    // IntersectionObserver) chips are simply shown booted.
-    const bootObserver = !reduceMotion && hasIntersectionObserver
-      ? new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.intersectionRatio >= 0.3) {
-                entry.target.classList.add("is-booted");
-              } else if (!entry.isIntersecting) {
-                entry.target.classList.remove("is-booted");
-              }
-            });
-          },
-          { threshold: [0, 0.3] },
-        )
-      : null;
-    groups.forEach((group) => {
-      if (bootObserver) bootObserver.observe(group);
-      else group.classList.add("is-booted");
-    });
-
-    /* ---- Routing: a trace from every tag to a pin on its own side ---- */
-    const SVG_NS = "http://www.w3.org/2000/svg";
-    const routes = new WeakMap(); // tag -> { d, py, tipX, side }
-    const svgEl = (tag, attrs) => {
-      const el = document.createElementNS(SVG_NS, tag);
-      Object.keys(attrs).forEach((name) => el.setAttribute(name, attrs[name]));
-      return el;
-    };
-
-    function route(group) {
-      const box = group.querySelector(".skill-tags");
-      const tags = [...group.querySelectorAll(".tag")];
-      if (!box || !tags.length) return;
-      group.classList.add("is-routed");
-
-      // 1. Two columns; any tag too wide for a column takes a full row.
-      const gap = parseFloat(getComputedStyle(box).columnGap) || 0;
-      const column = (box.clientWidth - gap) / 2;
-      tags.forEach((tag) => tag.classList.toggle("is-wide", tag.offsetWidth > column + 0.5));
-
-      // 2. Lay a trace from each tag's outer edge to the nearest free pin on that side.
-      const g = group.getBoundingClientRect();
-      const pw = group.clientWidth;
-      const ph = group.clientHeight;
-      let svg = group.querySelector(".chip-traces");
-      if (!svg) {
-        svg = svgEl("svg", { class: "chip-traces", "aria-hidden": "true", focusable: "false" });
-        group.prepend(svg);
+    function cast(tag) {
+      const fx = [document.createElement("i")];
+      fx[0].className = "sk-ring";
+      for (let k = 0; k < CAST_SPARKS; k++) {
+        const spark = document.createElement("i");
+        spark.className = "sk-spark";
+        const angle = (360 / CAST_SPARKS) * k + randomBetween(-14, 14);
+        spark.style.setProperty("--a", `${Math.round(angle)}deg`);
+        fx.push(spark);
       }
-      svg.replaceChildren();
-      svg.setAttribute("width", String(pw));
-      svg.setAttribute("height", String(ph));
-      svg.setAttribute("viewBox", `0 0 ${pw} ${ph}`);
+      fx.forEach((el) => el.setAttribute("aria-hidden", "true"));
 
-      const maxIndex = Math.max(
-        0,
-        Math.floor((ph - 2 * CHIP_PIN_TOP - CHIP_PIN_THICK) / CHIP_PIN_PITCH),
-      );
-      const used = { L: new Set(), R: new Set() };
-      let wideCount = 0;
-
-      tags.forEach((tag, i) => {
-        const r = tag.getBoundingClientRect();
-        const x0 = r.left - g.left - group.clientLeft;
-        const x1 = x0 + r.width;
-        const yc = r.top - g.top - group.clientTop + r.height / 2;
-
-        // Left-column tags go left, right-column tags go right; full-row tags alternate.
-        const side = tag.classList.contains("is-wide")
-          ? wideCount++ % 2
-            ? "R"
-            : "L"
-          : x0 + r.width / 2 < pw / 2
-            ? "L"
-            : "R";
-
-        // Nearest pin on that side that isn't taken yet.
-        const want = Math.min(
-          maxIndex,
-          Math.max(0, Math.round((yc - CHIP_PIN_TOP - CHIP_PIN_THICK / 2) / CHIP_PIN_PITCH)),
-        );
-        let index = want;
-        for (let offset = 1; used[side].has(index) && offset <= maxIndex; offset++) {
-          if (want + offset <= maxIndex && !used[side].has(want + offset)) index = want + offset;
-          else if (want - offset >= 0 && !used[side].has(want - offset)) index = want - offset;
-        }
-        used[side].add(index);
-
-        const py = CHIP_PIN_TOP + index * CHIP_PIN_PITCH + CHIP_PIN_THICK / 2;
-        const dir = side === "L" ? -1 : 1;
-        const startX = side === "L" ? x0 : x1;
-        const tipX = side === "L" ? -CHIP_PIN_LEN : pw + CHIP_PIN_LEN;
-        const jog = Math.abs(py - yc); // the 45-degree step onto the pin's height
-        const run = Math.max(2, Math.min(6, Math.abs(tipX - startX) - jog - 2));
-        const d =
-          `M${startX.toFixed(1)} ${yc.toFixed(1)}` +
-          `H${(startX + dir * run).toFixed(1)}` +
-          `L${(startX + dir * (run + jog)).toFixed(1)} ${py}` +
-          `H${tipX}`;
-
-        const lit = svgEl("path", { class: "ct-lit", d, pathLength: "1" });
-        lit.style.setProperty("--i", i);
-        svg.append(svgEl("path", { class: "ct-base", d }), lit);
-        routes.set(tag, { d, py, tipX, side });
-      });
+      // How far the sparks fly: clear of the slot's edge, whatever its size.
+      tag.style.setProperty("--reach", `${Math.max(tag.offsetWidth, tag.offsetHeight) / 2 + 12}px`);
+      tag.classList.add("is-cast");
+      tag.append(...fx);
+      setTimeout(() => {
+        tag.classList.remove("is-cast");
+        fx.forEach((el) => el.remove());
+      }, CAST_COOLDOWN_MS);
     }
 
-    groups.forEach((group) => {
-      route(group);
-      let lastWidth = group.clientWidth;
-      if ("ResizeObserver" in window) {
-        let timer = 0;
-        new ResizeObserver(() => {
-          if (group.clientWidth === lastWidth) return; // our own layout changes don't need a re-route
-          lastWidth = group.clientWidth;
-          clearTimeout(timer);
-          timer = setTimeout(() => route(group), 120);
-        }).observe(group);
-      }
-    });
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => groups.forEach(route));
-    }
-
-    /* ---- Tap/click a tag: pulse along its trace into the pin ---- */
-    function probe(group, tag) {
-      tag.classList.add("is-pressed");
-      setTimeout(() => tag.classList.remove("is-pressed"), 180);
-
-      const path = routes.get(tag);
-      const svg = group.querySelector(".chip-traces");
-      const arrive = () => {
-        if (path) {
-          const pw = group.clientWidth;
-          const flash = make("i", "chip-flash");
-          flash.style.cssText = `left:${path.side === "R" ? pw : -CHIP_PIN_LEN}px;top:${path.py - CHIP_PIN_THICK / 2}px;animation-delay:0s`;
-          const spark = make("i", "chip-spark");
-          spark.style.cssText = `left:${path.tipX}px;top:${path.py}px;animation-delay:0s`;
-          group.prepend(flash, spark);
-          setTimeout(() => {
-            flash.remove();
-            spark.remove();
-          }, 900);
-        }
-        group.classList.remove("is-probed");
-        void group.offsetWidth; // restart the border flash
-        group.classList.add("is-probed");
-        setTimeout(() => group.classList.remove("is-probed"), 900);
-      };
-
-      if (!path || !svg || typeof svg.animate !== "function") {
-        arrive();
-        return;
-      }
-      const head = svgEl("path", { class: "ct-pulse", d: path.d, pathLength: "1" });
-      const glow = svgEl("path", { class: "ct-pulse ct-pulse--glow", d: path.d, pathLength: "1" });
-      svg.append(glow, head);
-      const timing = { duration: 520, easing: "cubic-bezier(0.45, 0, 0.75, 0.55)", fill: "forwards" };
-      glow.animate(
-        [
-          { strokeDashoffset: 0.2, opacity: 0.3 },
-          { strokeDashoffset: -1, opacity: 0.3 },
-        ],
-        timing,
-      );
-      const run = head.animate(
-        [
-          { strokeDashoffset: 0.16, opacity: 1 },
-          { strokeDashoffset: -1, opacity: 1 },
-        ],
-        timing,
-      );
-      run.onfinish = () => {
-        head.remove();
-        glow.remove();
-        arrive();
-      };
-      run.oncancel = () => {
-        head.remove();
-        glow.remove();
-      };
-    }
-
-    if (reduceMotion) return; // no pulses
     groups.forEach((group) => {
       group.addEventListener("click", (event) => {
         const tag = event.target.closest(".tag");
-        if (!tag || event.target.closest("a, button")) return;
-        probe(group, tag);
+        if (tag && !tag.classList.contains("is-cast")) cast(tag);
       });
     });
   }
@@ -1344,7 +1126,7 @@
                circuit trace and ends in a pad (draws in when scrolled to)
        mesh    a node graph framing the section's content that grows as you scroll
                in; tap an About fact and a message hops node to node across it
-       education  timing diagrams for the degrees, LED level meters for the languages
+       education  level meters on the language rows
        facts   status LEDs on the About facts card (tap a fact to strobe its LED) */
 
   /** Small seeded PRNG so generated shapes are identical on every visit. */
@@ -1676,77 +1458,14 @@
     return { spread };
   }
 
-  /* education: the section as instrument readouts. Each degree gets a logic
-     timing diagram on a shared 2006-2018 axis (the signal is high while you were
-     studying, so the 2012-2017 gap shows honestly); each language gets an LED level
-     meter (Native fills every segment, A2 only two). Both draw in when scrolled to
-     and replay on revisit; tap a degree to re-run its signal, a language to hit
-     its peak. Years and levels are read from the page, so nothing is hard-coded. */
-  function setupEducationSignals() {
+  /* education: a skill meter on each language row (Native fills every segment, A2
+     only two). It fills in when scrolled to and replays on revisit; tap a language
+     to hit its peak. Levels are read from the page, so nothing is hard-coded. (The
+     degree icons are plain markup in index.njk.) */
+  function setupLanguageMeters() {
     const section = document.getElementById("education");
     if (!section) return;
 
-    /* -- degrees: timing diagrams -- */
-    const items = [...section.querySelectorAll(".edu-list li")]
-      .map((li) => {
-        const m = li.textContent.match(/(\d{4})\s*[\u2013\u2014-]\s*(\d{4})/);
-        return m ? { li, from: +m[1], to: +m[2] } : null;
-      })
-      .filter(Boolean);
-    if (items.length) {
-      const axisFrom = Math.min(...items.map((i) => i.from));
-      const axisTo = Math.max(...items.map((i) => i.to));
-      const HIGH = 4;
-      const LOW = 14;
-
-      items.forEach((item) => {
-        const holder = document.createElement("div"); // a div: ".edu-list span" styles must not apply
-        holder.className = "je-wave";
-        holder.setAttribute("aria-hidden", "true");
-        holder.innerHTML =
-          '<svg focusable="false"><path class="je-axis"/><path class="je-glow" pathLength="1"/>' +
-          '<path class="je-sig" pathLength="1"/></svg>';
-        item.li.append(holder);
-        item.holder = holder;
-        item.svg = holder.querySelector("svg");
-        item.axis = holder.querySelector(".je-axis");
-        item.glow = holder.querySelector(".je-glow");
-        item.sig = holder.querySelector(".je-sig");
-      });
-
-      const build = () => {
-        items.forEach((item) => {
-          const width = item.holder.clientWidth;
-          const height = item.holder.clientHeight;
-          if (!width || !height) return;
-          const x = (year) => ((year - axisFrom) / (axisTo - axisFrom)) * (width - 2) + 1;
-          // The axis: a baseline with a tick for every year.
-          let axis = `M0 ${LOW}H${width}`;
-          for (let year = axisFrom; year <= axisTo; year++) axis += `M${x(year).toFixed(1)} ${LOW}v3`;
-          // The signal: low, high from the first year to the last, low again.
-          const sig = `M0 ${LOW}H${x(item.from).toFixed(1)}V${HIGH}H${x(item.to).toFixed(1)}V${LOW}H${width}`;
-          item.axis.setAttribute("d", axis);
-          item.glow.setAttribute("d", sig);
-          item.sig.setAttribute("d", sig);
-          item.svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-        });
-      };
-      build();
-      window.addEventListener("resize", build, { passive: true });
-      items.forEach((item) => replayWhenVisible(item.holder, "is-drawn", 0.6));
-
-      if (!reduceMotion) {
-        items.forEach((item) => {
-          item.li.addEventListener("click", () => {
-            item.holder.classList.remove("is-drawn");
-            void item.holder.offsetWidth; // restart the sweep
-            item.holder.classList.add("is-drawn");
-          });
-        });
-      }
-    }
-
-    /* -- languages: LED level meters -- */
     const list = section.querySelector(".lang-list");
     const rows = [...section.querySelectorAll(".lang-row")];
     if (list && rows.length) {
@@ -1828,7 +1547,7 @@
       meshes[id] = setupSectionMesh(id, id === "about" ? ".about-copy, .facts" : ".wrap > *");
     });
 
-    if (SECTION_FX.education) setupEducationSignals();
+    if (SECTION_FX.education) setupLanguageMeters();
     if (SECTION_FX.facts) setupAboutFacts(meshes.about || null);
   }
 
@@ -2729,7 +2448,7 @@
   initScrollReveal();
   initScrollSpy();
   initPowerBus();
-  initToolboxChips();
+  initToolboxLoadout();
   initSectionFx();
   initTypewriter();
   initHeroGlitch();

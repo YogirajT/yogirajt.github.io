@@ -2626,55 +2626,103 @@ text.arch-fn-3 {
   }
 }
 
-/* ---------- Education: the section as instrument readouts ----------
-   je-*  a logic timing diagram under each degree: low, high for the years of the
-         degree, low again, on one shared axis (so the gap years show honestly)
-   jl-*  an LED level meter on each language's rule: five segments, Native fills
-         all of them, A2 only two (levels are read from the page by scripts.js)
-   Injected by scripts.js, aria-hidden. */
-.je-wave {
-  display: block;
-  width: min(100%, 20rem);
-  height: 18px;
-  margin-top: 0.5rem;
+/* ---------- Education: a line icon in front of each entry ----------
+   Brain, flexing arm, heart -- picked by position in index.njk (eduIcon), so no JS
+   and nothing shifts. Hover or tap an entry and its icon plays a short gag.
+   jl-*  a skill meter on each language's rule: five segments, Native fills all of
+         them, A2 only two (levels are read from the page by scripts.js, injected,
+         aria-hidden) */
+.edu-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.9rem;
+  align-items: center;
 }
-.je-wave svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.je-wave path {
+.edu-ico {
+  --ico: var(--cyan);
+  grid-row: 1 / span 2;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  color: var(--ico);
   fill: none;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  border: 1px solid color-mix(in srgb, var(--ico) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ico) 8%, transparent);
+  -webkit-tap-highlight-color: transparent;
 }
-.je-axis {
-  stroke: color-mix(in srgb, var(--ink-soft) 38%, var(--bg));
-  stroke-width: 1;
+.edu-ico--arm {
+  --ico: var(--green);
+  transform-origin: 30% 80%;
 }
-.je-sig,
-.je-glow {
-  stroke-dasharray: 1 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 0.3s ease;
+.edu-ico--heart {
+  --ico: var(--magenta);
 }
-.je-sig {
-  stroke: var(--green);
-  stroke-width: 2;
+@media (hover: hover) {
+  .edu-list li:hover .edu-ico--brain {
+    animation: edu-think 0.9s ease-in-out;
+  }
+  .edu-list li:hover .edu-ico--arm {
+    animation: edu-flex 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .edu-list li:hover .edu-ico--heart {
+    animation: edu-beat 0.9s ease-in-out;
+  }
 }
-.je-glow {
-  stroke: var(--green);
-  stroke-width: 6;
-  opacity: 0.15;
+.edu-list li:active .edu-ico--brain {
+  animation: edu-think 0.9s ease-in-out;
 }
-[data-theme="light"] .je-glow {
-  display: none;
+.edu-list li:active .edu-ico--arm {
+  animation: edu-flex 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
-.je-wave.is-drawn .je-sig,
-.je-wave.is-drawn .je-glow {
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 1.3s cubic-bezier(0.45, 0, 0.35, 1);
+.edu-list li:active .edu-ico--heart {
+  animation: edu-beat 0.9s ease-in-out;
+}
+@keyframes edu-think {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12);
+  }
+  55% {
+    transform: scale(0.97);
+  }
+  75% {
+    transform: scale(1.08);
+  }
+}
+@keyframes edu-flex {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+  45% {
+    transform: scale(1.2) rotate(-14deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes edu-beat {
+  0%,
+  45%,
+  100% {
+    transform: scale(1);
+  }
+  15%,
+  60% {
+    transform: scale(1.18);
+  }
+  30%,
+  75% {
+    transform: scale(1);
+  }
 }
 
 .lang-row {
@@ -2715,17 +2763,15 @@ text.arch-fn-3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .je-sig,
-  .je-glow,
-  .je-wave.is-drawn .je-sig,
-  .je-wave.is-drawn .je-glow,
   .jl-lit,
   .lang-list.is-live .jl-lit {
     transition: none;
   }
+  .edu-ico {
+    animation: none !important;
+  }
 }
 @media print {
-  .je-wave,
   .jl-meter {
     display: none;
   }
@@ -2874,9 +2920,9 @@ text.arch-fn-3 {
 /* ---------- The timeline is a live power bus ----------
    A twin-conductor "ladder line" runs down the section. As you scroll, an
    energy front travels down it (scripts.js: initPowerBus). Every job hangs off
-   the bus through a knife switch -> trace -> logic gate -> solder pad. When the
-   front passes a junction its switch snaps shut, current flows through the
-   gate into the card and the card's circuitry powers up. Tapping/clicking a card
+   the bus through a knife switch -> trace -> solder pad. When the
+   front passes a junction its switch snaps shut, current flows along the
+   trace into the card and the card's circuitry powers up. Tapping/clicking a card
    fires a magenta surge down the bus into that card.
    All decoration is injected by scripts.js (aria-hidden) and animates only
    transform/opacity, so it stays cheap on older phones. Without JS the bus is a
@@ -2895,11 +2941,11 @@ text.arch-fn-3 {
   --rail-left: 4px; /* left edge of the two rails */
   --rail-w: 10px; /* outer width of the rail pair */
   --branch-start: 14px; /* where branches leave the bus (right rail edge) */
-  --job-pad: 5.25rem; /* gutter between the bus and the cards */
+  --job-pad: 3.5rem; /* gutter between the bus and the cards */
   --sw-len: 14px; /* knife switch length */
   /* Vertical centre of the first line of a card (padding + half a title line). */
   --node-y: calc(clamp(1.4rem, 3vw, 1.9rem) + 0.9rem);
-  --node-bg: var(--bg-2); /* what gates / pads are "cut out" of */
+  --node-bg: var(--bg-2); /* what pads are "cut out" of */
   --bus-dim: color-mix(in srgb, var(--ink-soft) 38%, var(--node-bg));
   --bus-rung: color-mix(in srgb, var(--ink-soft) 20%, var(--node-bg));
   --bus-aura: color-mix(in srgb, var(--green) 20%, transparent);
@@ -3040,7 +3086,7 @@ text.arch-fn-3 {
   padding-bottom: 0;
 }
 
-/* The branch: switch -> trace (with a logic gate on it) -> pad on the card edge. */
+/* The branch: switch -> trace -> pad on the card edge. */
 .job-node {
   position: absolute;
   top: var(--node-y);
@@ -3108,31 +3154,6 @@ text.arch-fn-3 {
   transform: scaleX(0);
   transform-origin: 0 50%;
   transition: transform 0.2s ease;
-}
-
-/* Logic gate sitting on the trace (hidden on phones, where the gutter is tight). */
-.jn-gate {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 1;
-  width: 32px;
-  height: 19px;
-  overflow: visible;
-  transform: translate(-50%, -50%);
-  color: var(--bus-dim);
-  transition: color 0.2s ease;
-}
-.jn-gate * {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.jn-gate .g-body {
-  fill: color-mix(in srgb, var(--node-bg) 100%, transparent);
-  transition: fill 0.4s ease;
 }
 
 .jn-pad {
@@ -3223,7 +3244,7 @@ text.arch-fn-3 {
 }
 
 /* ---- Live: the front has passed this junction. Each stage waits for the one
-   before it (switch, trace, gate, pad, card), so the current visibly travels. */
+   before it (switch, trace, pad, card), so the current visibly travels. */
 .job.is-live .jn-switch::before,
 .job.is-live .jn-switch::after {
   border-color: var(--green-c);
@@ -3241,14 +3262,6 @@ text.arch-fn-3 {
 .job.is-live .jn-trace::after {
   transform: scaleX(1);
   transition: transform 0.5s cubic-bezier(0.3, 0.7, 0.3, 1) 0.14s;
-}
-.job.is-live .jn-gate {
-  color: var(--cyan-c);
-  transition-delay: 0.34s;
-}
-.job.is-live .jn-gate .g-body {
-  fill: color-mix(in srgb, var(--cyan) 14%, var(--node-bg));
-  transition-delay: 0.34s;
 }
 .job.is-live .jn-pad {
   border-color: var(--green-c);
@@ -3372,9 +3385,6 @@ text.arch-fn-3 {
     --job-pad: 2.4rem;
     --sw-len: 11px;
   }
-  .jn-gate {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3384,8 +3394,6 @@ text.arch-fn-3 {
   .bus-ground,
   .jn-blade,
   .jn-trace::after,
-  .jn-gate,
-  .jn-gate .g-body,
   .jn-switch::before,
   .jn-switch::after,
   .jn-pad,
@@ -3489,7 +3497,6 @@ text.arch-fn-3 {
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
-.skill-tags .tag:hover,
 .tag-row .tag:hover {
   background: var(--green);
   color: #041018;
@@ -3499,7 +3506,6 @@ text.arch-fn-3 {
 /* Near-black reads fine on the vivid dark-theme green, but fails AA against
    the darker light-theme green (~3.3:1) -- white clears it (~5.8:1). Same
    pattern as .btn-primary / .cookie-btn--primary above. */
-[data-theme="light"] .skill-tags .tag:hover,
 [data-theme="light"] .tag-row .tag:hover {
   color: #ffffff;
 }
@@ -3553,13 +3559,55 @@ text.arch-fn-3 {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
 }
+
+/* ---------- Toolbox: every group is a loadout panel ----------
+   A HUD-framed panel (corner brackets), a socket gem and a loading bar on the
+   heading, and every tag an item slot. scripts.js (initToolboxLoadout) only
+   toggles .is-booted as a panel scrolls into view ("equipping": the gem lights,
+   the bar loads, the slots pop up in turn, each throwing a loot beam) and, on a
+   tap/click, casts a slot: a cooldown sweep, a ring and a burst of sparks.
+   Slots cycle through the three neon colours (--rar) -- decoration, not a ranking.
+   Tag *text* never changes colour or opacity, so contrast is the same in every
+   state; the cooldown sweep is the one brief exception, and only after a tap. */
+@property --cd {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
 .skill-group {
+  position: relative;
   border: 1px solid var(--line);
-  border-radius: var(--radius-m);
+  border-radius: 6px;
   padding: 1.4rem 1.5rem;
   background: var(--card);
 }
+
+/* HUD corner brackets: eight 2px bars, two per corner. */
+.skill-group::before {
+  --hud: color-mix(in srgb, var(--cyan) 85%, transparent);
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--hud), var(--hud)) top left / 16px 2px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) top left / 2px 16px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) top right / 16px 2px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) top right / 2px 16px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) bottom left / 16px 2px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) bottom left / 2px 16px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) bottom right / 16px 2px no-repeat,
+    linear-gradient(var(--hud), var(--hud)) bottom right / 2px 16px no-repeat;
+}
+.skill-group.is-booted::before {
+  animation: sk-lock 0.55s ease-out var(--d, 0s) backwards;
+}
+
+/* Heading: a hollow socket that lights up, then a bar that loads in steps. */
 .skill-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: var(--font-mono);
   font-size: 0.76rem;
   letter-spacing: 0.06em;
@@ -3567,243 +3615,237 @@ text.arch-fn-3 {
   color: var(--cyan);
   margin-bottom: 0.85rem;
 }
+.skill-group h3::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--cyan);
+  transform: rotate(45deg);
+}
+.skill-group.is-booted h3::before {
+  background: var(--cyan);
+  box-shadow: var(--glow-cyan);
+  animation: sk-gem 0.6s steps(1, end) var(--d, 0s) backwards;
+}
+.skill-group h3::after {
+  content: "";
+  flex: 1;
+  min-width: 1rem;
+  height: 2px;
+  background:
+    linear-gradient(90deg, var(--cyan), var(--magenta)) left / 0% 100% no-repeat,
+    var(--line);
+}
+.skill-group.is-booted h3::after {
+  background-size: 100% 100%;
+  animation: sk-load 0.9s steps(14, end) var(--d, 0s) backwards;
+}
+
 .skill-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.6rem 0.5rem;
 }
 
-/* ---------- Toolbox: every group is an IC on the board ----------
-   scripts.js (initToolboxChips) adds the notch, the pin-1 LED and the pins
-   (all aria-hidden). Scrolling a chip into view boots it: pins light top to
-   bottom, the LED flickers on, then the tags run a power-on self-test one after
-   another. Tapping a tag sends a probe pulse out through the nearest pin.
-   Tag *text* never changes colour or opacity during any of this, so contrast
-   is the same in every state. */
-.skill-group {
-  --pin: color-mix(in srgb, var(--ink-soft) 50%, var(--bg));
+/* Item slots. */
+.skill-group .tag {
+  --rar: var(--green);
   position: relative;
-  isolation: isolate;
+  border-radius: 3px;
+  color: var(--rar);
+  border-color: color-mix(in srgb, var(--rar) 42%, transparent);
+  background-color: color-mix(in srgb, var(--rar) 10%, transparent);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--rar) 26%, transparent);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* Pins (dim) and the same pins in neon (.cp-lit), revealed top to bottom in steps. */
-.cp {
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  z-index: -1;
-  width: 7px;
-  pointer-events: none;
-  background: repeating-linear-gradient(180deg, var(--pin) 0 3px, transparent 3px 12px);
+.skill-group .tag:nth-child(3n + 2) {
+  --rar: var(--cyan);
 }
-.cp-l {
-  left: -7px;
+.skill-group .tag:nth-child(3n) {
+  --rar: var(--magenta);
 }
-.cp-r {
-  right: -7px;
+.skill-group .tag:active {
+  transform: scale(0.95);
 }
-.cp-lit {
-  background: repeating-linear-gradient(180deg, var(--green) 0 3px, transparent 3px 12px);
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.3s ease;
-}
-.skill-group.is-booted .cp-lit {
-  clip-path: inset(0);
-  transition: clip-path 0.8s steps(10, end) var(--d, 0s);
+@media (hover: hover) {
+  .skill-group .tag:not(.is-cast):hover {
+    background-color: var(--rar);
+    color: #041018;
+    transform: translateY(-1px);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--rar) 55%, transparent);
+  }
+  /* Near-black on the neon dark-theme colours; white on the deeper light-theme ones
+     (same reasoning as the .tag hover above). */
+  [data-theme="light"] .skill-group .tag:not(.is-cast):hover {
+    color: #ffffff;
+    box-shadow: none;
+  }
 }
 
-/* Orientation notch in the top edge, like the dent on a DIP package. */
-.chip-notch {
-  position: absolute;
-  top: -1px;
-  left: 50%;
-  width: 18px;
-  height: 9px;
-  margin-left: -9px;
-  box-sizing: border-box;
-  border: 1px solid var(--line);
-  border-top: 0;
-  border-radius: 0 0 9px 9px;
-  background: var(--card);
-  pointer-events: none;
-}
-/* Pin-1 dot doubles as the power LED. */
-.chip-dot {
-  position: absolute;
-  top: 9px;
-  left: 10px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--pin);
-  pointer-events: none;
-  transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-.skill-group.is-booted .chip-dot {
-  background: var(--green-c);
-  box-shadow: var(--glow-green);
-  animation: chip-led-on 0.6s steps(1, end) var(--d, 0s) backwards;
-}
-
-/* Self-test: tags start unpowered (outline only) and light up in sequence. */
+/* Before a panel is equipped its slots are empty outlines. */
 .js-anim .skill-group:not(.is-booted) .tag {
   border-color: var(--line);
-  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
 }
 .skill-group.is-booted .tag {
-  animation: chip-post 0.55s ease-out backwards;
-  animation-delay: calc(var(--d, 0s) + 0.45s + var(--i, 0) * 55ms);
-}
-.skill-group .tag.is-pressed {
-  transform: translateY(1px) scale(0.95);
+  animation: sk-equip 0.55s ease-out backwards;
+  animation-delay: calc(var(--d, 0s) + 0.35s + var(--i, 0) * 60ms);
 }
 
-@keyframes chip-led-on {
+/* Loot beam: a column of light that shoots up off a slot as it equips. */
+.skill-group .tag::after {
+  content: "";
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  width: 2px;
+  height: 30px;
+  margin-left: -1px;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--rar), transparent);
+  opacity: 0;
+  transform-origin: bottom;
+}
+.skill-group.is-booted .tag::after {
+  animation: sk-beam 0.9s ease-out backwards;
+  animation-delay: calc(var(--d, 0s) + 0.35s + var(--i, 0) * 60ms);
+}
+
+/* Cast (scripts.js adds .is-cast for the cooldown): a clockwise cooldown sweep
+   over the slot, plus a ring and sparks. The sweep angle is animated through
+   @property; browsers without it just flash the dim for half the cooldown. */
+.skill-group .tag::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    transparent var(--cd),
+    color-mix(in srgb, var(--bg) 66%, transparent) var(--cd)
+  );
+}
+.skill-group .tag.is-cast::before {
+  opacity: 1;
+  animation: sk-cooldown 0.9s linear forwards;
+}
+.sk-ring {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--rar);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: sk-ring 0.6s ease-out forwards;
+}
+.sk-spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  pointer-events: none;
+  background: var(--rar);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  animation: sk-spark 0.55s ease-out forwards;
+}
+
+@keyframes sk-lock {
+  0% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+@keyframes sk-gem {
   0%,
   40% {
-    background: var(--pin);
+    background: transparent;
     box-shadow: none;
   }
   20%,
   60% {
-    background: var(--green-c);
-    box-shadow: var(--glow-green);
+    background: var(--cyan);
+    box-shadow: var(--glow-cyan);
   }
 }
-@keyframes chip-post {
+@keyframes sk-load {
   0% {
+    background-size: 0% 100%;
+  }
+}
+@keyframes sk-equip {
+  0% {
+    transform: none;
     border-color: var(--line-c);
-    background: color-mix(in srgb, var(--green) 0%, transparent);
+    background-color: color-mix(in srgb, var(--rar) 0%, transparent);
     box-shadow: none;
   }
-  55% {
-    border-color: var(--green-c);
-    background: color-mix(in srgb, var(--green) 22%, transparent);
-    box-shadow: var(--glow-green);
+  35% {
+    transform: translateY(-5px) scale(1.05);
+    border-color: color-mix(in srgb, var(--rar) 100%, transparent);
+    background-color: color-mix(in srgb, var(--rar) 24%, transparent);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--rar) 60%, transparent);
   }
 }
-
-/* Routed mode (scripts.js adds .is-routed): tags sit in two columns so every tag
-   has a clear run to a pin on its own side; long tags take a full row. Each tag
-   is joined to a pin by a PCB-style trace (a short run, a 45-degree jog onto the
-   nearest pin, then into the pin). Without JS the flowing tag layout stays. */
-.skill-group.is-routed .skill-tags {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.6rem 0.5rem;
-  justify-items: start;
-}
-.skill-group.is-routed .tag {
-  width: max-content;
-  white-space: nowrap;
-}
-.skill-group.is-routed .tag.is-wide {
-  grid-column: 1 / -1;
-}
-.chip-traces {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  overflow: visible;
-  pointer-events: none;
-}
-.chip-traces path {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.ct-base {
-  stroke: var(--pin);
-  stroke-width: 1.5;
-}
-.ct-lit {
-  stroke: var(--green);
-  stroke-width: 1.5;
-  stroke-dasharray: 1 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 0.3s ease;
-}
-.skill-group.is-booted .ct-lit {
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.6s ease;
-  transition-delay: calc(var(--d, 0s) + 0.45s + var(--i, 0) * 55ms);
-}
-/* The pulse: a short bright dash that runs tag -> pin along its trace. */
-.ct-pulse {
-  stroke: var(--magenta);
-  stroke-width: 2.6;
-  stroke-dasharray: 0.16 2;
-  stroke-dashoffset: 0.16;
-  opacity: 0;
-}
-.ct-pulse--glow {
-  stroke-width: 7;
-  stroke-dasharray: 0.2 2;
-  stroke-dashoffset: 0.2;
-  opacity: 0;
-}
-.chip-flash {
-  position: absolute;
-  z-index: 1;
-  width: 7px;
-  height: 3px;
-  background: var(--magenta);
-  box-shadow: var(--glow-mag);
-  opacity: 0;
-  pointer-events: none;
-  animation: chip-flash 0.8s ease-out 0.2s both;
-}
-.chip-spark {
-  position: absolute;
-  z-index: 1;
-  width: 2px;
-  height: 2px;
-  margin: -1px 0 0 -1px;
-  border-radius: 50%;
-  background: currentColor;
-  color: var(--magenta);
-  opacity: 0;
-  pointer-events: none;
-  animation: bus-sparks 0.7s ease-out 0.2s backwards;
-}
-@keyframes chip-flash {
+@keyframes sk-beam {
   0% {
     opacity: 0;
+    transform: scaleY(0);
   }
-  15% {
+  25% {
     opacity: 1;
+    transform: scaleY(1);
   }
   100% {
     opacity: 0;
+    transform: scaleY(1);
   }
 }
-.skill-group.is-probed {
-  animation: bus-surge-card 0.8s ease-out;
+@keyframes sk-cooldown {
+  from {
+    --cd: 0deg;
+  }
+  to {
+    --cd: 360deg;
+  }
+}
+@keyframes sk-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4, 1.9);
+  }
+}
+@keyframes sk-spark {
+  from {
+    opacity: 1;
+    transform: rotate(var(--a)) translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(var(--reach)) scale(0.3);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* scripts.js shows every chip already booted and disables probes. */
-  .cp-lit,
-  .skill-group.is-booted .cp-lit,
-  .ct-lit,
-  .skill-group.is-booted .ct-lit,
-  .chip-dot {
-    transition: none;
-  }
-  .skill-group.is-booted .chip-dot,
-  .skill-group.is-booted .tag {
+  /* scripts.js shows every panel already equipped and turns casting off. */
+  .skill-group.is-booted::before,
+  .skill-group.is-booted h3::before,
+  .skill-group.is-booted h3::after,
+  .skill-group.is-booted .tag,
+  .skill-group.is-booted .tag::after {
     animation: none;
-  }
-}
-@media print {
-  .cp,
-  .chip-notch,
-  .chip-dot {
-    display: none;
   }
 }
 
@@ -5002,7 +5044,7 @@ html.theme-shifting-to-dark .ambient-glow {
   /* Keeps lines of text at a comfortable reading length. */
   max-width: 46rem;
   margin-inline: auto;
-  /* This section sits on --bg, not --bg-2: gates and pads are cut out of it. */
+  /* This section sits on --bg, not --bg-2: pads are cut out of it. */
   --node-bg: var(--bg);
 }
 .privacy-timeline .job-title {

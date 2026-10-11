@@ -328,6 +328,16 @@
       </section>
 
       <!-- ============ EDUCATION / LANGUAGES ============ -->
+      {# One line icon per education entry, chosen by the entry's "icon" in education.json: brain, arm or heart. #}
+      {% macro eduIcon(name) %}
+        {%- if name == "brain" -%}
+        <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M12 18V9"/>
+        {%- elif name == "arm" -%}
+        <path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.866-4 7-9 7-4.077 0-8.153-.82-10.371-2.462-.426-.316-.631-.832-.62-1.362C2.118 12.723 2.627 2 10 2a3 3 0 0 1 3 3 2 2 0 0 1-2 2c-1.105 0-1.64-.444-2-1"/><path d="M15 14a5 5 0 0 0-7.584 2"/><path d="M9.964 6.825C8.019 7.977 9.5 13 8 15"/>
+        {%- elif name == "heart" -%}
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+        {%- endif -%}
+      {% endmacro %}
       <section
         class="edu reveal"
         id="education"
@@ -339,7 +349,7 @@
             <h3 data-i18n="{{ education.title.key }}">{{ education.title.en }}</h3>
             <ul class="edu-list">
               {% for d in education.degrees %}
-              <li>{% if d.title.key %}<strong data-i18n="{{ d.title.key }}">{{ d.title.en }}</strong>{% else %}<strong>{{ d.title.en }}</strong>{% endif %}<span>{{ d.institution | e }} &middot; {{ d.years }}</span></li>
+              <li>{% if d.icon %}<svg class="edu-ico edu-ico--{{ d.icon }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">{{ eduIcon(d.icon) }}</svg>{% endif %}{% if d.title.key %}<strong data-i18n="{{ d.title.key }}">{{ d.title.en }}</strong>{% else %}<strong>{{ d.title.en }}</strong>{% endif %}<span>{{ d.institution | e }} &middot; {{ d.years }}</span></li>
               {% endfor %}
             </ul>
           </div>
