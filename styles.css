@@ -2938,24 +2938,19 @@ text.arch-fn-3 {
   --line-c: color-mix(in srgb, var(--line) 100%, transparent);
 }
 .timeline {
-  --rail-left: 4px; /* left edge of the two rails */
-  --rail-w: 10px; /* outer width of the rail pair */
-  --branch-start: 14px; /* where branches leave the bus (right rail edge) */
-  --job-pad: 3.5rem; /* gutter between the bus and the cards */
+  --rail-left: 8px; /* left edge of the bus line */
+  --rail-w: 2px; /* width of the bus line */
+  --branch-start: 10px; /* where branches leave the bus (right edge of the line) */
+  --job-pad: 2.5rem; /* gutter between the bus and the cards */
   --sw-len: 14px; /* knife switch length */
   /* Vertical centre of the first line of a card (padding + half a title line). */
   --node-y: calc(clamp(1.4rem, 3vw, 1.9rem) + 0.9rem);
   --node-bg: var(--bg-2); /* what pads are "cut out" of */
   --bus-dim: color-mix(in srgb, var(--ink-soft) 38%, var(--node-bg));
-  --bus-rung: color-mix(in srgb, var(--ink-soft) 20%, var(--node-bg));
-  --bus-aura: color-mix(in srgb, var(--green) 20%, transparent);
   position: relative;
 }
-[data-theme="light"] .timeline {
-  --bus-aura: transparent;
-}
 
-/* Unpowered bus: two rails with rungs between them. */
+/* Unpowered bus: a single dim line. */
 .timeline::before {
   content: "";
   position: absolute;
@@ -2964,29 +2959,23 @@ text.arch-fn-3 {
   left: var(--rail-left);
   width: var(--rail-w);
   pointer-events: none;
-  background:
-    linear-gradient(var(--bus-dim), var(--bus-dim)) left top / 2px 100% no-repeat,
-    linear-gradient(var(--bus-dim), var(--bus-dim)) right top / 2px 100% no-repeat,
-    repeating-linear-gradient(180deg, var(--bus-rung) 0 1px, transparent 1px 12px) 2px top / calc(100% - 4px) 100% no-repeat;
+  background: var(--bus-dim);
 }
 
-/* Powered bus: same drawing in neon green, revealed top-down by scaleY. It is
-   16px wider than the rails so it can carry a soft aura (dark theme only). */
+/* Powered bus: the same line in neon green, revealed top-down by scaleY. A flat
+   colour (no gradients, no shadow) so scaling it stays crisp and cheap; the glow
+   comes from the energy front (.bus-head) travelling along it. */
 .bus-fill {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--rail-left) - 8px);
-  width: calc(var(--rail-w) + 16px);
+  left: var(--rail-left);
+  width: var(--rail-w);
   pointer-events: none;
   transform-origin: 50% 0;
   transform: scaleY(0);
   will-change: transform;
-  background:
-    linear-gradient(var(--green), var(--green)) 8px top / 2px 100% no-repeat,
-    linear-gradient(var(--green), var(--green)) calc(100% - 8px) top / 2px 100% no-repeat,
-    repeating-linear-gradient(180deg, color-mix(in srgb, var(--green) 55%, transparent) 0 1px, transparent 1px 12px) 10px top / calc(100% - 20px) 100% no-repeat,
-    linear-gradient(90deg, transparent, var(--bus-aura) 50%, transparent) 0 0 / 100% 100% no-repeat;
+  background: var(--green);
 }
 
 /* The energy front (green) and a user-triggered surge (magenta). */
@@ -3041,8 +3030,8 @@ text.arch-fn-3 {
 .bus-source {
   position: absolute;
   top: -9px;
-  left: calc(var(--rail-left) - 4px);
-  width: calc(var(--rail-w) + 8px);
+  left: calc(var(--rail-left) + var(--rail-w) / 2 - 9px);
+  width: 18px;
   height: 8px;
   box-sizing: border-box;
   border: 2px solid var(--bus-dim);
@@ -3379,10 +3368,10 @@ text.arch-fn-3 {
 
 @media (max-width: 700px) {
   .timeline {
-    --rail-left: 2px;
-    --rail-w: 8px;
-    --branch-start: 10px;
-    --job-pad: 2.4rem;
+    --rail-left: 5px;
+    --rail-w: 2px;
+    --branch-start: 7px;
+    --job-pad: 2rem;
     --sw-len: 11px;
   }
 }
@@ -3466,9 +3455,10 @@ text.arch-fn-3 {
   font-size: 0.92rem;
 }
 .role-stack {
-  --rail-x: 0.3rem; /* centre of the rail, from the stack's left edge */
+  --stack-pad: 1.5rem; /* room left of the roles for the pads and ladder */
+  --rail-x: 0.45rem; /* centre of the pads/ladder, from the stack's left edge */
   margin: 1.1rem 0 0;
-  padding: 0 0 0 1.5rem;
+  padding: 0 0 0 var(--stack-pad);
   list-style: none;
 }
 .job-role {
@@ -3485,44 +3475,80 @@ text.arch-fn-3 {
 .job-role .job-bullets {
   margin-top: 0.7rem;
 }
-/* Rail: a via-dot level with the role title, and a trace down to the next role. */
+/* Progression within a company, drawn as a miniature of the main power bus: a square
+   SMD-style solder pad per role, joined by a single power line. While the card is live
+   a pulse keeps climbing the line from the older role to the newer one (signal moving
+   up = promotion). The role held now is the lit pad. CSS only; no extra markup. */
+.job-role {
+  --pad: 11px;
+  --pad-y: calc(0.6rem - 5.5px); /* pad centred on the role title's first line */
+  --line-w: 2px;
+}
 .job-role::before {
   content: "";
   position: absolute;
-  left: calc(-1.5rem + var(--rail-x) - 4.5px);
-  top: 0.42rem;
-  width: 9px;
-  height: 9px;
+  left: calc(var(--rail-x) - var(--stack-pad) - var(--pad) / 2);
+  top: var(--pad-y);
+  width: var(--pad);
+  height: var(--pad);
   box-sizing: border-box;
-  border: 2px solid var(--cyan);
-  border-radius: 50%;
-  background: var(--card);
+  border: 1.5px solid var(--cyan);
+  border-radius: 2px;
+  /* a pin-hole in the middle of the pad */
+  background: radial-gradient(circle, var(--cyan) 0 1.3px, transparent 1.6px) var(--card);
 }
 .job-role:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: calc(-1.5rem + var(--rail-x) - 1px);
-  top: calc(0.42rem + 9px);
-  bottom: calc(-1.7rem + 0.42rem);
-  width: 2px;
-  background: linear-gradient(var(--cyan), color-mix(in srgb, var(--cyan) 25%, transparent));
-  opacity: 0.55;
+  left: calc(var(--rail-x) - var(--stack-pad) - var(--line-w) / 2);
+  top: calc(var(--pad-y) + var(--pad));
+  bottom: calc(-1.7rem - var(--pad-y)); /* runs on to the top of the next (older) role's pad */
+  width: var(--line-w);
+  background:
+    /* the signal pulse, parked below the line until the card is live */
+    linear-gradient(to top, transparent, var(--green) 55%, transparent) 0 130% / 100% 28px no-repeat,
+    /* the power line itself */
+    color-mix(in srgb, var(--cyan) 55%, transparent);
 }
-/* The role you hold now is the lit one. */
+/* Live: a pulse keeps climbing the line from the older role to the newer one. */
+.job.is-live .job-role:not(:last-child)::after {
+  animation: role-climb 2.2s linear 0.7s infinite;
+}
+@keyframes role-climb {
+  from {
+    background-position: 0 130%, 0 0;
+  }
+  to {
+    background-position: 0 -30%, 0 0;
+  }
+}
+/* The role you hold now is the lit pad, pulsing like the bus's live LED. */
 .job-role-current::before {
   border-color: var(--green-c, var(--green));
   background: var(--green-c, var(--green));
   box-shadow: var(--glow-green);
 }
+.job.is-live .job-role-current::before {
+  animation: role-led 2.8s ease-out 1s infinite;
+}
+@keyframes role-led {
+  0% {
+    box-shadow: var(--glow-green), 0 0 0 0 color-mix(in srgb, var(--green) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: var(--glow-green), 0 0 0 7px transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .job.is-live .job-role:not(:last-child)::after,
+  .job.is-live .job-role-current::before {
+    animation: none;
+  }
+}
 @media (max-width: 700px) {
   .role-stack {
-    padding-left: 1.25rem;
-  }
-  .job-role::before {
-    left: calc(-1.25rem + var(--rail-x) - 4.5px);
-  }
-  .job-role:not(:last-child)::after {
-    left: calc(-1.25rem + var(--rail-x) - 1px);
+    --stack-pad: 1.25rem;
   }
 }
 
