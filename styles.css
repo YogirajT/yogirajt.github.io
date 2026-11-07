@@ -3446,6 +3446,86 @@ text.arch-fn-3 {
   font-weight: 400;
 }
 
+/* ---- Several roles at one company ------------------------------------------
+   One card like every other job; the company is the card title and its roles
+   are stacked inside on a small rail (dot per role, line running to the next),
+   so a promotion reads as the same employer. Markup: index.njk, driven by a
+   shared `group` in experience.json. */
+.job-org-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.6rem;
+}
+.job-company--group {
+  margin-top: 0;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.job-company--group .job-location {
+  font-size: 0.92rem;
+}
+.role-stack {
+  --rail-x: 0.3rem; /* centre of the rail, from the stack's left edge */
+  margin: 1.1rem 0 0;
+  padding: 0 0 0 1.5rem;
+  list-style: none;
+}
+.job-role {
+  position: relative;
+}
+.job-role + .job-role {
+  margin-top: 1.7rem;
+}
+.role-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.job-role .job-bullets {
+  margin-top: 0.7rem;
+}
+/* Rail: a via-dot level with the role title, and a trace down to the next role. */
+.job-role::before {
+  content: "";
+  position: absolute;
+  left: calc(-1.5rem + var(--rail-x) - 4.5px);
+  top: 0.42rem;
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  background: var(--card);
+}
+.job-role:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(-1.5rem + var(--rail-x) - 1px);
+  top: calc(0.42rem + 9px);
+  bottom: calc(-1.7rem + 0.42rem);
+  width: 2px;
+  background: linear-gradient(var(--cyan), color-mix(in srgb, var(--cyan) 25%, transparent));
+  opacity: 0.55;
+}
+/* The role you hold now is the lit one. */
+.job-role-current::before {
+  border-color: var(--green-c, var(--green));
+  background: var(--green-c, var(--green));
+  box-shadow: var(--glow-green);
+}
+@media (max-width: 700px) {
+  .role-stack {
+    padding-left: 1.25rem;
+  }
+  .job-role::before {
+    left: calc(-1.25rem + var(--rail-x) - 4.5px);
+  }
+  .job-role:not(:last-child)::after {
+    left: calc(-1.25rem + var(--rail-x) - 1px);
+  }
+}
+
 .job-bullets {
   margin-top: 0.95rem;
   display: grid;

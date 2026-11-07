@@ -46,6 +46,25 @@
 
   const ANNOUNCEMENTS = /*__ANNOUNCEMENTS__*/{};
 
+  /* Derived strings. A company with several roles shows its total tenure: the start of its oldest
+     role up to the end of its newest. index.njk renders the English and names the two role-date
+     keys (data-span-from / data-span-to); the German is assembled here from the German role dates,
+     so nothing is hard-coded. The synthetic key lives only in this file (not in content/), which is
+     why the element has no data-i18n attribute: build.mjs validates those against content/.
+     If a role-date key is missing, nothing is registered and English is shown. */
+  const spanKeys = new Map();
+  document.querySelectorAll("[data-span-from][data-span-to]").forEach((el) => {
+    const fromKey = el.getAttribute("data-span-from");
+    const toKey = el.getAttribute("data-span-to");
+    const from = DE[fromKey];
+    const to = DE[toKey];
+    if (typeof from !== "string" || typeof to !== "string") return;
+    const SEP = " \u2013 ";
+    const key = `span:${fromKey}>${toKey}`;
+    DE[key] = from.split(SEP)[0] + SEP + to.split(SEP).slice(1).join(SEP);
+    spanKeys.set(el, key);
+  });
+
   /* --- helpers ------------------------------------------------------------------------------ */
 
   const normalise = (value) => {
@@ -94,11 +113,13 @@
 
   /* --- capture the English that is already in the HTML ------------------------------------- */
 
-  const textItems = [...document.querySelectorAll("[data-i18n]")].map((el) => ({
-    el,
-    key: el.getAttribute("data-i18n"),
-    en: el.innerHTML,
-  }));
+  const textItems = [...document.querySelectorAll("[data-i18n], [data-span-from]")]
+    .map((el) => ({
+      el,
+      key: el.getAttribute("data-i18n") || spanKeys.get(el),
+      en: el.innerHTML,
+    }))
+    .filter((item) => item.key); // a derived span without a registered key stays English
 
   const attrItems = [...document.querySelectorAll("[data-i18n-attr]")].flatMap((el) =>
     el

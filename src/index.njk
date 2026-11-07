@@ -263,30 +263,63 @@
 
           <div class="timeline">
             {% for job in experience.jobs %}
+            {% set prevGroup = experience.jobs[loop.index0 - 1].group if loop.index0 > 0 else "" %}
+            {% if job.group and job.group == prevGroup %}
+            {# Later role of a company already opened above: rendered inside that company's card. #}
+            {% else %}
+            {# One card per company, always the same shape: company (+ location, dates) on top, its
+               role(s) stacked inside on a small rail. Jobs sharing a `group` in experience.json are
+               roles at one company; a job without one is a company with a single role. The card is
+               "current" if its first (newest) job is. #}
+            {% set gid = job.group or job.id %}
             <article class="job{% if job.current %} job-current{% endif %}">
               <div class="job-card">
                 <div class="job-head">
-                  <div>
-                    <h3 class="job-title">{{ job.title | e }}</h3>
-                    <p class="job-company">
-                      {{ job.company | e }}
+                  <div class="job-org-line">
+                    <h3 class="job-title">{{ job.company | e }}</h3>
+                    <p class="job-company job-company--group">
                       <span class="job-location" data-i18n="{{ experience.places[job.place].key }}">{{ experience.places[job.place].en }}</span>
                     </p>
                   </div>
+                  {% if job.group %}
+                  {# Total tenure, calculated: start of the group's oldest role .. end of its newest (this job).
+                     English is built here; German is derived from the German role dates in i18n.js
+                     (data-span-from / data-span-to name the two role-date keys; no data-i18n here, since this
+                     string has no entry in content/). #}
+                  {% set oldestStart %}{% for r in experience.jobs %}{% if r.group == job.group %}{% set nx = experience.jobs[loop.index0 + 1] %}{% if not nx or nx.group != job.group %}{{ r.dates.en.split(' – ')[0] }}{% endif %}{% endif %}{% endfor %}{% endset %}
+                  {% set oldestKey %}{% for r in experience.jobs %}{% if r.group == job.group %}{% set nx = experience.jobs[loop.index0 + 1] %}{% if not nx or nx.group != job.group %}{{ r.dates.key }}{% endif %}{% endif %}{% endfor %}{% endset %}
+                  <span class="job-dates" data-span-from="{{ oldestKey | trim }}" data-span-to="{{ job.dates.key }}">{{ oldestStart | trim }} – {{ job.dates.en.split(' – ')[1] }}</span>
+                  {% else %}
                   <span class="job-dates" data-i18n="{{ job.dates.key }}">{{ job.dates.en }}</span>
+                  {% endif %}
                 </div>
-                <ul class="job-bullets">
-                  {% for b in job.bullets %}
-                  <li data-i18n="{{ b.key }}">{{ b.en }}</li>
+                <ol class="role-stack">
+                  {% for role in experience.jobs %}
+                  {% if (role.group or role.id) == gid %}
+                  <li class="job-role{% if role.current %} job-role-current{% endif %}">
+                    <div class="job-head">
+                      <h4 class="role-title">{{ role.title | e }}</h4>
+                      {% if job.group %}
+                      <span class="job-dates" data-i18n="{{ role.dates.key }}">{{ role.dates.en }}</span>
+                      {% endif %}
+                    </div>
+                    <ul class="job-bullets">
+                      {% for b in role.bullets %}
+                      <li data-i18n="{{ b.key }}">{{ b.en }}</li>
+                      {% endfor %}
+                    </ul>
+                    <ul class="tag-row" role="list" aria-label="{{ ui.aria.tech.enText | e }}" data-i18n-attr="aria-label:{{ ui.aria.tech.key }}">
+                      {% for tag in role.tags %}
+                      <li class="tag">{{ tag | e }}</li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                  {% endif %}
                   {% endfor %}
-                </ul>
-                <ul class="tag-row" role="list" aria-label="{{ ui.aria.tech.enText | e }}" data-i18n-attr="aria-label:{{ ui.aria.tech.key }}">
-                  {% for tag in job.tags %}
-                  <li class="tag">{{ tag | e }}</li>
-                  {% endfor %}
-                </ul>
+                </ol>
               </div>
             </article>
+            {% endif %}
             {% endfor %}
           </div>
 

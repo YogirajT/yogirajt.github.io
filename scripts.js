@@ -917,6 +917,9 @@
          current runs along the trace, the card powers up). Scrolling
          back up opens the switches again.
        - Tapping/clicking a card sends a magenta surge down the bus into it.
+       - A company with several roles (.job-group) gets ONE junction on the bus;
+         its roles (.job-role) hang off a sub-bus and power up the same way,
+         one after another, as the front reaches each branch.
      Only transforms and class toggles happen per frame. With reduced motion
      the finished (fully powered) state is shown and nothing moves. Also runs
      on privacy.html, whose policy sections are the same .timeline/.job. */
@@ -961,9 +964,25 @@
       return { job, node, live: false, timer: 0 };
     });
 
+    // Roles of a multi-role company: sub-bus segments plus a branch into each card.
+    const roles = [...timeline.querySelectorAll(".job-role")].map((role) => {
+      const wiring = make("span", "role-node");
+      wiring.innerHTML =
+        '<i class="rn-up"></i><i class="rn-down"></i>' +
+        '<span class="rn-branch"><i class="rn-via"></i><i class="rn-trace"></i>' +
+        '<i class="rn-pad"><i class="jn-spark jn-spark--pad"></i></i></span>';
+      role.prepend(wiring);
+      return { role, node: wiring.querySelector(".rn-branch"), live: false, timer: 0 };
+    });
+
     // Reduced motion: show the finished circuit, fully powered, and stop here.
     if (reduceMotion) {
       entries.forEach((e) => e.job.classList.add("is-live"));
+      roles.forEach((r) => {
+        r.role.classList.add("is-live");
+        const prev = r.role.previousElementSibling;
+        if (prev && prev.classList.contains("job-role")) prev.classList.add("feeds-next");
+      });
       timeline.classList.add("is-fed", "is-closed");
       fill.style.transform = "scaleY(1)";
       return;
@@ -991,6 +1010,16 @@
         entry.live = live;
         entry.job.classList.toggle("is-live", live);
       });
+
+      roles.forEach((entry) => {
+        const live = offsetWithin(entry.node, timeline) <= front;
+        if (live === entry.live) return;
+        entry.live = live;
+        entry.role.classList.toggle("is-live", live);
+        // The segment below the previous role's junction carries the current down to this one.
+        const prev = entry.role.previousElementSibling;
+        if (prev && prev.classList.contains("job-role")) prev.classList.toggle("feeds-next", live);
+      });
     }
 
     const schedule = () => {
@@ -1015,14 +1044,18 @@
     schedule();
 
     /* Tap / click a card: a surge runs down the bus into it. */
-    function surge(entry) {
+    function surge(entry, roleEntry) {
+      const restart = (el, holder) => {
+        el.classList.remove("is-surging");
+        void el.offsetWidth; // restart the CSS animations
+        el.classList.add("is-surging");
+        clearTimeout(holder.timer);
+        holder.timer = setTimeout(() => el.classList.remove("is-surging"), 1000);
+      };
       const flash = () => {
-        const job = entry.job;
-        job.classList.remove("is-surging");
-        void job.offsetWidth; // restart the CSS animations
-        job.classList.add("is-surging");
-        clearTimeout(entry.timer);
-        entry.timer = setTimeout(() => job.classList.remove("is-surging"), 1000);
+        restart(entry.job, entry);
+        // Tapped a role: once the surge has reached the company chip it carries on into that role.
+        if (roleEntry) setTimeout(() => restart(roleEntry.role, roleEntry), 380);
       };
       if (typeof timeline.animate !== "function") {
         flash();
@@ -1055,7 +1088,8 @@
       const selection = window.getSelection && window.getSelection();
       if (selection && !selection.isCollapsed) return; // the visitor is selecting text
       const entry = entries.find((e) => e.job.contains(card));
-      if (entry) surge(entry);
+      const roleEntry = roles.find((r) => r.role.contains(card));
+      if (entry) surge(entry, roleEntry);
     });
   }
 

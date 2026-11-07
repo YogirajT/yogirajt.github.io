@@ -28,6 +28,7 @@
   "jobs": [
     {
       "id": "job1",
+      "group": "employer",
       "current": true,
       "title": "Senior Software Engineer",
       "company": "{{ employer }}",
@@ -62,6 +63,7 @@
     },
     {
       "id": "job2",
+      "group": "employer",
       "title": "Software Engineer",
       "company": "{{ employer }}",
       "place": "berlin",
